@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Orbe",
+    "tagline": "A data atlas of the world"
+  },
+  "poc": {
+    "pending": "Proof of concept pending"
+  }
+}
