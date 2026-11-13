@@ -17,3 +17,5 @@ siguiente id libre. Una decisión que se sustituye no se borra: se marca como "S
 | D10 | 2026-11-13 | Claude Code con cinco subagentes, trabajo por hitos con PR y validación de Jorge al cerrar cada hito | Autonomía con control | Vigente |
 | D11 | 2026-11-13 | Ningún rastro de Claude en commits, PR ni colaboradores | Requisito de Jorge | Vigente |
 | D12 | 2026-11-13 | Nombre provisional: Orbe | Corto y válido en español e inglés | Vigente |
+| D13 | 2026-11-13 | Sobre el globo, los arcos de deck.gl se dibujan con PathLayer y un círculo máximo precalculado (`web/src/map/greatCircle.ts`); ArcLayer solo en Mercator | En deck.gl 9.4.1 con `MapboxOverlay` intercalado, ArcLayer sale mal proyectado sobre el globo de MapLibre 5 | Vigente |
+| D14 | 2026-11-13 | `web/public/data` es un symlink relativo a `../../data` y `data/.gitkeep` garantiza que exista | Vite sirve y copia los datos del pipeline sin duplicarlos; con el symlink colgando, `vite build` falla | Vigente |

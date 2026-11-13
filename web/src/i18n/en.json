@@ -4,6 +4,15 @@
     "tagline": "A data atlas of the world"
   },
   "poc": {
-    "pending": "Proof of concept pending"
+    "fps": "{{fps}} fps",
+    "deckgl": {
+      "title": "deck.gl on the globe PoC",
+      "toGlobe": "Show as globe",
+      "toMercator": "Show flat",
+      "loading": "Loading deck.gl…"
+    },
+    "pmtiles": {
+      "title": "PMTiles PoC: countries"
+    }
   }
 }
