@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type maplibregl from 'maplibre-gl'
+import type * as maplibregl from 'maplibre-gl'
 import { useTranslation } from 'react-i18next'
 import { createMap, type ProjectionType } from '../createMap'
 import { addDeckOverlay } from '../deckOverlay'

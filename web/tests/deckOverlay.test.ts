@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type maplibregl from 'maplibre-gl'
+import type * as maplibregl from 'maplibre-gl'
 import { addDeckOverlay } from '../src/map/deckOverlay'
 
 vi.mock('@deck.gl/mapbox', () => ({

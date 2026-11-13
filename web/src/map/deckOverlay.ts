@@ -1,4 +1,4 @@
-import type maplibregl from 'maplibre-gl'
+import type * as maplibregl from 'maplibre-gl'
 import type { Layer } from '@deck.gl/core'
 import type { ProjectionType } from './createMap'
 
@@ -21,8 +21,7 @@ export async function addDeckOverlay(
     import('@deck.gl/mapbox'),
     import('@deck.gl/layers'),
   ])
-  if (signal.aborted) return () => {}
-  const projection = (): ProjectionType =>
+  if (signal.aborted) return () => {}  const projection = (): ProjectionType =>
     map.getProjection()?.type === 'mercator' ? 'mercator' : 'globe'
   const overlay = new MapboxOverlay({ interleaved: true, layers: build(layers, projection()) })
   // setProjection no emite 'styledata', que es lo único que escucha MapboxOverlay para cambiar
