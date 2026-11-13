@@ -22,10 +22,14 @@ export function pmtilesUrl(path: string): string {
  */
 export function preloadPmtiles(path: string): string {
   registerPmtiles()
-  const archive = new PMTiles(httpUrl(path))
+  const url = httpUrl(path)
+  // Se reutiliza la instancia ya registrada: StrictMode monta el efecto dos veces en desarrollo.
+  if (protocol.get(url)) return pmtilesUrl(path)
+  const archive = new PMTiles(url)
   protocol.add(archive)
-  // Si falla, MapLibre vuelve a pedirla al añadir la fuente y muestra el error allí.
-  archive.getHeader().catch(() => {})
+  // La instancia guarda la promesa rechazada: si falla, se retira para que el protocolo cree
+  // otra al añadir la fuente y MapLibre lo vuelva a intentar.
+  archive.getHeader().catch(() => protocol.tiles.delete(url))
   return pmtilesUrl(path)
 }
 
