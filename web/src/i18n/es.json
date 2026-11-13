@@ -1,0 +1,9 @@
+{
+  "app": {
+    "title": "Orbe",
+    "tagline": "Atlas de datos del mundo"
+  },
+  "poc": {
+    "pending": "Prueba de concepto pendiente"
+  }
+}
