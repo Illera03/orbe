@@ -34,9 +34,22 @@ jobs:
       # Con caché solo se instalan las dependencias del sistema; sin ella, también los navegadores.
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run e2e
-      - run: npm run capturas
-      - uses: actions/upload-artifact@v7
+      # Las capturas y su subida no dependen de que e2e pase; informe y resultados aparte para no pisar los de e2e.
+      - if: ${{ !cancelled() }}
+        run: npm run capturas -- --output=test-results-capturas
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-capturas
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
         with:
           name: capturas
           path: web/capturas/
+          retention-days: 14
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: informe-playwright
+          path: |
+            web/playwright-report*/
+            web/test-results*/
           retention-days: 14
