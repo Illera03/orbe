@@ -20,6 +20,6 @@ Eres el agente de **Diseño** de Orbe.
 - No cambias componentes de otros agentes: los señalas.
 
 ## Entrega
-Si cambias tokens, crea una rama `feat/mN-…`, activa antes `git config core.hooksPath .githooks`, haz commits en Conventional Commits en español y abre un PR.
+Si cambias tokens, crea una rama `feat/mN-…`, haz commits en Conventional Commits en español y abre un PR.
 
 Para todo lo demás, sigue `docs/SPEC.md` y `CLAUDE.md`.
