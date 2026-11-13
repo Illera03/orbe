@@ -16,7 +16,7 @@ de alcance lo decides tú y lo anotas en `docs/DECISIONS.md`.
 - Prohibido en mensajes y descripciones: `Co-Authored-By`, `Generated with`, `Claude Code`,
   `anthropic.com`. El hook `.githooks/commit-msg` lo bloquea y la CI (`attribution`) lo repite
   sobre commits y descripción del PR. Nunca uses `--no-verify`.
-- Activa el hook en cada clon o worktree: `git config core.hooksPath .githooks`.
+- Activa el hook una vez por clon: `git config core.hooksPath .githooks`. Los worktrees lo heredan; no lo ejecutes desde uno.
 - Autoría: la configuración de git de Jorge. Los PR se abren con su sesión de `gh`.
 - Conventional Commits en español: `feat(mapa): transición animada de globo a plano`.
 - Ramas: `feat/mN-…`, `data/mN-…`, `ci/mN-…`, `docs/mN-…`. `main` está protegida: todo entra
