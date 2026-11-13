@@ -1,0 +1,15 @@
+[project]
+name = "orbe-pipeline"
+version = "0.1.0"
+description = "Pipeline de datos de Orbe"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8", "pycountry>=24"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
