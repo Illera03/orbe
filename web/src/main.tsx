@@ -1,18 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { useTranslation } from 'react-i18next'
 import './i18n'
-import './theme'
+import { applyTheme } from './theme'
+import { useAppStore } from './state/store'
+import { App } from './ui/App'
 
-function App() {
-  const { t } = useTranslation()
-  return (
-    <main>
-      <h1>{t('app.title')}</h1>
-      <p>{t('app.tagline')}</p>
-    </main>
-  )
-}
+// Antes del primer render para que no parpadee el tema equivocado.
+applyTheme(useAppStore.getState().theme)
+useAppStore.subscribe((state) => applyTheme(state.theme))
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
