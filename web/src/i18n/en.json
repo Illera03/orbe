@@ -14,5 +14,26 @@
     "pmtiles": {
       "title": "PMTiles PoC: countries"
     }
+  },
+  "topbar": {
+    "language": "Language",
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    },
+    "languageCodes": {
+      "es": "ES",
+      "en": "EN"
+    },
+    "theme": "Theme",
+    "themes": {
+      "dark": "Dark theme",
+      "light": "Light theme"
+    },
+    "projection": "Projection",
+    "projections": {
+      "globe": "Globe",
+      "mercator": "Flat map"
+    }
   }
 }
