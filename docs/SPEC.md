@@ -177,7 +177,7 @@ Las versiones exactas se fijan en el hito M0 y no se cambian sin anotarlo en el 
 
 | Pieza | Elección | Motivo |
 | --- | --- | --- |
-| Base de la web | React 18, TypeScript estricto y Vite | Ecosistema maduro, tipado y build rápido |
+| Base de la web | React 19, TypeScript estricto y Vite (D15) | Ecosistema maduro, tipado y build rápido |
 | Estado | Zustand, sincronizado con los parámetros de la URL | Ligero; la URL es la fuente de verdad para compartir |
 | Mapa | MapLibre GL JS v5 con proyección de globo | Código abierto, sin claves, globo con transición a plano |
 | Capas avanzadas | deck.gl con `MapboxOverlay`, cargado bajo demanda | Burbujas, flujos, extrusión y miles de puntos con buen rendimiento |

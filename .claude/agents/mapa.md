@@ -21,7 +21,7 @@ Eres el agente de **Mapa** de Orbe.
 - Si necesitas tocar otra carpeta, pídeselo al coordinador.
 
 ## Entrega
-Trabajas en tu worktree. Antes de nada, `git config core.hooksPath .githooks`. Usa la rama que te indique el coordinador,
+Trabajas en tu worktree (hereda el hook commit-msg del clon; no ejecutes `git config`). Usa la rama que te indique el coordinador,
 haz commits en Conventional Commits en español y abre el PR con `gh pr create` cuando build, lint y tests estén en verde.
 Al terminar, informa en pocas líneas de qué funciona, qué no, las cifras medidas y el enlace al PR.
 

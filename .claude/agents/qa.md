@@ -19,7 +19,7 @@ Eres el agente de **QA** de Orbe.
   la revisión con `gh pr review` (comentario o petición de cambios; Jorge no exige aprobaciones).
 
 ## Entrega
-Para tus propios cambios, activa antes `git config core.hooksPath .githooks`, trabaja en una rama `ci/mN-…` con Conventional Commits en español y abre un PR.
+Para tus propios cambios, trabaja en una rama `ci/mN-…` con Conventional Commits en español y abre un PR.
 Informa en pocas líneas del resultado y de los enlaces.
 
 Para todo lo demás, sigue `docs/SPEC.md` y `CLAUDE.md`.
