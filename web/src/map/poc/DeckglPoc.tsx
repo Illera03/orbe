@@ -21,7 +21,7 @@ export function DeckglPoc() {
   useEffect(() => {
     const map = createMap(container.current!)
     mapRef.current = map
-    let cancelled = false
+    const loading = new AbortController()
     let removeDeck: (() => void) | undefined
     const stopSpin = spinGlobe(map, setFps)
     map.once('load', async () => {
@@ -57,15 +57,13 @@ export function DeckglPoc() {
               getWidth: 2,
               widthUnits: 'pixels',
             }),
-      ])
-      if (cancelled) remove()
-      else {
-        removeDeck = remove
-        setDeckReady(true)
-      }
+      ], loading.signal)
+      if (loading.signal.aborted) return
+      removeDeck = remove
+      setDeckReady(true)
     })
     return () => {
-      cancelled = true
+      loading.abort()
       stopSpin()
       removeDeck?.()
       map.remove()
