@@ -4,6 +4,15 @@
     "tagline": "Atlas de datos del mundo"
   },
   "poc": {
-    "pending": "Prueba de concepto pendiente"
+    "fps": "{{fps}} fps",
+    "deckgl": {
+      "title": "PoC deck.gl sobre el globo",
+      "toGlobe": "Ver como globo",
+      "toMercator": "Ver en plano",
+      "loading": "Cargando deck.gl…"
+    },
+    "pmtiles": {
+      "title": "PoC PMTiles: países"
+    }
   }
 }
