@@ -9,12 +9,19 @@ export type BuildLayers = (layers: DeckLayersModule, projection: ProjectionType)
  * Carga deck.gl bajo demanda y lo monta intercalado en MapLibre.
  * `build` recibe @deck.gl/layers (para que las páginas no lo importen de forma estática)
  * y la proyección actual, porque algunas capas solo funcionan bien en una de las dos.
+ * Si `signal` se aborta durante la carga (p. ej. al desmontar), no toca el mapa, que puede estar
+ * ya destruido, y devuelve una función vacía.
  */
-export async function addDeckOverlay(map: maplibregl.Map, build: BuildLayers): Promise<() => void> {
+export async function addDeckOverlay(
+  map: maplibregl.Map,
+  build: BuildLayers,
+  signal: AbortSignal,
+): Promise<() => void> {
   const [{ MapboxOverlay }, layers] = await Promise.all([
     import('@deck.gl/mapbox'),
     import('@deck.gl/layers'),
   ])
+  if (signal.aborted) return () => {}
   const projection = (): ProjectionType =>
     map.getProjection()?.type === 'mercator' ? 'mercator' : 'globe'
   const overlay = new MapboxOverlay({ interleaved: true, layers: build(layers, projection()) })
