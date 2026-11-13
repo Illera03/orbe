@@ -7,10 +7,14 @@ import { themeCss, type ThemeName } from './tokens'
 export * from './tokens'
 export * from './map'
 
-const style = document.createElement('style')
-style.dataset.orbeTheme = ''
+// Reutiliza el <style> si ya existe para no duplicarlo con cada HMR.
+let style = document.querySelector<HTMLStyleElement>('style[data-orbe-theme]')
+if (!style) {
+  style = document.createElement('style')
+  style.dataset.orbeTheme = ''
+  document.head.prepend(style)
+}
 style.textContent = themeCss()
-document.head.prepend(style)
 
 /** Activa un tema en `<html data-theme>`; la elección y su persistencia son del estado (interfaz). */
 export function applyTheme(theme: ThemeName): void {

@@ -32,6 +32,7 @@ describe('tokens de tema', () => {
   it('cssVars pasa a kebab-case y anida', () => {
     expect(cssVars({ a: { panelBg: '#000' } })).toEqual(['--a-panel-bg: #000;'])
     expect(themeCss()).toContain('[data-theme="light"]')
+    expect(themeCss()).toMatch(/prefers-reduced-motion: reduce\) \{\n:root \{\n {2}--motion-fast: 0ms;/)
   })
 
   it.each(names)('texto sobre panel cumple WCAG AA en %s (panel translúcido sobre blanco, el peor caso)', (n) => {
@@ -43,6 +44,17 @@ describe('tokens de tema', () => {
     expect(contrast(rgb(c.accentText), rgb(c.accent))).toBeGreaterThanOrEqual(4.5)
     expect(contrast(rgb(c.focus), panel)).toBeGreaterThanOrEqual(3)
     expect(contrast(rgb(c.text), rgb(c.bg))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(rgb(c.danger), panel)).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it.each(names)('colores del mapa cumplen WCAG en %s', (n) => {
+    const m = themes[n].map
+    const land = rgb(m.land)
+    expect(contrast(rgb(m.label), land)).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(rgb(m.labelWater), rgb(m.ocean))).toBeGreaterThanOrEqual(4.5)
+    expect(contrast(rgb(m.countrySelected), land)).toBeGreaterThanOrEqual(3)
+    // El contorno de país distingue los colores de datos que no llegan a 3:1 con la tierra (WCAG 1.4.11).
+    expect(contrast(rgb(m.countryBorder, land), land)).toBeGreaterThanOrEqual(3)
   })
 
   it('themeMapStyle colorea por source-layer sin mutar la entrada', () => {

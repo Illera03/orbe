@@ -26,10 +26,15 @@ export const shared = {
   motion: { fast: '150ms', base: '300ms', camera: '1200ms', easing: 'cubic-bezier(0.2, 0, 0, 1)' },
 } as const
 
+/** Duraciones con `prefers-reduced-motion: reduce` (SPEC: transiciones cortas); sustituyen a `shared.motion`. */
+export const reducedMotion = { fast: '0ms', base: '100ms', camera: '300ms' } as const
+
 /**
  * Valores por tema. `color` es interfaz, `map` es mapa base, globo y capa de países.
  * Paleta de datos: secuencial viridis, divergente PuOr (ColorBrewer, apta para daltonismo) y
  * categórica Okabe-Ito sin el negro; el «sin dato» es un rayado neutro (`noDataStripe` sobre `noDataBg`).
+ * Algunos colores de datos (amarillo Okabe-Ito y extremos de viridis) no llegan a 3:1 con `land`: todo país
+ * relleno con dato lleva el contorno `countryBorder`, que sí da ≥ 3:1 sobre `land` (WCAG 1.4.11).
  */
 export const themes = {
   dark: {
@@ -53,7 +58,7 @@ export const themes = {
       label: '#9aa3b2',
       labelWater: '#7a95ba',
       labelHalo: '#05070d',
-      countryBorder: 'rgba(232, 236, 243, 0.25)',
+      countryBorder: 'rgba(232, 236, 243, 0.40)',
       countryHover: '#e8ecf3',
       countrySelected: '#ffd166',
       noDataBg: '#2a2f3a',
@@ -91,7 +96,7 @@ export const themes = {
       label: '#4a4740',
       labelWater: '#4a5e75',
       labelHalo: '#f6f1e6',
-      countryBorder: 'rgba(29, 27, 23, 0.30)',
+      countryBorder: 'rgba(29, 27, 23, 0.55)',
       countryHover: '#1d1b17',
       countrySelected: '#b35900',
       noDataBg: '#ece7dc',
@@ -128,6 +133,7 @@ export function themeCss(): string {
     block(':root', cssVars(shared)),
     block(':root, [data-theme="dark"]', ['color-scheme: dark;', ...cssVars(themes.dark)]),
     block('[data-theme="light"]', ['color-scheme: light;', ...cssVars(themes.light)]),
+    `@media (prefers-reduced-motion: reduce) {\n${block(':root', cssVars({ motion: reducedMotion }))}\n}`,
     block('body', [
       'margin: 0;',
       'background: var(--color-bg);',

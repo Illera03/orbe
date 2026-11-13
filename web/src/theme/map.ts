@@ -26,6 +26,8 @@ export function themeSky(theme: ThemeName): SkySpecification {
 }
 
 // Se reconoce cada capa por su `source-layer` (OpenMapTiles), no por su id: dark y positron usan ids distintos.
+// shortcut: si OpenFreeMap renombra una source-layer, esa capa conserva su color base sin avisar; añadir un test
+// con fixtures recortados de dark y positron (agua, tierra y fronteras reciben color) si cambian de esquema o falla una vez.
 function paintFor(layer: LayerSpecification, theme: ThemeName): Record<string, string> | undefined {
   const m = themes[theme].map
   if (layer.type === 'background') return { 'background-color': m.land }
