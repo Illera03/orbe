@@ -70,3 +70,14 @@ identificador de la UNESCO y enlazar a su ficha no supone republicar sus datos.
 coordenadas en P625), bajo CC0 como se indica arriba. Cubre peor que la base de datos del GVP: suele faltar
 la fecha de la última erupción, el tipo de volcán según la clasificación del GVP y el número de volcán. No se
 ha verificado la licencia de otras alternativas, como la base de datos de volcanes de NOAA NCEI.
+
+## Anexo: NOAA NCEI como alternativa al GVP (2026-11-13)
+
+**Veredicto: no sirve como sustituto independiente.** Ver D19 en `docs/DECISIONS.md`.
+
+- **Linaje.** La ficha de data.gov (https://catalog.data.gov/dataset/global-volcano-locations-database) dice que sus más de 1.500 volcanes están "obtained from the Smithsonian Institution Global Volcanism Program", con linaje "Volcanoes of the World, v. 4.7.0" (2013). Al ser una obra derivada, hereda las condiciones del GVP.
+- **Licencia contradictoria.** data.gov enlaza CC0, pero la ficha ISO (https://data.noaa.gov/waf/NOAA/NESDIS/NGDC/MGG/Hazards/iso/xml/G10147.xml, DOI 10.7289/V5JW8BSH) marca `useConstraints: otherRestrictions` y solo dice "Access to this dataset is unrestricted."
+- **Cobertura.** 1.609 volcanes con nombre, país, tipo y coordenadas, y 1.604 con altitud. La última erupción viene en códigos antiguos y no en años, y en 761 casos es desconocida. Es una instantánea de 2006-2013.
+- **Acceso.** API JSON sin clave: `https://www.ngdc.noaa.gov/hazel/hazard-service/api/v1/volcanolocs?page=N`.
+
+**Decisión.** Se usa el GVP con cita y DOI, y en el catálogo se marca como no apto para uso comercial.
