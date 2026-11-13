@@ -24,3 +24,19 @@ jobs:
       - run: npm run build
       - name: Presupuesto de JS inicial (500 KB gzip)
         run: node tests/presupuesto-js.mjs
+      - name: Versión de Playwright
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      # Con caché solo se instalan las dependencias del sistema; sin ella, también los navegadores.
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run e2e
+      - run: npm run capturas
+      - uses: actions/upload-artifact@v7
+        with:
+          name: capturas
+          path: web/capturas/
+          retention-days: 14

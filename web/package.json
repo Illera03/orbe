@@ -11,7 +11,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test --project=chromium --project=webkit",
+    "capturas": "playwright test --project=capturas"
   },
   "dependencies": {
     "@deck.gl/core": "9.4.1",
@@ -26,7 +28,9 @@
     "react-i18next": "18.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.3.0",
