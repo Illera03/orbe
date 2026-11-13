@@ -1,0 +1,6 @@
+#!/bin/sh
+# Rechaza mensajes de commit con atribuciones automáticas (SPEC.md, "Reglas de git").
+grep -v '^#' "$1" | "$(dirname "$0")/check-attribution.sh" >/dev/null || {
+  echo "commit-msg: mensaje rechazado. Quita la línea de atribución." >&2
+  exit 1
+}
