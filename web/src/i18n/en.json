@@ -14,5 +14,34 @@
     "pmtiles": {
       "title": "PMTiles PoC: countries"
     }
+  },
+  "topbar": {
+    "language": "Language",
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    },
+    "languageCodes": {
+      "es": "ES",
+      "en": "EN"
+    },
+    "theme": "Theme",
+    "themes": {
+      "dark": "Dark theme",
+      "light": "Light theme"
+    },
+    "projection": "Projection",
+    "projections": {
+      "globe": "Globe",
+      "mercator": "Flat map"
+    },
+    "actions": {
+      "es": "ES, switch language to Spanish",
+      "en": "EN, switch language to English",
+      "dark": "Switch to dark theme",
+      "light": "Switch to light theme",
+      "globe": "Show as globe",
+      "mercator": "Show flat map"
+    }
   }
 }

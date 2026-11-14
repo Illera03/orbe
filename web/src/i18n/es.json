@@ -14,5 +14,34 @@
     "pmtiles": {
       "title": "PoC PMTiles: países"
     }
+  },
+  "topbar": {
+    "language": "Idioma",
+    "languages": {
+      "es": "Español",
+      "en": "English"
+    },
+    "languageCodes": {
+      "es": "ES",
+      "en": "EN"
+    },
+    "theme": "Tema",
+    "themes": {
+      "dark": "Tema oscuro",
+      "light": "Tema claro"
+    },
+    "projection": "Proyección",
+    "projections": {
+      "globe": "Globo",
+      "mercator": "Plano"
+    },
+    "actions": {
+      "es": "ES, cambiar idioma a español",
+      "en": "EN, cambiar idioma a inglés",
+      "dark": "Cambiar a tema oscuro",
+      "light": "Cambiar a tema claro",
+      "globe": "Ver como globo",
+      "mercator": "Ver en plano"
+    }
   }
 }

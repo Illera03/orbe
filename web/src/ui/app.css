@@ -1,0 +1,119 @@
+/* Solo variables de web/src/theme/: aquí no se define ningún color ni medida suelta. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+.stage,
+.map {
+  position: fixed;
+  inset: 0;
+}
+
+.panel {
+  background: var(--color-panel-bg);
+  border: var(--border-width) solid var(--color-panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  /* En claro --blur-panel vale 0px y el fondo es opaco. */
+  backdrop-filter: blur(var(--blur-panel));
+  -webkit-backdrop-filter: blur(var(--blur-panel));
+}
+
+.topbar {
+  position: fixed;
+  z-index: 10;
+  top: var(--space-3);
+  left: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.topbar__logo {
+  margin: 0;
+  font: var(--font-weight-strong) var(--font-size-lg) / var(--font-line-tight) var(--font-display);
+}
+
+.topbar__search {
+  flex: 1;
+  min-width: 0;
+}
+
+.toggle {
+  display: flex;
+  gap: var(--space-half);
+  padding: var(--space-half);
+  border: var(--border-width) solid var(--color-panel-border);
+  border-radius: var(--radius-pill);
+}
+
+.toggle__button,
+.switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--size-control);
+  height: var(--size-control);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: var(--font-weight-strong) var(--font-size-sm) / var(--font-line-tight) var(--font-sans);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--motion-easing),
+    color var(--motion-fast) var(--motion-easing);
+}
+
+.toggle__button[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.toggle__button:focus-visible,
+.switch:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+@media (hover: hover) {
+  .toggle__button:hover,
+  .switch:hover {
+    color: var(--color-text);
+  }
+}
+
+/* Escritorio: grupos de dos botones. Móvil o táctil: un botón de 44 px por control que alterna. */
+.switch {
+  display: none;
+}
+
+@media (max-width: 640px), (pointer: coarse) {
+  .topbar {
+    top: var(--space-2);
+    left: var(--space-2);
+    right: var(--space-2);
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  }
+
+  .toggle {
+    display: none;
+  }
+
+  .switch {
+    display: inline-flex;
+    min-width: var(--size-control-touch);
+    height: var(--size-control-touch);
+    color: var(--color-text);
+  }
+}
