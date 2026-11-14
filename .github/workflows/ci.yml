@@ -18,12 +18,38 @@ jobs:
           node-version-file: web/.nvmrc
           cache: npm
           cache-dependency-path: web/package-lock.json
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+      - name: Tests del pipeline (pytest)
+        working-directory: .
+        run: |
+          uv sync --directory pipeline --locked
+          uv run --directory pipeline pytest
       - run: npm ci
       - run: npm run lint
       - run: npm test
       - run: npm run build
       - name: Presupuesto de JS inicial (500 KB gzip)
         run: node tests/presupuesto-js.mjs
+      # Aserciones en 'warn' hasta tener cinco ejecuciones de referencia en main (D29); ver lighthouserc.cjs.
+      - name: Lighthouse escritorio
+        run: npx lhci autorun --config=lighthouserc.cjs
+        env:
+          LH_FORM: desktop
+      - name: Lighthouse móvil
+        run: npx lhci autorun --config=lighthouserc.cjs
+        env:
+          LH_FORM: mobile
+      - if: ${{ !cancelled() }}
+        run: node tests/lighthouse-resumen.mjs >> "$GITHUB_STEP_SUMMARY"
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse
+          path: web/lighthouse/
+          retention-days: 14
       - name: Versión de Playwright
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
