@@ -42,6 +42,17 @@ function paintFor(layer: LayerSpecification, theme: ThemeName): Record<string, s
   return undefined
 }
 
+/** Zoom desde el que aparecen los límites subnacionales; por debajo solo se ve `countryBorder`. */
+export const SUBNATIONAL_MIN_ZOOM = 5
+
+// Límite subnacional: capa de `boundary` cuyo filtro usa admin_level sin fijarlo a 2 (dark: `== 4`; positron: `>= 3`).
+// Las disputadas de positron no filtran por admin_level y se quedan como borde de país.
+function isSubnational(layer: LayerSpecification): boolean {
+  if (layer.type !== 'line' || layer['source-layer'] !== 'boundary') return false
+  const f = JSON.stringify(layer.filter ?? null)
+  return f.includes('"admin_level"]') && !f.includes('"admin_level"],2]')
+}
+
 /**
  * Aplica el tema a un estilo base ya descargado y devuelve una copia; no muta la entrada.
  * Uso: `map.setStyle(MAP_STYLE_URL[t], { transformStyle: (_prev, next) => themeMapStyle(next, t) })`.
@@ -52,7 +63,15 @@ export function themeMapStyle(style: StyleSpecification, theme: ThemeName): Styl
     sky: themeSky(theme),
     layers: style.layers.map((layer) => {
       const paint = paintFor(layer, theme)
-      return paint ? ({ ...layer, paint: { ...layer.paint, ...paint } } as LayerSpecification) : layer
+      const out = paint ? ({ ...layer, paint: { ...layer.paint, ...paint } } as LayerSpecification) : layer
+      if (!isSubnational(out)) return out
+      // Oculto por debajo de SUBNATIONAL_MIN_ZOOM y entra con fundido de un nivel de zoom en vez de aparecer de golpe.
+      const z = Math.max(out.minzoom ?? 0, SUBNATIONAL_MIN_ZOOM)
+      return {
+        ...out,
+        minzoom: z,
+        paint: { ...out.paint, 'line-opacity': ['interpolate', ['linear'], ['zoom'], z, 0, z + 1, 1] },
+      } as LayerSpecification
     }),
   }
 }

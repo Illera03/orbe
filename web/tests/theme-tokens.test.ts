@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { StyleSpecification } from 'maplibre-gl'
 import { cssVars, themeCss, themes, type ThemeName } from '../src/theme/tokens'
-import { themeMapStyle } from '../src/theme/map'
+import { SUBNATIONAL_MIN_ZOOM, themeMapStyle } from '../src/theme/map'
 
 const names: ThemeName[] = ['dark', 'light']
 
@@ -78,5 +78,28 @@ describe('tokens de tema', () => {
     expect(out.layers[2]).toBe(base.layers[2])
     expect(out.sky?.['horizon-color']).toBe(themes.light.map.horizon)
     expect(base.layers[0]).toMatchObject({ paint: { 'background-color': '#000' } })
+  })
+
+  it('themeMapStyle oculta a zoom bajo los límites subnacionales de dark y positron, no los de país', () => {
+    const line = (id: string, filter: unknown, minzoom?: number) =>
+      ({ id, type: 'line', source: 'o', 'source-layer': 'boundary', filter, minzoom, paint: { 'line-opacity': 1 } })
+    // Filtros copiados de los estilos dark y positron de OpenFreeMap.
+    const base = {
+      version: 8,
+      sources: {},
+      layers: [
+        line('boundary_state', ['==', ['get', 'admin_level'], 4]),
+        line('boundary_3', ['all', ['>=', ['get', 'admin_level'], 3], ['<=', ['get', 'admin_level'], 6]], 8),
+        line('boundary_country_z0-4', ['all', ['==', ['get', 'admin_level'], 2], ['!', ['has', 'claimed_by']]]),
+        line('boundary_disputed', ['all', ['!=', ['get', 'maritime'], 1], ['==', ['get', 'disputed'], 1]]),
+      ],
+    } as StyleSpecification
+    for (const t of names) {
+      const [state, prov, country, disputed] = themeMapStyle(base, t).layers
+      expect(state.minzoom).toBe(SUBNATIONAL_MIN_ZOOM)
+      expect(prov.minzoom).toBe(8)
+      expect(state.paint).toMatchObject({ 'line-color': themes[t].map.border, 'line-opacity': ['interpolate', ['linear'], ['zoom'], SUBNATIONAL_MIN_ZOOM, 0, SUBNATIONAL_MIN_ZOOM + 1, 1] })
+      for (const l of [country, disputed]) expect(l).toMatchObject({ minzoom: undefined, paint: { 'line-opacity': 1 } })
+    }
   })
 })
