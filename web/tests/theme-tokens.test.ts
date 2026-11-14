@@ -29,6 +29,11 @@ describe('tokens de tema', () => {
     expect(keys(themes.light)).toEqual(keys(themes.dark))
   })
 
+  it('expone los tokens de control con los nombres que usa la interfaz', () => {
+    for (const v of ['--space-half: 2px', '--size-control: 32px', '--size-control-touch: 44px', '--border-width: 1px', '--focus-width: 2px', '--focus-offset: 2px'])
+      expect(themeCss()).toContain(v)
+  })
+
   it('cssVars pasa a kebab-case y anida', () => {
     expect(cssVars({ a: { panelBg: '#000' } })).toEqual(['--a-panel-bg: #000;'])
     expect(themeCss()).toContain('[data-theme="light"]')

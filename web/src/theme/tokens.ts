@@ -21,8 +21,12 @@ export const shared = {
     // Cifras tabulares para tablas y leyendas: `font-variant-numeric: var(--font-numeric-table)`.
     numericTable: 'tabular-nums',
   },
-  space: { 1: '0.25rem', 2: '0.5rem', 3: '0.75rem', 4: '1rem', 6: '1.5rem', 8: '2rem', 12: '3rem' },
+  space: { half: '2px', 1: '0.25rem', 2: '0.5rem', 3: '0.75rem', 4: '1rem', 6: '1.5rem', 8: '2rem', 12: '3rem' },
   radius: { sm: '4px', md: '8px', lg: '14px', pill: '999px' },
+  // Controles: 32 px con puntero fino; 44 px de objetivo táctil mínimo en móvil.
+  size: { control: '32px', controlTouch: '44px' },
+  border: { width: '1px' },
+  focus: { width: '2px', offset: '2px' },
   motion: { fast: '150ms', base: '300ms', camera: '1200ms', easing: 'cubic-bezier(0.2, 0, 0, 1)' },
 } as const
 
