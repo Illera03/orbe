@@ -17,6 +17,7 @@ const frames = (page: Page, n: number) =>
 // Humo de la PoC de deck.gl sobre MapLibre: globo, paso a plano y vuelta sin errores en consola.
 // Depende del estilo remoto de OpenFreeMap (sin él no hay evento 'load' ni overlay).
 test('PoC de deck.gl sin errores de consola', async ({ page }) => {
+  test.slow() // WebGL por software (SwiftShader): con la máquina cargada pasa de 30 s.
   const errores: string[] = []
   const origen = new URL(test.info().project.use.baseURL!).origin
   page.on('pageerror', (e) => errores.push(e.message))

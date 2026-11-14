@@ -6,6 +6,8 @@ const PORT = Number(process.env.PW_PORT ?? 4173)
 export default defineConfig({
   testDir: 'tests/e2e',
   forbidOnly: !!process.env.CI,
+  // Con más workers las páginas WebGL compiten por la GPU y el rAF de la PoC de deck.gl no llega (como en CI).
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : 'list',
   use: { baseURL: `http://localhost:${PORT}/orbe/`, locale: 'es-ES' },
