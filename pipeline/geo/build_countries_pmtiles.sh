@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Genera data/poc/countries.pmtiles (capa "countries") desde Natural Earth 1:50m admin-0.
-# Requisitos: curl, uv, tippecanoe >= 2.x. Uso: pipeline/geo/build_countries_pmtiles.sh
+# Requisitos: curl, uv, tippecanoe >= 2.79. Uso: pipeline/geo/build_countries_pmtiles.sh
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -27,7 +27,9 @@ PY
 
 mkdir -p "$(dirname "$OUT")"
 # z0-6: 1:50m no gana detalle por encima de z6; la simplificación por zoom de tippecanoe (detect-shared-borders evita huecos entre países) deja el fichero muy por debajo de 2 MB.
-tippecanoe -q -o "$OUT" --force -l countries -Z0 -z6 --detect-shared-borders "$TMP/countries.geojson"
+# Desde la carpeta de salida, con -n/-N fijos y GeoJSON por stdin: los metadatos no guardan rutas de la máquina.
+(cd "$(dirname "$OUT")" && tippecanoe -q -o countries.pmtiles --force -l countries -n countries \
+  -N "Natural Earth 1:50m v5.1.2" -Z0 -z6 --detect-shared-borders < "$TMP/countries.geojson")
 
 SIZE=$(wc -c < "$OUT")
 [ "$SIZE" -le 2097152 ] || { echo "countries.pmtiles ocupa $SIZE bytes (> 2 MB)" >&2; exit 1; }
