@@ -42,6 +42,7 @@ export function GlobeMap() {
       el.dataset.idle = ''
     })
     map.on('dataloading', () => delete el.dataset.idle)
+    map.on('movestart', () => delete el.dataset.idle)
     setActiveMap(map)
     mapRef.current = map
     return () => {

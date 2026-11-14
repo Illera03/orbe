@@ -38,15 +38,16 @@ test.describe('cambio de tema', () => {
     await page.goto('./')
     const mapa = page.locator('#map')
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+    const inicial = await mapa.getAttribute('data-camera')
     // Se arrastra el globo para que la cámara no sea la inicial.
     await page.mouse.move(640, 400)
     await page.mouse.down()
     await page.mouse.move(540, 340, { steps: 5 })
     await page.mouse.up()
-    await page.waitForTimeout(500)
+    // Se espera a que el arrastre (con su inercia) termine y deje otra cámara.
+    await expect(mapa).not.toHaveAttribute('data-camera', inicial!, { timeout: 30_000 })
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     const camara = await mapa.getAttribute('data-camera')
-    expect(camara).not.toBe('0.0000,20.0000,1.5000')
     const centro = { x: 600, y: 380, width: 40, height: 40 }
     const antes = await page.screenshot({ clip: centro })
     const canvas = await page.locator('#map canvas').elementHandle()
