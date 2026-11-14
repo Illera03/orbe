@@ -7,11 +7,19 @@ maplibregl.setWorkerUrl(workerUrl)
 
 export type ProjectionType = 'globe' | 'mercator'
 
-// shortcut: estilo oscuro fijo de OpenFreeMap; el cambio claro/oscuro llegará con web/src/theme/.
+// Estilo por defecto de las PoC; la app aplica el suyo con tema (GlobeMap).
 export const BASE_STYLE = 'https://tiles.openfreemap.org/styles/dark'
 
-export function createMap(container: HTMLElement): maplibregl.Map {
-  const map = new maplibregl.Map({ container, style: BASE_STYLE, center: [0, 20], zoom: 1.5 })
+/** Sin `style`, el mapa nace vacío y quien lo llama aplica el suyo con `setStyle` (p. ej. con `transformStyle`). */
+export function createMap(container: HTMLElement, style: string | null = BASE_STYLE): maplibregl.Map {
+  const map = new maplibregl.Map({
+    container,
+    style: style ?? undefined,
+    center: [0, 20],
+    zoom: 1.5,
+    // Sin plegar nunca, tampoco en móvil: la atribución de OpenStreetMap debe verse siempre.
+    attributionControl: { compact: false },
+  })
   // En v5 la proyección forma parte del estilo: se fija cada vez que este se carga.
   map.on('style.load', () => map.setProjection({ type: 'globe' }))
   return map

@@ -44,5 +44,8 @@
       "globe": "Ver como globo",
       "mercator": "Ver en plano"
     }
+  },
+  "map": {
+    "noWebgl": "Tu navegador no puede mostrar el mapa porque no tiene WebGL2. Prueba con la última versión de Chrome, Firefox, Safari o Edge, o activa la aceleración por hardware."
   }
 }

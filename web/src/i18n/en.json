@@ -44,5 +44,8 @@
       "globe": "Show as globe",
       "mercator": "Show flat map"
     }
+  },
+  "map": {
+    "noWebgl": "Your browser cannot show the map because it lacks WebGL2. Try the latest Chrome, Firefox, Safari or Edge, or turn on hardware acceleration."
   }
 }
