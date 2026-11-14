@@ -179,7 +179,7 @@ Las versiones exactas se fijan en el hito M0 y no se cambian sin anotarlo en el 
 | --- | --- | --- |
 | Base de la web | React 19, TypeScript estricto y Vite (D15) | Ecosistema maduro, tipado y build rápido |
 | Estado | Zustand, sincronizado con los parámetros de la URL | Ligero; la URL es la fuente de verdad para compartir |
-| Mapa | MapLibre GL JS v5 con proyección de globo | Código abierto, sin claves, globo con transición a plano |
+| Mapa | MapLibre GL JS v6 con proyección de globo (D27) | Código abierto, sin claves, globo con transición a plano |
 | Capas avanzadas | deck.gl con `MapboxOverlay`, cargado bajo demanda | Burbujas, flujos, extrusión y miles de puntos con buen rendimiento |
 | Escalas y proyecciones | d3-scale, d3-scale-chromatic y d3-geo | Escalas de color correctas y vista Equal Earth en v2 |
 | Gráficas de la ficha | Observable Plot | Gráficas pequeñas y limpias con poco código |
@@ -360,7 +360,7 @@ Estas son las decisiones tomadas en la entrevista inicial. A partir de aquí se 
 
 | Id | Decisión | Motivo |
 | --- | --- | --- |
-| D1 | MapLibre GL v5 + deck.gl; vista plana en Mercator, Equal Earth con D3 en v2 | Globo con transición a plano, zoom profundo y capas densas sin coste |
+| D1 | MapLibre GL (v6 desde D27) + deck.gl; vista plana en Mercator, Equal Earth con D3 en v2 | Globo con transición a plano, zoom profundo y capas densas sin coste |
 | D2 | Atlas de indicadores como núcleo; sin juegos | Coherencia multipropósito con un único motor |
 | D3 | Países y provincias en todo el mundo, datos subnacionales solo en Europa, EE. UU. y España, ciudades como puntos | Mejor relación coste/aporte |
 | D4 | Datos abiertos estáticos con pipeline mensual y terremotos en tiempo real | Funciona en hosting estático y gratuito |
