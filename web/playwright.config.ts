@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const PORT = 4173
+// PW_PORT evita reutilizar el servidor de otro worktree con reuseExistingServer.
+const PORT = Number(process.env.PW_PORT ?? 4173)
 
 export default defineConfig({
   testDir: 'tests/e2e',

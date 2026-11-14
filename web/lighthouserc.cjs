@@ -26,6 +26,7 @@ module.exports = {
     assert: {
       assertions: {
         'categories:performance': [LEVEL, { minScore: desktop ? 0.85 : 0.7 }],
+        'categories:seo': [LEVEL, { minScore: 0.9 }],
         // SPEC fija LCP y CLS solo en escritorio.
         ...(desktop
           ? {
