@@ -9,4 +9,7 @@ __pycache__/
 .claude/worktrees/
 playwright-report/
 test-results/
+test-results-capturas/
+playwright-report-capturas/
+web/capturas/
 *.tsbuildinfo
