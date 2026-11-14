@@ -13,8 +13,8 @@ for (const vista of vistas) {
 
       test(`${vista.nombre}-${tema}`, async ({ page }) => {
         await page.goto('./')
-        // shortcut: networkidle vale mientras la home no tenga mapa; MAPA-1 lo cambia por esperar al evento `idle` de MapLibre (las teselas y el giro no dejan la red quieta).
-        await page.waitForLoadState('networkidle')
+        // El mapa marca data-idle con el evento `idle` de MapLibre: estilo, teselas y globo ya pintados.
+        await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
         // Si la app ya gestiona temas con data-theme, se fuerza el que toca además de prefers-color-scheme.
         await page.evaluate((t) => {
           const html = document.documentElement
