@@ -20,8 +20,8 @@ export function createMap(container: HTMLElement, style: string | null = BASE_ST
     // Sin plegar nunca, tampoco en móvil: la atribución de OpenStreetMap debe verse siempre.
     attributionControl: { compact: false },
   })
-  // En v5 la proyección forma parte del estilo: se fija cada vez que este se carga.
-  map.on('style.load', () => map.setProjection({ type: 'globe' }))
+  // Solo para el estilo fijo de las PoC: el globo de la app lleva la proyección dentro de su estilo (globeStyle).
+  if (style) map.on('style.load', () => map.setProjection({ type: 'globe' }))
   return map
 }
 

@@ -34,17 +34,41 @@ for (const caso of casos) {
 test.describe('cambio de tema', () => {
   test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' })
 
-  test('repinta el mapa sin recargar y la atribución sigue visible', async ({ page }) => {
+  test('repinta el mapa sin recargar, conserva la cámara y la atribución sigue visible', async ({ page }) => {
     await page.goto('./')
+    const mapa = page.locator('#map')
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+    // Se arrastra el globo para que la cámara no sea la inicial.
+    await page.mouse.move(640, 400)
+    await page.mouse.down()
+    await page.mouse.move(540, 340, { steps: 5 })
+    await page.mouse.up()
+    await page.waitForTimeout(500)
+    await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+    const camara = await mapa.getAttribute('data-camera')
+    expect(camara).not.toBe('0.0000,20.0000,1.5000')
+    const centro = { x: 600, y: 380, width: 40, height: 40 }
+    const antes = await page.screenshot({ clip: centro })
     const canvas = await page.locator('#map canvas').elementHandle()
+
     await page.getByRole('button', { name: es.topbar.themes.light }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
-    // Mismo lienzo: el mapa no se ha recreado.
+    // Mismo lienzo (el mapa no se ha recreado), estilo distinto y la misma cámara.
     expect(await canvas!.evaluate((c) => c.isConnected)).toBe(true)
+    expect((await page.screenshot({ clip: centro })).equals(antes)).toBe(false)
+    await expect(mapa).toHaveAttribute('data-camera', camara!)
     await atribucionVisible(page)
   })
+})
+
+test('el lienzo del mapa se anuncia en el idioma de la interfaz', async ({ page }) => {
+  const en = JSON.parse(readFileSync(new URL('../../src/i18n/en.json', import.meta.url), 'utf8'))
+  await page.goto('./')
+  const canvas = page.locator('#map canvas')
+  await expect(canvas).toHaveAttribute('aria-label', es.map.title)
+  await page.getByRole('button', { name: es.topbar.languageCodes.en, exact: true }).click()
+  await expect(canvas).toHaveAttribute('aria-label', en.map.title)
 })
 
 test('sin WebGL2 muestra un aviso en lugar del mapa', async ({ page }) => {

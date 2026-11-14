@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type * as maplibregl from 'maplibre-gl'
 import { useTranslation } from 'react-i18next'
 import { MAP_STYLE_URL, type ThemeName } from '../theme'
 import { useAppStore } from '../state/store'
@@ -15,6 +16,7 @@ const hasWebGL2 = () => !!document.createElement('canvas').getContext('webgl2')
 export function GlobeMap() {
   const { t } = useTranslation()
   const container = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<maplibregl.Map | null>(null)
   const [supported] = useState(hasWebGL2)
 
   useEffect(() => {
@@ -24,6 +26,8 @@ export function GlobeMap() {
     const countriesUrl = preloadPmtiles('data/geo/countries.pmtiles')
     const map = createMap(el, null)
     const apply = (theme: ThemeName) => {
+      // Sin esto, quien espera a data-idle tras el cambio vería el idle del estilo anterior.
+      delete el.dataset.idle
       el.style.backgroundImage = starsBackground(theme)
       map.setStyle(MAP_STYLE_URL[theme], { transformStyle: (_prev, next) => globeStyle(next, theme, countriesUrl) })
     }
@@ -31,15 +35,28 @@ export function GlobeMap() {
     const unsubscribe = useAppStore.subscribe((s, prev) => {
       if (s.theme !== prev.theme) apply(s.theme)
     })
-    map.on('idle', () => (el.dataset.idle = ''))
+    map.on('idle', () => {
+      const { lng, lat } = map.getCenter()
+      // Cámara en el DOM para que el e2e compruebe que el cambio de tema no la mueve.
+      el.dataset.camera = [lng, lat, map.getZoom()].map((n) => n.toFixed(4)).join(',')
+      el.dataset.idle = ''
+    })
     map.on('dataloading', () => delete el.dataset.idle)
     setActiveMap(map)
+    mapRef.current = map
     return () => {
       unsubscribe()
       setActiveMap(null)
+      mapRef.current = null
       map.remove()
     }
   }, [supported])
+
+  // MapLibre fija en el lienzo el aria-label «Map» en inglés al crearlo; se sustituye y sigue al idioma.
+  const title = t('map.title')
+  useEffect(() => {
+    mapRef.current?.getCanvas().setAttribute('aria-label', title)
+  }, [title, supported])
 
   if (!supported) {
     return (
