@@ -9,7 +9,8 @@
       "title": "deck.gl on the globe PoC",
       "toGlobe": "Show as globe",
       "toMercator": "Show flat",
-      "loading": "Loading deck.gl…"
+      "loading": "Loading deck.gl…",
+      "error": "deck.gl could not start"
     },
     "pmtiles": {
       "title": "PMTiles PoC: countries"

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type maplibregl from 'maplibre-gl'
+import type * as maplibregl from 'maplibre-gl'
 import { useTranslation } from 'react-i18next'
 import { createMap, type ProjectionType } from '../createMap'
 import { addDeckOverlay } from '../deckOverlay'
@@ -15,7 +15,7 @@ export function DeckglPoc() {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const [fps, setFps] = useState<number | null>(null)
-  const [deckReady, setDeckReady] = useState(false)
+  const [deck, setDeck] = useState<'loading' | 'ready' | 'error'>('loading')
   const [projection, setProjection] = useState<ProjectionType>('globe')
 
   useEffect(() => {
@@ -57,10 +57,14 @@ export function DeckglPoc() {
               getWidth: 2,
               widthUnits: 'pixels',
             }),
-      ], loading.signal)
+      ], loading.signal).catch((error: unknown) => {
+        console.error(error)
+        return null
+      })
       if (loading.signal.aborted) return
+      if (!remove) return setDeck('error')
       removeDeck = remove
-      setDeckReady(true)
+      setDeck('ready')
     })
     return () => {
       loading.abort()
@@ -86,7 +90,7 @@ export function DeckglPoc() {
           {t(projection === 'globe' ? 'poc.deckgl.toMercator' : 'poc.deckgl.toGlobe')}
         </button>
         <span aria-live="off">{fps === null ? '…' : t('poc.fps', { fps })}</span>
-        {!deckReady && <span>{t('poc.deckgl.loading')}</span>}
+        {deck !== 'ready' && <span role="status">{t(deck === 'error' ? 'poc.deckgl.error' : 'poc.deckgl.loading')}</span>}
       </div>
     </>
   )

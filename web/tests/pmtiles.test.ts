@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { preloadPmtiles } from '../src/map/pmtiles'
 
-vi.mock('maplibre-gl', () => ({ default: { addProtocol: vi.fn() } }))
+vi.mock('maplibre-gl', () => ({ addProtocol: vi.fn() }))
 vi.stubGlobal('location', { origin: 'https://orbe.test' })
 
 const flush = () => new Promise((r) => setTimeout(r, 0))

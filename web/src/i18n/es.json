@@ -9,7 +9,8 @@
       "title": "PoC deck.gl sobre el globo",
       "toGlobe": "Ver como globo",
       "toMercator": "Ver en plano",
-      "loading": "Cargando deck.gl…"
+      "loading": "Cargando deck.gl…",
+      "error": "No se ha podido iniciar deck.gl"
     },
     "pmtiles": {
       "title": "PoC PMTiles: países"
