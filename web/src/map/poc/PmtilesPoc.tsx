@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import { useTranslation } from 'react-i18next'
 import { createMap } from '../createMap'
-import { pmtilesUrl, registerPmtiles } from '../pmtiles'
+import { preloadPmtiles } from '../pmtiles'
 import { POC_COLORS, fullScreen, panel } from './pocStyle'
 
 export function PmtilesPoc() {
@@ -11,14 +11,15 @@ export function PmtilesPoc() {
   const nameProp = i18n.resolvedLanguage === 'en' ? 'NAME_EN' : 'NAME_ES'
 
   useEffect(() => {
-    registerPmtiles()
+    // Antes de crear el mapa, para que la cabecera viaje en paralelo con el estilo base.
+    const countriesUrl = preloadPmtiles('data/poc/countries.pmtiles')
     const map = createMap(container.current!)
     const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false })
 
     map.on('style.load', () => {
       map.addSource('countries', {
         type: 'vector',
-        url: pmtilesUrl('data/poc/countries.pmtiles'),
+        url: countriesUrl,
       })
       // Bajo las etiquetas del mapa base para que los nombres sigan legibles.
       const beforeId = map.getStyle().layers.find((l) => l.type === 'symbol')?.id
