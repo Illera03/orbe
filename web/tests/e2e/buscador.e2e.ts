@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
 
 const textos = (lng: string) =>
   JSON.parse(readFileSync(new URL(`../../src/i18n/${lng}.json`, import.meta.url), 'utf8'))
@@ -11,8 +12,8 @@ async function camara(page: Page): Promise<number[]> {
 const longitud = async (page: Page) => (await camara(page))[0]
 
 const casos = [
-  { lng: 'es', consulta: 'japon', nombre: 'Japón', entre: [125, 150] },
-  { lng: 'en', consulta: 'uk', nombre: 'United Kingdom', entre: [-10, 3] },
+  { lng: 'es', consulta: 'japon', nombre: 'Japón', entre: [125, 150], otro: 'en', traducido: 'Japan' },
+  { lng: 'en', consulta: 'uk', nombre: 'United Kingdom', entre: [-10, 3], otro: 'es', traducido: 'Reino Unido' },
 ] as const
 
 for (const caso of casos) {
@@ -48,6 +49,28 @@ for (const caso of casos) {
       const [lon] = await camara(page)
       expect(lon).toBeGreaterThan(caso.entre[0])
       expect(lon).toBeLessThan(caso.entre[1])
+
+      // Al cambiar de idioma, el país elegido pasa a escribirse en el nuevo.
+      await page.getByRole('button', { name: textos(caso.lng).topbar.languageCodes[caso.otro], exact: true }).click()
+      await expect(page.getByRole('combobox', { name: textos(caso.otro).search.label })).toHaveValue(caso.traducido)
+    })
+  })
+}
+
+for (const viewport of [{ width: 1280, height: 800 }, { width: 320, height: 640 }]) {
+  test.describe(`buscador a ${viewport.width} px`, () => {
+    test.use({ viewport, locale: 'es-ES' })
+
+    test('axe-core sin violaciones con la lista abierta y una opción activa', async ({ page }) => {
+      const t = textos('es').search
+      await page.goto('./')
+      if (viewport.width < 640) await page.getByRole('button', { name: t.open }).click()
+      await page.getByRole('combobox', { name: t.label }).fill('co')
+      await page.getByRole('option').first().waitFor()
+      await page.keyboard.press('ArrowDown')
+      await expect(page.getByRole('option').first()).toHaveAttribute('aria-selected', 'true')
+      const { violations } = await new AxeBuilder({ page }).analyze()
+      expect(violations.map((v) => `${v.id}: ${v.help}`)).toEqual([])
     })
   })
 }

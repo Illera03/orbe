@@ -1,4 +1,5 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { flyToBounds } from '../map/globe'
 import { useAppStore } from '../state/store'
@@ -11,6 +12,9 @@ const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLin
  * Buscador de países con el patrón combobox de ARIA (lista con `aria-activedescendant`).
  * Escritorio: campo siempre visible. Móvil: un botón de 44 px despliega el campo bajo la barra (app.css).
  * `countries.json` se descarga al enfocar el campo, no en el arranque.
+ * La lista va en un portal fuera de la barra: dentro, el `backdrop-filter` de la barra anula el de la lista.
+ * Va dentro de <main> (axe: region). En el primer render <main> aún no está en el DOM y se usa <body>; el portal
+ * se muda al siguiente render, que ocurre al enfocar el campo, antes de que haya lista o avisos.
  */
 export function CountrySearch() {
   const { t } = useTranslation()
@@ -19,20 +23,38 @@ export function CountrySearch() {
   const [countries, setCountries] = useState<Country[] | null>(null)
   const [failed, setFailed] = useState(false)
   const [query, setQuery] = useState('')
+  /** País elegido (alfa-3): su nombre se muestra en el idioma activo aunque este cambie después. */
+  const [chosen, setChosen] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(-1)
   const [expanded, setExpanded] = useState(false)
   const input = useRef<HTMLInputElement>(null)
   const toggle = useRef<HTMLButtonElement>(null)
+  const popup = useRef<HTMLDivElement>(null)
   const listId = useId()
 
   const index = useMemo(() => (countries ? buildIndex(countries, language) : []), [countries, language])
-  const results = useMemo(() => search(index, query, language), [index, query, language])
+  const value = (chosen && index.find((c) => c.a3 === chosen)?.name) || query
+  const results = useMemo(() => search(index, value, language), [index, value, language])
   const showList = open && results.length > 0
 
   useEffect(() => {
     if (expanded) input.current?.focus()
   }, [expanded])
+
+  // La lista se coloca bajo la barra, alineada con el campo; la separación la pone app.css.
+  useLayoutEffect(() => {
+    if (!open) return
+    const place = () => {
+      const field = input.current?.getBoundingClientRect()
+      const bar = input.current?.closest('header')?.getBoundingClientRect()
+      if (!field || !bar || !popup.current) return
+      Object.assign(popup.current.style, { top: `${bar.bottom}px`, left: `${field.left}px`, width: `${field.width}px` })
+    }
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [open, expanded])
 
   const load = () => {
     if (countries) return
@@ -53,6 +75,7 @@ export function CountrySearch() {
   const choose = (country: CountryEntry) => {
     markInteraction()
     flyToBounds(country.bbox)
+    setChosen(country.a3)
     setQuery(country.name)
     close()
     if (expanded) collapse()
@@ -80,14 +103,17 @@ export function CountrySearch() {
         break
       case 'Escape':
         if (showList) close()
-        else if (query) setQuery('')
+        else if (value) {
+          setChosen(null)
+          setQuery('')
+        }
         else if (expanded) collapse()
         break
     }
   }
 
   let status = ''
-  if (open && query.trim()) {
+  if (open && value.trim()) {
     if (failed) status = t('search.error')
     else if (!countries) status = t('search.loading')
     else status = results.length ? t('search.results', { count: results.length }) : t('search.noResults')
@@ -132,38 +158,44 @@ export function CountrySearch() {
           autoCapitalize="none"
           spellCheck={false}
           enterKeyHint="search"
-          value={query}
+          value={value}
           onFocus={load}
           onBlur={close}
           onChange={(e) => {
-            load()
+            // Sin load(): tras un fallo, se reintenta al volver a enfocar y no con cada tecla.
+            setChosen(null)
             setQuery(e.target.value)
             setOpen(true)
             setActive(-1)
           }}
           onKeyDown={onKeyDown}
         />
-        <ul id={listId} role="listbox" aria-label={t('search.label')} className="search__list panel" hidden={!showList}>
-          {results.map((c, i) => (
-            <li
-              key={c.a3}
-              id={`${listId}-${i}`}
-              role="option"
-              aria-selected={i === active}
-              className="search__option"
-              // Sin esto el campo pierde el foco y la lista se cierra antes del clic.
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => choose(c)}
-            >
-              {c.name}
-            </li>
-          ))}
-        </ul>
-        {/* Con resultados el aviso solo lo oye el lector de pantalla; sin ellos (o con error) se ve bajo el campo. */}
-        <p role="status" className={showList || !status ? 'visually-hidden' : 'search__status panel'}>
-          {status}
-        </p>
       </div>
+      {createPortal(
+        <div ref={popup} className="search__popup">
+          <ul id={listId} role="listbox" aria-label={t('search.label')} className="search__list panel" hidden={!showList}>
+            {results.map((c, i) => (
+              <li
+                key={c.a3}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === active}
+                className="search__option"
+                // Sin esto el campo pierde el foco y la lista se cierra antes del clic.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => choose(c)}
+              >
+                {c.name}
+              </li>
+            ))}
+          </ul>
+          {/* Con resultados el aviso solo lo oye el lector de pantalla; sin ellos (o con error) se ve bajo el campo. */}
+          <p role="status" className={showList || !status ? 'visually-hidden' : 'search__status panel'}>
+            {status}
+          </p>
+        </div>,
+        document.querySelector('main') ?? document.body,
+      )}
     </>
   )
 }

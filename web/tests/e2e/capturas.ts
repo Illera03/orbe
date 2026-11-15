@@ -1,4 +1,8 @@
+import { readFileSync } from 'node:fs'
 import { test } from '@playwright/test'
+
+// El proyecto usa locale es-ES.
+const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 
 // Capturas para revisar PR visuales: `npm run capturas`; salen en web/capturas/ (ignorada por git).
 const vistas = [
@@ -22,7 +26,7 @@ for (const vista of vistas) {
         }, tema)
         await page.screenshot({ path: `capturas/${vista.nombre}-${tema}.png`, fullPage: true })
         // Buscador abierto con resultados (en móvil, tras pulsar su botón).
-        if (vista.isMobile) await page.getByRole('banner').getByRole('button').first().click()
+        if (vista.isMobile) await page.getByRole('button', { name: es.search.open }).click()
         await page.getByRole('combobox').fill('co')
         await page.getByRole('option').first().waitFor()
         await page.keyboard.press('ArrowDown')

@@ -73,13 +73,15 @@ body {
   outline-offset: var(--focus-offset);
 }
 
+/* Fuera de la barra (portal); top, left y width los fija CountrySearch con la barra y el campo. */
+.search__popup {
+  position: fixed;
+  z-index: 10;
+}
+
 .search__list,
 .search__status {
-  position: absolute;
-  top: calc(100% + var(--space-2));
-  left: 0;
-  right: 0;
-  margin: 0;
+  margin: var(--space-2) 0 0;
   padding: var(--space-1);
   list-style: none;
 }
