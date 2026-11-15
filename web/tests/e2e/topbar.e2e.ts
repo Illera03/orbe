@@ -15,12 +15,14 @@ test.describe('barra superior en móvil (320 px)', () => {
     expect(await sinScrollHorizontal(page)).toBe(true)
 
     const botones = page.getByRole('banner').getByRole('button')
-    await expect(botones).toHaveCount(3)
+    await expect(botones).toHaveCount(4)
     for (const caja of await Promise.all((await botones.all()).map((b) => b.boundingBox()))) {
       expect(caja!.width).toBeGreaterThanOrEqual(44)
       expect(caja!.height).toBeGreaterThanOrEqual(44)
     }
 
+    await page.keyboard.press(tab)
+    await expect(page.getByRole('button', { name: 'Buscar un país' })).toBeFocused()
     await page.keyboard.press(tab)
     await expect(page.getByRole('button', { name: 'EN, cambiar idioma a inglés' })).toBeFocused()
     await page.keyboard.press('Enter')

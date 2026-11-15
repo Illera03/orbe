@@ -1,0 +1,31 @@
+{
+  "ARE": { "es": ["EAU", "Emiratos"], "en": ["UAE", "Emirates"] },
+  "BIH": { "es": ["Bosnia"], "en": ["Bosnia and Herzegovina"] },
+  "BLR": { "es": ["Belarús"], "en": ["Byelorussia"] },
+  "CIV": { "es": ["Costa de Marfil"], "en": ["Ivory Coast"] },
+  "COD": { "es": ["RDC", "Congo-Kinshasa", "Zaire"], "en": ["DRC", "DR Congo", "Democratic Republic of the Congo"] },
+  "COG": { "es": ["Congo-Brazzaville", "República del Congo"], "en": ["Republic of the Congo"] },
+  "CPV": { "es": [], "en": ["Cabo Verde"] },
+  "CZE": { "es": ["República Checa"], "en": ["Czech Republic"] },
+  "FLK": { "es": ["Malvinas"], "en": ["Malvinas"] },
+  "FSM": { "es": ["Estados Federados de Micronesia"], "en": ["Federated States of Micronesia"] },
+  "GBR": {
+    "es": ["Gran Bretaña", "Inglaterra", "Escocia", "Gales", "Irlanda del Norte"],
+    "en": ["UK", "Great Britain", "Britain", "England", "Scotland", "Wales", "Northern Ireland"]
+  },
+  "KNA": { "es": [], "en": ["Saint Kitts and Nevis"] },
+  "KOR": { "es": ["Corea del Sur", "República de Corea"], "en": ["Republic of Korea", "Korea"] },
+  "LCA": { "es": [], "en": ["Saint Lucia"] },
+  "MKD": { "es": ["Macedonia"], "en": ["Macedonia"] },
+  "MMR": { "es": ["Birmania"], "en": ["Burma"] },
+  "NLD": { "es": ["Holanda"], "en": ["Holland", "The Netherlands"] },
+  "PRK": { "es": ["Corea del Norte", "RPDC"], "en": ["DPRK"] },
+  "PSE": { "es": ["Palestina"], "en": ["Palestine"] },
+  "RUS": { "es": ["Federación de Rusia"], "en": ["Russian Federation"] },
+  "SWZ": { "es": ["Suazilandia"], "en": ["Swaziland"] },
+  "TLS": { "es": ["Timor Oriental"], "en": ["East Timor"] },
+  "TUR": { "es": [], "en": ["Turkey"] },
+  "USA": { "es": ["EEUU", "EE. UU.", "Estados Unidos de América"], "en": ["USA", "US", "United States of America", "America"] },
+  "VAT": { "es": ["Vaticano", "Santa Sede"], "en": ["Vatican", "Holy See"] },
+  "VCT": { "es": [], "en": ["Saint Vincent and the Grenadines"] }
+}

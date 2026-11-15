@@ -8,9 +8,13 @@ export interface AppState {
   theme: ThemeName
   language: Language
   projection: Projection
+  /** Momento (`performance.now()`) de la última interacción del usuario con el mapa o el buscador; `null` si aún no hubo. */
+  lastInteraction: number | null
   setTheme: (theme: ThemeName) => void
   setLanguage: (language: Language) => void
   setProjection: (projection: Projection) => void
+  /** La rotación de entrada (MAPA-3) se suscribe a `lastInteraction` para pararse. */
+  markInteraction: () => void
 }
 
 export const THEME_KEY = 'orbe.theme'
@@ -55,6 +59,7 @@ export const useAppStore = create<AppState>()((set) => ({
   theme: initialTheme(),
   language: initialLanguage(),
   projection: 'globe',
+  lastInteraction: null,
   setTheme: (theme) => {
     write(THEME_KEY, theme)
     set({ theme })
@@ -64,4 +69,5 @@ export const useAppStore = create<AppState>()((set) => ({
     set({ language })
   },
   setProjection: (projection) => set({ projection }),
+  markInteraction: () => set({ lastInteraction: performance.now() }),
 }))

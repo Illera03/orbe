@@ -48,5 +48,16 @@
   "map": {
     "noWebgl": "Tu navegador no puede mostrar el mapa porque no tiene WebGL2. Prueba con la última versión de Chrome, Firefox, Safari o Edge, o activa la aceleración por hardware.",
     "title": "Mapa del mundo"
+  },
+  "search": {
+    "label": "Buscar un país",
+    "placeholder": "Buscar un país…",
+    "open": "Buscar un país",
+    "close": "Cerrar la búsqueda",
+    "results_one": "{{count}} país encontrado; usa las flechas para elegir",
+    "results_other": "{{count}} países encontrados; usa las flechas para elegir",
+    "noResults": "Ningún país coincide",
+    "loading": "Cargando países…",
+    "error": "No se ha podido cargar la lista de países. Vuelve a intentarlo."
   }
 }
