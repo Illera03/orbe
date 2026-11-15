@@ -46,6 +46,8 @@ export const themes = {
       bg: '#05070d',
       panelBg: 'rgba(14, 18, 28, 0.85)',
       panelBorder: 'rgba(255, 255, 255, 0.10)',
+      // Contorno de controles (campo, conmutadores): ≥ 3:1 sobre el panel (WCAG 1.4.11); panelBorder solo separa.
+      controlBorder: '#7b8494',
       text: '#e8ecf3',
       textMuted: '#a3acbb',
       accent: '#7cc4ff',
@@ -84,6 +86,7 @@ export const themes = {
       bg: '#e9e6df',
       panelBg: '#fffdf8',
       panelBorder: '#e3ddd0',
+      controlBorder: '#8a8478',
       text: '#1d1b17',
       textMuted: '#5c574d',
       accent: '#1f5f99',
