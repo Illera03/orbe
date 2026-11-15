@@ -57,7 +57,7 @@ body {
   width: 100%;
   height: var(--size-control);
   padding: 0 var(--space-3);
-  border: var(--border-width) solid var(--color-panel-border);
+  border: var(--border-width) solid var(--color-control-border);
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-text);
@@ -133,7 +133,7 @@ body {
   display: flex;
   gap: var(--space-half);
   padding: var(--space-half);
-  border: var(--border-width) solid var(--color-panel-border);
+  border: var(--border-width) solid var(--color-control-border);
   border-radius: var(--radius-pill);
 }
 

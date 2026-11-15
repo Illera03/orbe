@@ -11,7 +11,10 @@ export const MAP_STYLE_URL: Record<ThemeName, string> = {
 /** Colores del mapa para el tema (países, estrellas, sin dato…), para lo que no está en el estilo base. */
 export const mapColors = (theme: ThemeName) => themes[theme].map
 
-/** Cielo y halo de atmósfera del globo (spec `sky` de MapLibre 5); el halo se apaga al acercarse. */
+/** Estado global de MapLibre que guía la animación globo/plano: 1 globo, 0 plano; en reposo, 1. */
+export const GLOBENESS_STATE = 'orbe-globeness'
+
+/** Cielo y halo de atmósfera del globo (spec `sky`); el halo se apaga al acercarse y sigue la animación a plano. */
 export function themeSky(theme: ThemeName): SkySpecification {
   const m = themes[theme].map
   return {
@@ -21,7 +24,10 @@ export function themeSky(theme: ThemeName): SkySpecification {
     'sky-horizon-blend': 0.5,
     'horizon-fog-blend': 0.6,
     'fog-ground-blend': 0.9,
-    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, theme === 'dark' ? 1 : 0.6, 6, 0],
+    // MapLibre exige el `zoom` en el `interpolate` exterior; el estado global escala el halo durante la animación.
+    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, ['*', theme === 'dark' ? 1 : 0.6, ['global-state', GLOBENESS_STATE]], 6, 0],
+    // Sin el suavizado de 300 ms de MapLibre: si no, el halo va por detrás del aplanado y destella al volver a globo.
+    'atmosphere-blend-transition': { duration: 0 },
   }
 }
 
@@ -60,6 +66,7 @@ function isSubnational(layer: LayerSpecification): boolean {
 export function themeMapStyle(style: StyleSpecification, theme: ThemeName): StyleSpecification {
   return {
     ...style,
+    state: { ...style.state, [GLOBENESS_STATE]: { default: 1 } },
     sky: themeSky(theme),
     layers: style.layers.map((layer) => {
       const paint = paintFor(layer, theme)

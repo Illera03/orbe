@@ -3,7 +3,7 @@ import type * as maplibregl from 'maplibre-gl'
 import type { LngLatBoundsLike, ProjectionSpecification, StyleSpecification } from 'maplibre-gl'
 // Sin pasar por theme/index, que inyecta CSS y fuentes: así se puede probar sin DOM.
 import { reducedMotion, shared, type ThemeName } from '../theme/tokens'
-import { mapColors, themeMapStyle } from '../theme/map'
+import { GLOBENESS_STATE as MORPH_STATE, mapColors, themeMapStyle } from '../theme/map'
 import { prefersReducedMotion, type ProjectionType } from './createMap'
 
 /** Encuadre [oeste, sur, este, norte] de `data/geo/countries.json`. */
@@ -13,8 +13,6 @@ export type Bbox = [number, number, number, number]
 export const MAX_FIT_ZOOM = 6
 /** En globo, zoom en que empieza a aplanarse y zoom en que ya es Mercator. */
 export const FLATTEN_ZOOM = [5, 6] as const
-/** Estado global de MapLibre que guía la animación del botón: 1 globo, 0 plano; en reposo, 1. */
-export const MORPH_STATE = 'orbe-globeness'
 const BASE_SOURCE = 'openmaptiles'
 // Marca legal exigida por la ODbL; los nombres propios no se traducen.
 const BASE_ATTRIBUTION =
