@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
+import { pararRotacion } from './mapa'
 
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 
@@ -7,6 +8,7 @@ test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' })
 
 test('el botón alterna globo y plano sin perder la cámara y el tema conserva la proyección', async ({ page }) => {
   await page.goto('./')
+  await pararRotacion(page)
   const mapa = page.locator('#map')
   const idle = () => page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
   await idle()
@@ -33,6 +35,7 @@ test('el botón alterna globo y plano sin perder la cámara y el tema conserva l
 
 test('en globo, al acercarse por encima de z6 pasa solo a plano', async ({ page }) => {
   await page.goto('./')
+  await pararRotacion(page)
   const mapa = page.locator('#map')
   await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
   await page.mouse.move(640, 400)

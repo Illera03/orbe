@@ -10,9 +10,7 @@ export default defineConfig({
   workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : 'list',
-  // Movimiento reducido por defecto: sin la rotación de entrada el mapa llega a `idle` y la cámara es estable.
-  // Las pruebas de la rotación lo quitan con test.use({ reducedMotion: 'no-preference' }).
-  use: { baseURL: `http://localhost:${PORT}/orbe/`, locale: 'es-ES', reducedMotion: 'reduce' },
+  use: { baseURL: `http://localhost:${PORT}/orbe/`, locale: 'es-ES' },
   projects: [
     { name: 'chromium', testMatch: '*.e2e.ts', use: { ...devices['Desktop Chrome'] } },
     { name: 'webkit', testMatch: '*.e2e.ts', use: { ...devices['Desktop Safari'] } },

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
+import { pararRotacion } from './mapa'
 
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 const centro = { x: 560, y: 320, width: 160, height: 160 }
@@ -70,6 +71,7 @@ test.describe('contador de fps', () => {
 
   test('solo con ?fps=1, y mide', async ({ page }) => {
     await page.goto('./')
+    await pararRotacion(page)
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     await expect(page.locator('.fps-meter')).toHaveCount(0)
     await page.goto('./?fps=1')

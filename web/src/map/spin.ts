@@ -17,7 +17,8 @@ export function spinGlobe(map: maplibregl.Map, onFps?: (fps: number) => void): (
     // Se pausa mientras el usuario mueve el mapa para no pelear con su gesto.
     if (spin && !map.isMoving()) {
       const c = map.getCenter()
-      map.setCenter([c.lng + (DEG_PER_SECOND * (now - last)) / 1000, c.lat])
+      // Delta acotado: al volver a una pestaña oculta el globo no salta.
+      map.setCenter([c.lng + (DEG_PER_SECOND * Math.min(now - last, 100)) / 1000, c.lat])
     }
     last = now
     id = requestAnimationFrame(frame)
