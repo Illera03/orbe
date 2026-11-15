@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { test } from '@playwright/test'
 
+// El proyecto usa locale es-ES.
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 // Botón «Plano» del grupo en escritorio y botón único «Ver en plano» en móvil.
 const botonPlano = (isMobile: boolean) => (isMobile ? es.topbar.actions.mercator : es.topbar.projections.mercator)
@@ -33,6 +34,14 @@ for (const { vista, tema, plano } of casos) {
         if (html.hasAttribute('data-theme')) html.dataset.theme = t
       }, tema)
       await page.screenshot({ path: `capturas/${nombre}.png`, fullPage: true })
+      // El buscador no depende de la proyección: solo se captura sobre el globo.
+      if (plano) return
+      // Buscador abierto con resultados (en móvil, tras pulsar su botón).
+      if (vista.isMobile) await page.getByRole('button', { name: es.search.open }).click()
+      await page.getByRole('combobox').fill('co')
+      await page.getByRole('option').first().waitFor()
+      await page.keyboard.press('ArrowDown')
+      await page.screenshot({ path: `capturas/${nombre}-buscador.png`, fullPage: true })
     })
   })
 }

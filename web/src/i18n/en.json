@@ -48,5 +48,16 @@
   "map": {
     "noWebgl": "Your browser cannot show the map because it lacks WebGL2. Try the latest Chrome, Firefox, Safari or Edge, or turn on hardware acceleration.",
     "title": "World map"
+  },
+  "search": {
+    "label": "Search for a country",
+    "placeholder": "Search for a country…",
+    "open": "Search for a country",
+    "close": "Close search",
+    "results_one": "{{count}} country found; use the arrow keys to choose",
+    "results_other": "{{count}} countries found; use the arrow keys to choose",
+    "noResults": "No country matches",
+    "loading": "Loading countries…",
+    "error": "The country list could not be loaded. Please try again."
   }
 }

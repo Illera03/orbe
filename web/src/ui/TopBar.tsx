@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../state/store'
+import { CountrySearch } from './CountrySearch'
 
 interface Option<T extends string> {
   value: T
@@ -72,8 +73,7 @@ export function TopBar() {
   return (
     <header className="topbar panel">
       <h1 className="topbar__logo">{t('app.title')}</h1>
-      {/* Hueco reservado para el buscador (INT-2). */}
-      <div id="search-slot" className="topbar__search" />
+      <CountrySearch />
       <Toggle
         label={t('topbar.language')}
         value={language}
