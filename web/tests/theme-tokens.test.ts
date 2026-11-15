@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { StyleSpecification } from 'maplibre-gl'
 import { cssVars, themeCss, themes, type ThemeName } from '../src/theme/tokens'
-import { SUBNATIONAL_MIN_ZOOM, themeMapStyle } from '../src/theme/map'
+import { expression, latest, type StylePropertySpecification } from '@maplibre/maplibre-gl-style-spec'
+import { GLOBENESS_STATE, SUBNATIONAL_MIN_ZOOM, themeMapStyle, themeSky } from '../src/theme/map'
 
 const names: ThemeName[] = ['dark', 'light']
 
@@ -12,7 +13,7 @@ function rgb(c: string, under = [255, 255, 255]): number[] {
   return [r, g, b].map((v, i) => v * a + under[i] * (1 - a))
 }
 function lum([r, g, b]: number[]): number {
-  const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
+  const f = (v: number) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
 }
 function contrast(a: number[], b: number[]): number {
@@ -80,6 +81,28 @@ describe('tokens de tema', () => {
     expect(out.layers[2]).toBe(base.layers[2])
     expect(out.sky?.['horizon-color']).toBe(themes.light.map.horizon)
     expect(base.layers[0]).toMatchObject({ paint: { 'background-color': '#000' } })
+  })
+
+  it.each(names)('el halo de atmósfera sigue el estado %s de la animación globo/plano', (n) => {
+    const style = themeMapStyle({ version: 8, sources: {}, layers: [] } as StyleSpecification, n)
+    expect(style.state).toEqual({ [GLOBENESS_STATE]: { default: 1 } })
+    // Conserva el `state` que ya traiga el estilo base.
+    const conBase = themeMapStyle({ version: 8, sources: {}, layers: [], state: { otro: { default: 'x' } } } as StyleSpecification, n)
+    expect(conBase.state).toEqual({ otro: { default: 'x' }, [GLOBENESS_STATE]: { default: 1 } })
+    expect(themeSky(n)['atmosphere-blend-transition']).toEqual({ duration: 0 })
+    // Se valida con la especificación real de `sky.atmosphere-blend`: MapLibre rechaza el `zoom` anidado.
+    const spec = latest.sky['atmosphere-blend'] as StylePropertySpecification
+    const blend = (zoom: number, globeness: number) => {
+      const exp = expression.createPropertyExpression(themeSky(n)['atmosphere-blend'], 'sky', spec, { [GLOBENESS_STATE]: globeness })
+      if (exp.result !== 'success') throw new Error(JSON.stringify(exp.value))
+      return exp.value.evaluate({ zoom })
+    }
+    const full = n === 'dark' ? 1 : 0.6
+    expect(blend(0, 1)).toBeCloseTo(full)
+    expect(blend(0, 0.5)).toBeCloseTo(full / 2)
+    expect(blend(0, 0)).toBe(0)
+    expect(blend(3, 1)).toBeCloseTo(full / 2)
+    expect(blend(6, 1)).toBe(0)
   })
 
   it('themeMapStyle oculta a zoom bajo los límites subnacionales de dark y positron, no los de país', () => {
