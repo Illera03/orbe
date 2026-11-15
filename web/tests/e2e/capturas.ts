@@ -21,6 +21,12 @@ for (const vista of vistas) {
           if (html.hasAttribute('data-theme')) html.dataset.theme = t
         }, tema)
         await page.screenshot({ path: `capturas/${vista.nombre}-${tema}.png`, fullPage: true })
+        // Buscador abierto con resultados (en móvil, tras pulsar su botón).
+        if (vista.isMobile) await page.getByRole('banner').getByRole('button').first().click()
+        await page.getByRole('combobox').fill('co')
+        await page.getByRole('option').first().waitFor()
+        await page.keyboard.press('ArrowDown')
+        await page.screenshot({ path: `capturas/${vista.nombre}-${tema}-buscador.png`, fullPage: true })
       })
     })
   }
