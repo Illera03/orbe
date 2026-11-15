@@ -29,8 +29,17 @@ export async function addDeckOverlay(
   if ((map as { transform?: unknown }).transform === undefined) {
     Object.defineProperty(map, 'transform', { get: () => ({ height: map.getCanvas().clientHeight }) })
   }
-  const projection = (): ProjectionType =>
-    map.getProjection()?.type === 'mercator' ? 'mercator' : 'globe'
+  // La que se ve: el globo de la app es una expresión que se aplana por zoom (globe.ts).
+  const projection = (): ProjectionType => ((map.style?.projection?.transitionState ?? 1) > 0 ? 'globe' : 'mercator')
+  // deck.gl 9.4.1 lanza «Unsupported projection» si getProjection() no es 'globe' o 'mercator', y lo lee en cada
+  // movimiento para elegir GlobeView o MapView: con la proyección que se ve, sigue también al aplanado por zoom.
+  if (!Object.hasOwn(map, 'getProjection')) {
+    const original = map.getProjection.bind(map)
+    map.getProjection = () => {
+      const spec = original()
+      return Array.isArray(spec?.type) ? { type: projection() } : spec
+    }
+  }
   // Se resuelve cuando deck.gl ya puede dibujar (antes, el overlay ignora los fotogramas del mapa)
   // o si se aborta, y se rechaza si deck.gl falla al inicializarse (sin WebGL2, contexto perdido).
   let loadedOk = false
@@ -43,32 +52,38 @@ export async function addDeckOverlay(
     }
     signal.addEventListener('abort', () => resolve(), { once: true })
   })
+  let built = projection()
   const overlay = new MapboxOverlay({
     interleaved: true,
-    layers: build(layers, projection()),
+    layers: build(layers, built),
     onLoad: () => settle(),
     // Ya cargado, el error no rompe la promesa: se registra como haría deck.gl por defecto.
     onError: (error) => (loadedOk ? console.error(error) : settle(error)),
   })
-  // setProjection no emite 'styledata', que es lo único que escucha MapboxOverlay para cambiar
-  // entre GlobeView y MapView; sin esto deck.gl sigue dibujando como globo sobre el plano.
-  const sync = () => overlay.setProps({ layers: build(layers, projection()) })
+  // En modo intercalado MapboxOverlay solo cambia entre GlobeView y MapView con 'styledata' o con setProps, y ni
+  // setProjection ni el aplanado por zoom emiten 'styledata': se comprueba en cada fotograma (después de que MapLibre
+  // evalúe la proyección; en 'projectiontransition' aún no lo ha hecho) y se rehacen las capas solo si ha cambiado.
+  const sync = () => {
+    if (projection() === built) return
+    built = projection()
+    overlay.setProps({ layers: build(layers, built) })
+  }
   // Con un deck.gl ya montado en este mapa, MapboxOverlay lo reutiliza y onLoad no vuelve a llegar.
   const reused = Boolean((map as { __deck?: unknown }).__deck)
-  map.on('projectiontransition', sync)
+  map.on('render', sync)
   map.addControl(overlay)
   if (reused) settle()
   try {
     await loaded
   } catch (error) {
-    map.off('projectiontransition', sync)
+    map.off('render', sync)
     map.removeControl(overlay)
     throw error
   }
   // Abortado durante la inicialización: quien aborta destruye el mapa, que ya retira el control.
   if (signal.aborted) return () => {}
   return () => {
-    map.off('projectiontransition', sync)
+    map.off('render', sync)
     map.removeControl(overlay)
   }
 }
