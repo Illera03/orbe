@@ -47,7 +47,8 @@
   },
   "map": {
     "noWebgl": "Your browser cannot show the map because it lacks WebGL2. Try the latest Chrome, Firefox, Safari or Edge, or turn on hardware acceleration.",
-    "title": "World map"
+    "title": "World map",
+    "fps": "{{fps}} fps"
   },
   "search": {
     "label": "Search for a country",

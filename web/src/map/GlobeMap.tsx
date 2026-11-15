@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { MAP_STYLE_URL, type ThemeName } from '../theme'
 import { useAppStore } from '../state/store'
 import { createMap } from './createMap'
+import { FpsMeter, fpsRequested } from './FpsMeter'
 import { animateProjection, cameraMs, globeStyle, setActiveMap } from './globe'
 import { preloadPmtiles } from './pmtiles'
+import { spinUntilInteraction } from './spin'
 import { starsBackground } from './stars'
 import './globe.css'
 
@@ -18,6 +20,7 @@ export function GlobeMap() {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const [supported] = useState(hasWebGL2)
+  const [showFps] = useState(fpsRequested)
 
   useEffect(() => {
     if (!supported) return
@@ -37,8 +40,16 @@ export function GlobeMap() {
       map.setStyle(MAP_STYLE_URL[theme], { transformStyle })
     }
     apply(useAppStore.getState().theme)
+    // Gira al entrar (solo en globo) hasta la primera interacción; data-spinning, para e2e.
+    const stopSpin =
+      useAppStore.getState().projection === 'globe'
+        ? spinUntilInteraction(map, () => delete el.dataset.spinning)
+        : null
+    if (stopSpin) el.dataset.spinning = ''
     const unsubscribe = useAppStore.subscribe((s, prev) => {
       if (s.theme !== prev.theme) apply(s.theme)
+      // Buscar o cambiar de proyección también son interacciones.
+      if (s.lastInteraction !== prev.lastInteraction || s.projection !== prev.projection) stopSpin?.()
       if (s.projection === prev.projection) return
       // Lo curvo que se ve ahora, antes de cortar otra animación: al cortarla salta a su proyección final.
       const from = map.style?.projection?.transitionState
@@ -64,6 +75,7 @@ export function GlobeMap() {
     mapRef.current = map
     return () => {
       unsubscribe()
+      stopSpin?.()
       stopMorph?.()
       setActiveMap(null)
       mapRef.current = null
@@ -86,5 +98,10 @@ export function GlobeMap() {
       </div>
     )
   }
-  return <div id="map" className="map" ref={container} />
+  return (
+    <>
+      <div id="map" className="map" ref={container} />
+      {showFps && <FpsMeter />}
+    </>
+  )
 }

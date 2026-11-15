@@ -21,3 +21,19 @@
   text-align: center;
   font-size: var(--font-size-lg);
 }
+
+/* Contador de ?fps=1, por encima de la atribución (que en móvil ocupa dos líneas). */
+.fps-meter {
+  position: fixed;
+  left: var(--space-3);
+  bottom: var(--space-12);
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-panel-bg);
+  border: var(--border-width) solid var(--color-panel-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font: var(--font-weight-strong) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
+  font-variant-numeric: var(--font-numeric-table);
+  pointer-events: none;
+}

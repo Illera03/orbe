@@ -16,3 +16,15 @@ export function createFpsCounter(onFps: (fps: number) => void) {
     }
   }
 }
+
+/** Mide los fps de la página con requestAnimationFrame hasta que se llama a la función devuelta. */
+export function watchFps(onFps: (fps: number) => void): () => void {
+  const tick = createFpsCounter(onFps)
+  let id = 0
+  const frame = (now: number) => {
+    tick(now)
+    id = requestAnimationFrame(frame)
+  }
+  id = requestAnimationFrame(frame)
+  return () => cancelAnimationFrame(id)
+}

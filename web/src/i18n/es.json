@@ -47,7 +47,8 @@
   },
   "map": {
     "noWebgl": "Tu navegador no puede mostrar el mapa porque no tiene WebGL2. Prueba con la última versión de Chrome, Firefox, Safari o Edge, o activa la aceleración por hardware.",
-    "title": "Mapa del mundo"
+    "title": "Mapa del mundo",
+    "fps": "{{fps}} fps"
   },
   "search": {
     "label": "Buscar un país",

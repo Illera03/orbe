@@ -21,7 +21,8 @@ for (const { vista, tema, plano } of casos) {
     const nombre = `${vista.nombre}-${tema}${plano ? '-plano' : ''}`
 
     test(nombre, async ({ page }) => {
-      await page.goto('./')
+      // Las de plano llevan también el contador de ?fps=1, para revisarlo en los dos temas y en móvil.
+      await page.goto(plano ? './?fps=1' : './')
       if (plano) {
         await page.getByRole('button', { name: botonPlano(vista.isMobile), exact: true }).click()
         await page.locator('#map[data-projection="mercator"]').waitFor({ timeout: 30_000 })
