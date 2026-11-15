@@ -13,8 +13,8 @@ const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLin
  * Escritorio: campo siempre visible. Móvil: un botón de 44 px despliega el campo bajo la barra (app.css).
  * `countries.json` se descarga al enfocar el campo, no en el arranque.
  * La lista va en un portal fuera de la barra: dentro, el `backdrop-filter` de la barra anula el de la lista.
- * Va dentro de <main> (axe: region). En el primer render <main> aún no está en el DOM y se usa <body>; el portal
- * se muda al siguiente render, que ocurre al enfocar el campo, antes de que haya lista o avisos.
+ * Va dentro de <main> (axe: region). <main> no está en el DOM durante el primer render, así que el destino se
+ * resuelve al montar y el portal (con la región viva) ya no cambia de sitio.
  */
 export function CountrySearch() {
   const { t } = useTranslation()
@@ -37,6 +37,12 @@ export function CountrySearch() {
   const value = (chosen && index.find((c) => c.a3 === chosen)?.name) || query
   const results = useMemo(() => search(index, value, language), [index, value, language])
   const showList = open && results.length > 0
+
+  const [host, setHost] = useState<Element | null>(null)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- el DOM solo existe tras montar
+    setHost(document.querySelector('main') ?? document.body)
+  }, [])
 
   useEffect(() => {
     if (expanded) input.current?.focus()
@@ -171,31 +177,32 @@ export function CountrySearch() {
           onKeyDown={onKeyDown}
         />
       </div>
-      {createPortal(
-        <div ref={popup} className="search__popup">
-          <ul id={listId} role="listbox" aria-label={t('search.label')} className="search__list panel" hidden={!showList}>
-            {results.map((c, i) => (
-              <li
-                key={c.a3}
-                id={`${listId}-${i}`}
-                role="option"
-                aria-selected={i === active}
-                className="search__option"
-                // Sin esto el campo pierde el foco y la lista se cierra antes del clic.
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => choose(c)}
-              >
-                {c.name}
-              </li>
-            ))}
-          </ul>
-          {/* Con resultados el aviso solo lo oye el lector de pantalla; sin ellos (o con error) se ve bajo el campo. */}
-          <p role="status" className={showList || !status ? 'visually-hidden' : 'search__status panel'}>
-            {status}
-          </p>
-        </div>,
-        document.querySelector('main') ?? document.body,
-      )}
+      {host &&
+        createPortal(
+          <div ref={popup} className="search__popup">
+            <ul id={listId} role="listbox" aria-label={t('search.label')} className="search__list panel" hidden={!showList}>
+              {results.map((c, i) => (
+                <li
+                  key={c.a3}
+                  id={`${listId}-${i}`}
+                  role="option"
+                  aria-selected={i === active}
+                  className="search__option"
+                  // Sin esto el campo pierde el foco y la lista se cierra antes del clic.
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => choose(c)}
+                >
+                  {c.name}
+                </li>
+              ))}
+            </ul>
+            {/* Con resultados el aviso solo lo oye el lector de pantalla; sin ellos (o con error) se ve bajo el campo. */}
+            <p role="status" className={showList || !status ? 'visually-hidden' : 'search__status panel'}>
+              {status}
+            </p>
+          </div>,
+          host,
+        )}
     </>
   )
 }
