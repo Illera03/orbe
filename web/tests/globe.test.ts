@@ -49,12 +49,22 @@ describe('proyección', () => {
 })
 
 describe('animateProjection', () => {
+  // Como MapLibre: la expresión por zoom recién puesta se evalúa a z0 (globo) y la del estado global sigue su valor.
   function fakeMap(state: number, zoom = 1.5) {
+    const projection = { transitionState: state }
+    let globeness = 1
+    let morphing = false
     return {
-      style: { projection: { transitionState: state } },
+      style: { projection },
       getZoom: () => zoom,
-      setProjection: vi.fn(),
-      setGlobalStateProperty: vi.fn(),
+      setProjection: vi.fn(({ type }: { type: unknown }) => {
+        morphing = JSON.stringify(type).includes('global-state')
+        projection.transitionState = morphing ? globeness : type === 'mercator' ? 0 : 1
+      }),
+      setGlobalStateProperty: vi.fn((_key: string, value: number) => {
+        globeness = value
+        if (morphing) projection.transitionState = value
+      }),
     }
   }
   const asMap = (m: ReturnType<typeof fakeMap>) => m as unknown as maplibregl.Map
@@ -80,8 +90,10 @@ describe('animateProjection', () => {
     expect(mid).toBeLessThan(1)
     expect(onEnd).not.toHaveBeenCalled()
     vi.advanceTimersByTime(600)
-    expect(map.setGlobalStateProperty).toHaveBeenLastCalledWith('orbe-globeness', 0)
+    expect(map.setGlobalStateProperty).toHaveBeenCalledWith('orbe-globeness', 0)
     expect(map.setProjection).toHaveBeenLastCalledWith({ type: 'mercator' })
+    // En reposo el estado vuelve a 1 para el halo de atmósfera.
+    expect(map.setGlobalStateProperty).toHaveBeenLastCalledWith('orbe-globeness', 1)
     expect(onEnd).toHaveBeenCalledOnce()
   })
 
@@ -96,8 +108,23 @@ describe('animateProjection', () => {
     // A z8 el globo ya se ve plano: pasar a Mercator no tiene animación.
     const lejos = fakeMap(0, 8)
     animateProjection(asMap(lejos), 'mercator', 1000, onEnd)
-    expect(lejos.setGlobalStateProperty).not.toHaveBeenCalled()
+    expect(lejos.setGlobalStateProperty.mock.calls).toEqual([['orbe-globeness', 1]])
     expect(lejos.setProjection).toHaveBeenCalledWith({ type: 'mercator' })
+  })
+
+  it('doble clic: la segunda parte de donde iba la primera, leído antes de cortarla (como GlobeMap)', () => {
+    const map = fakeMap(1)
+    const stop = animateProjection(asMap(map), 'mercator', 1000, () => {})
+    vi.advanceTimersByTime(500)
+    const from = map.style.projection.transitionState
+    expect(from).toBeGreaterThan(0)
+    expect(from).toBeLessThan(1)
+    stop()
+    // Cortar deja Mercator: leído ahora daría 0 y el mapa saltaría.
+    expect(map.style.projection.transitionState).toBe(0)
+    map.setGlobalStateProperty.mockClear()
+    animateProjection(asMap(map), 'globe', 1000, () => {}, from)
+    expect(map.setGlobalStateProperty.mock.calls[0]).toEqual(['orbe-globeness', from])
   })
 })
 

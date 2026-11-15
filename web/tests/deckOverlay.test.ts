@@ -110,7 +110,7 @@ describe('addDeckOverlay', () => {
     Object.setPrototypeOf(map, { getProjection: () => ({ type: ['interpolate', ['linear'], ['zoom'], 5, 'x', 6, 'y'] }) })
     Object.assign(map, { style: { projection: state } })
     const build = vi.fn(() => [])
-    await addDeckOverlay(asMap(map), build, new AbortController().signal)
+    const remove = await addDeckOverlay(asMap(map), build, new AbortController().signal)
     expect(asMap(map).getProjection()).toEqual({ type: 'globe' })
     const calls = map.on.mock.calls as unknown as [string, () => void][]
     const render = calls.find(([event]) => event === 'render')![1]
@@ -121,5 +121,8 @@ describe('addDeckOverlay', () => {
     render()
     expect(deck.setProps).toBe(1)
     expect(build).toHaveBeenLastCalledWith({}, 'mercator')
+    // Al retirar el overlay, el mapa vuelve a su getProjection.
+    remove()
+    expect(Object.hasOwn(map, 'getProjection')).toBe(false)
   })
 })

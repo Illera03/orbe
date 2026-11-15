@@ -31,9 +31,11 @@ export async function addDeckOverlay(
   }
   // La que se ve: el globo de la app es una expresión que se aplana por zoom (globe.ts).
   const projection = (): ProjectionType => ((map.style?.projection?.transitionState ?? 1) > 0 ? 'globe' : 'mercator')
-  // deck.gl 9.4.1 lanza «Unsupported projection» si getProjection() no es 'globe' o 'mercator', y lo lee en cada
-  // movimiento para elegir GlobeView o MapView: con la proyección que se ve, sigue también al aplanado por zoom.
-  if (!Object.hasOwn(map, 'getProjection')) {
+  // shortcut: deck.gl 9.4.1 lanza «Unsupported projection» si getProjection() no es 'globe' o 'mercator' (el globo
+  // de la app es una expresión por zoom) y lo usa para elegir GlobeView o MapView: se le da la proyección que se ve.
+  // Se quita al retirar el overlay y se retira del código con el parche de `transform` (D27).
+  const ownGetProjection = !Object.hasOwn(map, 'getProjection')
+  if (ownGetProjection) {
     const original = map.getProjection.bind(map)
     map.getProjection = () => {
       const spec = original()
@@ -78,6 +80,7 @@ export async function addDeckOverlay(
   } catch (error) {
     map.off('render', sync)
     map.removeControl(overlay)
+    if (ownGetProjection) Reflect.deleteProperty(map, 'getProjection')
     throw error
   }
   // Abortado durante la inicialización: quien aborta destruye el mapa, que ya retira el control.
@@ -85,5 +88,6 @@ export async function addDeckOverlay(
   return () => {
     map.off('render', sync)
     map.removeControl(overlay)
+    if (ownGetProjection) Reflect.deleteProperty(map, 'getProjection')
   }
 }

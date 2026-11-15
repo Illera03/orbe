@@ -40,11 +40,13 @@ export function GlobeMap() {
     const unsubscribe = useAppStore.subscribe((s, prev) => {
       if (s.theme !== prev.theme) apply(s.theme)
       if (s.projection === prev.projection) return
+      // Lo curvo que se ve ahora, antes de cortar otra animación: al cortarla salta a su proyección final.
+      const from = map.style?.projection?.transitionState
       stopMorph?.()
       // Antes de llegar el primer estilo no hay nada que animar: transformStyle ya leerá la proyección nueva.
-      if (!map.style?.projection) return
+      if (from === undefined) return
       delete el.dataset.idle
-      stopMorph = animateProjection(map, s.projection, cameraMs(), () => (stopMorph = null))
+      stopMorph = animateProjection(map, s.projection, cameraMs(), () => (stopMorph = null), from)
     })
     map.on('idle', () => {
       // A mitad de la animación del botón el mapa puede quedarse quieto un fotograma: aún no está listo.

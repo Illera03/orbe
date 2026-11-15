@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs'
 import { test } from '@playwright/test'
+
+const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
+// Botón «Plano» del grupo en escritorio y botón único «Ver en plano» en móvil.
+const botonPlano = (isMobile: boolean) => (isMobile ? es.topbar.actions.mercator : es.topbar.projections.mercator)
 
 // Capturas para revisar PR visuales: `npm run capturas`; salen en web/capturas/ (ignorada por git).
 const vistas = [
@@ -17,8 +22,7 @@ for (const { vista, tema, plano } of casos) {
     test(nombre, async ({ page }) => {
       await page.goto('./')
       if (plano) {
-        // Botón «Plano» en escritorio y «Ver en plano» en móvil.
-        await page.getByRole('button', { name: /^(Plano|Ver en plano)$/ }).click()
+        await page.getByRole('button', { name: botonPlano(vista.isMobile), exact: true }).click()
         await page.locator('#map[data-projection="mercator"]').waitFor({ timeout: 30_000 })
       }
       // El mapa marca data-idle con el evento `idle` de MapLibre: estilo, teselas y globo ya pintados.

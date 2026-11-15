@@ -13,8 +13,8 @@ export type Bbox = [number, number, number, number]
 export const MAX_FIT_ZOOM = 6
 /** En globo, zoom en que empieza a aplanarse y zoom en que ya es Mercator. */
 export const FLATTEN_ZOOM = [5, 6] as const
-// Estado global de MapLibre que guía la animación del botón: 1 globo, 0 plano.
-const MORPH_STATE = 'orbe-globeness'
+/** Estado global de MapLibre que guía la animación del botón: 1 globo, 0 plano; en reposo, 1. */
+export const MORPH_STATE = 'orbe-globeness'
 const BASE_SOURCE = 'openmaptiles'
 // Marca legal exigida por la ODbL; los nombres propios no se traducen.
 const BASE_ATTRIBUTION =
@@ -110,10 +110,17 @@ export function globeness(projection: ProjectionType, zoom: number): number {
 /**
  * Pasa a `to` con el globo aplanándose (o curvándose) durante `ms`, sin recargar el estilo ni mover la cámara.
  * Mientras dura, la proyección es una expresión sobre un estado global que se anima; al acabar queda `projectionSpec(to)`.
- * Devuelve la función que la corta y deja ya la proyección final; `onEnd` llega en ambos casos.
+ * `from` es lo curvo que se ve al empezar (1 globo, 0 plano): al interrumpir otra animación hay que leerlo antes de
+ * cortarla, porque al cortarla ya queda la proyección final. Devuelve la función que la corta y deja ya la proyección
+ * final; `onEnd` llega en ambos casos.
  */
-export function animateProjection(map: maplibregl.Map, to: ProjectionType, ms: number, onEnd: () => void): () => void {
-  const from = map.style.projection?.transitionState ?? 1
+export function animateProjection(
+  map: maplibregl.Map,
+  to: ProjectionType,
+  ms: number,
+  onEnd: () => void,
+  from = map.style.projection?.transitionState ?? 1,
+): () => void {
   const target = globeness(to, map.getZoom())
   let id = 0
   let done = false
@@ -122,6 +129,8 @@ export function animateProjection(map: maplibregl.Map, to: ProjectionType, ms: n
     done = true
     cancelAnimationFrame(id)
     map.setProjection(projectionSpec(to))
+    // En reposo vale 1, para que lo que lo lea fuera de la animación (el halo de atmósfera del tema) vea globo.
+    map.setGlobalStateProperty(MORPH_STATE, 1)
     onEnd()
   }
   if (ms <= 0 || from === target) {
