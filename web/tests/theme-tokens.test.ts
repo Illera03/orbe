@@ -48,6 +48,8 @@ describe('tokens de tema', () => {
     expect(contrast(rgb(c.accent), panel)).toBeGreaterThanOrEqual(4.5)
     expect(contrast(rgb(c.accentText), rgb(c.accent))).toBeGreaterThanOrEqual(4.5)
     expect(contrast(rgb(c.focus), panel)).toBeGreaterThanOrEqual(3)
+    // Contorno que identifica un control (WCAG 1.4.11).
+    expect(contrast(rgb(c.controlBorder), panel)).toBeGreaterThanOrEqual(3)
     expect(contrast(rgb(c.text), rgb(c.bg))).toBeGreaterThanOrEqual(4.5)
     expect(contrast(rgb(c.danger), panel)).toBeGreaterThanOrEqual(4.5)
   })
