@@ -26,6 +26,8 @@ export function themeSky(theme: ThemeName): SkySpecification {
     'fog-ground-blend': 0.9,
     // MapLibre exige el `zoom` en el `interpolate` exterior; el estado global escala el halo durante la animación.
     'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, ['*', theme === 'dark' ? 1 : 0.6, ['global-state', GLOBENESS_STATE]], 6, 0],
+    // Sin el suavizado de 300 ms de MapLibre: si no, el halo va por detrás del aplanado y destella al volver a globo.
+    'atmosphere-blend-transition': { duration: 0 },
   }
 }
 

@@ -33,6 +33,7 @@
     "@axe-core/playwright": "4.14.0",
     "@eslint/js": "10.0.1",
     "@lhci/cli": "0.16.1",
+    "@maplibre/maplibre-gl-style-spec": "26.8.0",
     "@playwright/test": "1.65.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

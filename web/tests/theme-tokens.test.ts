@@ -13,7 +13,7 @@ function rgb(c: string, under = [255, 255, 255]): number[] {
   return [r, g, b].map((v, i) => v * a + under[i] * (1 - a))
 }
 function lum([r, g, b]: number[]): number {
-  const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
+  const f = (v: number) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
 }
 function contrast(a: number[], b: number[]): number {
@@ -86,6 +86,10 @@ describe('tokens de tema', () => {
   it.each(names)('el halo de atmósfera sigue el estado %s de la animación globo/plano', (n) => {
     const style = themeMapStyle({ version: 8, sources: {}, layers: [] } as StyleSpecification, n)
     expect(style.state).toEqual({ [GLOBENESS_STATE]: { default: 1 } })
+    // Conserva el `state` que ya traiga el estilo base.
+    const conBase = themeMapStyle({ version: 8, sources: {}, layers: [], state: { otro: { default: 'x' } } } as StyleSpecification, n)
+    expect(conBase.state).toEqual({ otro: { default: 'x' }, [GLOBENESS_STATE]: { default: 1 } })
+    expect(themeSky(n)['atmosphere-blend-transition']).toEqual({ duration: 0 })
     // Se valida con la especificación real de `sky.atmosphere-blend`: MapLibre rechaza el `zoom` anidado.
     const spec = latest.sky['atmosphere-blend'] as StylePropertySpecification
     const blend = (zoom: number, globeness: number) => {
