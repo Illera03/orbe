@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { pararRotacion } from './mapa'
 
 const textos = (lng: string) =>
   JSON.parse(readFileSync(new URL(`../../src/i18n/${lng}.json`, import.meta.url), 'utf8'))
@@ -23,6 +24,7 @@ for (const caso of casos) {
     test('se usa solo con teclado y la cámara vuela al país', async ({ page }) => {
       const t = textos(caso.lng).search
       await page.goto('./')
+      await pararRotacion(page)
       await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
       const caja = page.getByRole('combobox', { name: t.label })
       await expect(caja).toHaveAttribute('aria-expanded', 'false')
@@ -81,6 +83,7 @@ test.describe('buscador en móvil (320 px)', () => {
   test('el botón despliega el campo, alias «EEUU» y vuelta al botón', async ({ page }) => {
     const t = textos('es').search
     await page.goto('./')
+    await pararRotacion(page)
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     const boton = page.getByRole('button', { name: t.open })
     const caja = page.getByRole('combobox', { name: t.label })
