@@ -1,7 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as maplibregl from 'maplibre-gl'
 import type { StyleSpecification } from 'maplibre-gl'
-import { animateProjection, boundsFor, flyToBounds, globeness, globeStyle, projectionSpec, setActiveMap } from '../src/map/globe'
+import {
+  animateProjection,
+  boundsFor,
+  fitGlobeZoom,
+  flyToBounds,
+  globeness,
+  globeStyle,
+  LANGUAGE_STATE,
+  projectionSpec,
+  setActiveMap,
+} from '../src/map/globe'
 import { reducedMotion, shared } from '../src/theme/tokens'
 import { mapColors } from '../src/theme/map'
 
@@ -15,15 +25,22 @@ const base: StyleSpecification = {
   sources: { openmaptiles: { type: 'vector', url: 'https://tiles.test/planet', attribution: 'Data from OSM' } },
   layers: [
     { id: 'bg', type: 'background' },
-    { id: 'place', type: 'symbol', source: 'openmaptiles', 'source-layer': 'place' },
+    {
+      id: 'place',
+      type: 'symbol',
+      source: 'openmaptiles',
+      'source-layer': 'place',
+      layout: { 'text-field': ['case', ['has', 'name:nonlatin'], ['get', 'name:latin'], ['coalesce', ['get', 'name_en'], ['get', 'name']]] },
+    },
+    { id: 'shield', type: 'symbol', source: 'openmaptiles', 'source-layer': 'transportation_name', layout: { 'text-field': ['to-string', ['get', 'ref']] } },
   ],
 }
 
 describe('globeStyle', () => {
-  const style = globeStyle(base, 'dark', 'pmtiles://x', 'globe')
+  const style = globeStyle(base, 'dark', 'pmtiles://x', 'globe', 'es')
 
   it('añade los países bajo las etiquetas, con el borde del tema', () => {
-    expect(style.layers.map((l) => l.id)).toEqual(['bg', 'countries-line', 'place'])
+    expect(style.layers.map((l) => l.id)).toEqual(['bg', 'countries-line', 'place', 'shield'])
     expect(style.layers[1]).toMatchObject({ paint: { 'line-color': mapColors('dark').countryBorder } })
     expect(style.sources.countries).toMatchObject({ type: 'vector', url: 'pmtiles://x' })
   })
@@ -36,13 +53,45 @@ describe('globeStyle', () => {
   })
 })
 
+describe('etiquetas', () => {
+  const style = globeStyle(base, 'dark', 'pmtiles://x', 'globe', 'en')
+
+  it('los nombres van en el idioma del estado global, con el local de respaldo y pegados a la esfera', () => {
+    expect(style.state?.[LANGUAGE_STATE]).toEqual({ default: 'en' })
+    expect(style.layers[2]).toMatchObject({
+      layout: {
+        'text-field': ['coalesce', ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]], ['get', 'name']],
+        'text-pitch-alignment': 'map',
+      },
+    })
+  })
+
+  it('las referencias de carretera no cambian', () => {
+    expect(style.layers[3]).toEqual(base.layers[2])
+  })
+})
+
+describe('fitGlobeZoom', () => {
+  it('en escritorio el globo llena el alto libre y en móvil el ancho', () => {
+    // Radio en pantalla con el zoom calculado, con la misma fórmula de MapLibre (ver fitGlobeZoom).
+    const screenRadius = (w: number, h: number) => {
+      const z = fitGlobeZoom(w, h, 20, 36.87)
+      const R = (512 * 2 ** z) / (2 * Math.PI * Math.cos((20 * Math.PI) / 180))
+      const d = h / 2 / Math.tan((36.87 * Math.PI) / 360)
+      return (d * R) / Math.sqrt(d * d + 2 * d * R)
+    }
+    expect(screenRadius(1280, 800)).toBeCloseTo(400 - 88)
+    expect(screenRadius(375, 812)).toBeCloseTo(187.5 - 16)
+  })
+})
+
 describe('proyección', () => {
   it('el globo se aplana entre z5 y z6; el plano es Mercator a cualquier zoom', () => {
     expect(projectionSpec('globe')).toEqual({
       type: ['interpolate', ['linear'], ['zoom'], 5, 'vertical-perspective', 6, 'mercator'],
     })
     expect(projectionSpec('mercator')).toEqual({ type: 'mercator' })
-    expect(globeStyle(base, 'light', 'pmtiles://x', 'mercator').projection).toEqual({ type: 'mercator' })
+    expect(globeStyle(base, 'light', 'pmtiles://x', 'mercator', 'es').projection).toEqual({ type: 'mercator' })
     expect([1.5, 5.5, 8].map((z) => globeness('globe', z))).toEqual([1, 0.5, 0])
     expect(globeness('mercator', 1.5)).toBe(0)
   })

@@ -5,7 +5,7 @@ import { MAP_STYLE_URL, type ThemeName } from '../theme'
 import { useAppStore } from '../state/store'
 import { createMap } from './createMap'
 import { FpsMeter, fpsRequested } from './FpsMeter'
-import { animateProjection, cameraMs, globeStyle, setActiveMap } from './globe'
+import { animateProjection, cameraMs, fitGlobeZoom, globeStyle, LANGUAGE_STATE, setActiveMap } from './globe'
 import { preloadPmtiles } from './pmtiles'
 import { spinUntilInteraction } from './spin'
 import { starsBackground } from './stars'
@@ -28,6 +28,8 @@ export function GlobeMap() {
     // Antes de crear el mapa, para que la cabecera viaje en paralelo con el estilo base (D21).
     const countriesUrl = preloadPmtiles('data/geo/countries.pmtiles')
     const map = createMap(el, null)
+    // El globo llena la ventana: en escritorio lo limita el alto y en móvil el ancho.
+    map.setZoom(fitGlobeZoom(el.clientWidth, el.clientHeight, map.getCenter().lat, map.getVerticalFieldOfView()))
     let stopMorph: (() => void) | null = null
     const apply = (theme: ThemeName) => {
       stopMorph?.()
@@ -36,7 +38,7 @@ export function GlobeMap() {
       el.style.backgroundImage = starsBackground(theme)
       // La proyección se lee al llegar el estilo: así vale también la elegida mientras se descargaba.
       const transformStyle = (_prev: unknown, next: maplibregl.StyleSpecification) =>
-        globeStyle(next, theme, countriesUrl, useAppStore.getState().projection)
+        globeStyle(next, theme, countriesUrl, useAppStore.getState().projection, useAppStore.getState().language)
       map.setStyle(MAP_STYLE_URL[theme], { transformStyle })
     }
     apply(useAppStore.getState().theme)
@@ -48,6 +50,8 @@ export function GlobeMap() {
     if (stopSpin) el.dataset.spinning = ''
     const unsubscribe = useAppStore.subscribe((s, prev) => {
       if (s.theme !== prev.theme) apply(s.theme)
+      // Sin estilo cargado (aún no ha llegado el primero) no hay estado que cambiar: transformStyle leerá el idioma nuevo.
+      if (s.language !== prev.language && map.style?._loaded) map.setGlobalStateProperty(LANGUAGE_STATE, s.language)
       // Buscar o cambiar de proyección también son interacciones.
       if (s.lastInteraction !== prev.lastInteraction || s.projection !== prev.projection) stopSpin?.()
       if (s.projection === prev.projection) return
@@ -67,6 +71,11 @@ export function GlobeMap() {
       const { lng, lat } = map.getCenter()
       // Cámara en el DOM para que el e2e compruebe que el cambio de tema no la mueve.
       el.dataset.camera = [lng, lat, map.getZoom()].map((n) => n.toFixed(4)).join(',')
+      // Nombres de país que se ven, ya evaluados, para que el e2e compruebe el idioma de las etiquetas.
+      el.dataset.countryLabels = map
+        .queryRenderedFeatures({ filter: ['==', ['get', 'class'], 'country'] })
+        .flatMap((f) => (f.layer.type === 'symbol' ? [String(f.layer.layout?.['text-field'])] : []))
+        .join('|')
       el.dataset.idle = ''
     })
     map.on('dataloading', () => delete el.dataset.idle)
