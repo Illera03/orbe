@@ -5,10 +5,12 @@ import {
   animateProjection,
   boundsFor,
   fitGlobeZoom,
+  FLATTEN_ZOOM,
   flyToBounds,
   globeness,
   globeStyle,
   LANGUAGE_STATE,
+  PROJECTION_STATE,
   projectionSpec,
   setActiveMap,
 } from '../src/map/globe'
@@ -56,12 +58,25 @@ describe('globeStyle', () => {
 describe('etiquetas', () => {
   const style = globeStyle(base, 'dark', 'pmtiles://x', 'globe', 'en')
 
-  it('los nombres van en el idioma del estado global, con el local de respaldo y pegados a la esfera', () => {
+  it('los nombres van en el idioma del estado global, con la transliteración latina y el local de respaldo', () => {
     expect(style.state?.[LANGUAGE_STATE]).toEqual({ default: 'en' })
+    expect(style.state?.[PROJECTION_STATE]).toEqual({ default: 'globe' })
     expect(style.layers[2]).toMatchObject({
       layout: {
-        'text-field': ['coalesce', ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]], ['get', 'name']],
-        'text-pitch-alignment': 'map',
+        'text-field': [
+          'coalesce',
+          ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]],
+          ['get', 'name:latin'],
+          ['get', 'name'],
+        ],
+        // Pegadas a la esfera solo en globo y por debajo del zoom en que ya es plano.
+        'text-pitch-alignment': [
+          'step',
+          ['zoom'],
+          ['case', ['==', ['global-state', PROJECTION_STATE], 'globe'], 'map', 'viewport'],
+          FLATTEN_ZOOM[1],
+          'viewport',
+        ],
       },
     })
   })

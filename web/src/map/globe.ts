@@ -1,7 +1,6 @@
 // Globo de la app: estilo base con tema, capa de países de data/geo y cámara para el buscador.
 import type * as maplibregl from 'maplibre-gl'
 import type {
-  ExpressionSpecification,
   LayerSpecification,
   LngLatBoundsLike,
   ProjectionSpecification,
@@ -23,14 +22,33 @@ export const FLATTEN_ZOOM = [5, 6] as const
 const BASE_SOURCE = 'openmaptiles'
 /** Estado global de MapLibre con el idioma de las etiquetas: cambiarlo no recarga el estilo ni mueve la cámara. */
 export const LANGUAGE_STATE = 'orbe-language'
-// `name:es` o `name:en` y, si falta, el nombre local; sin el nombre en otra escritura debajo.
-const LABEL_FIELD = ['coalesce', ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]], ['get', 'name']]
+/** Estado global con la proyección elegida (`ProjectionType`), para alinear las etiquetas. */
+export const PROJECTION_STATE = 'orbe-projection'
+// `name:es` o `name:en`; si falta, la transliteración latina y, en último caso, el nombre local; sin otro debajo.
+const LABEL_FIELD = [
+  'coalesce',
+  ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]],
+  ['get', 'name:latin'],
+  ['get', 'name'],
+]
+// En globo, pegadas a la esfera para que no salgan del disco (MapLibre solo oculta un símbolo de pantalla si su anclaje
+// queda tras el horizonte); en plano, y en globo ya aplanado por zoom, de cara a la pantalla para que se lean inclinadas.
+const LABEL_PITCH = [
+  'step',
+  ['zoom'],
+  ['case', ['==', ['global-state', PROJECTION_STATE], 'globe'], 'map', 'viewport'],
+  FLATTEN_ZOOM[1],
+  'viewport',
+]
 
 /** Etiquetas del mapa base en el idioma de `LANGUAGE_STATE`; las que no son nombres (refs de carretera) no cambian. */
 function localizeLabels(layers: LayerSpecification[]): LayerSpecification[] {
   return layers.map((l) =>
     l.type === 'symbol' && JSON.stringify(l.layout?.['text-field'] ?? null).includes('["get","name"]')
-      ? { ...l, layout: { ...l.layout, 'text-field': LABEL_FIELD as ExpressionSpecification, 'text-pitch-alignment': 'map' } }
+      ? ({
+          ...l,
+          layout: { ...l.layout, 'text-field': LABEL_FIELD, 'text-pitch-alignment': LABEL_PITCH },
+        } as LayerSpecification)
       : l,
   )
 }
@@ -71,7 +89,7 @@ export function globeStyle(
   return {
     ...style,
     projection: projectionSpec(projection),
-    state: { ...style.state, [LANGUAGE_STATE]: { default: language } },
+    state: { ...style.state, [LANGUAGE_STATE]: { default: language }, [PROJECTION_STATE]: { default: projection } },
     sources: {
       ...style.sources,
       ...(baseSource?.type === 'vector' && { [BASE_SOURCE]: { ...baseSource, attribution: BASE_ATTRIBUTION } }),

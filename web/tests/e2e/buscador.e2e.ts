@@ -6,7 +6,7 @@ import { pararRotacion } from './mapa'
 const textos = (lng: string) =>
   JSON.parse(readFileSync(new URL(`../../src/i18n/${lng}.json`, import.meta.url), 'utf8'))
 
-// Cámara que el mapa deja en `data-camera` («lng,lat,zoom») al quedarse quieto.
+// Cámara que el mapa deja en `data-camera` («lng,lat,zoom,inclinación») al quedarse quieto.
 async function camara(page: Page): Promise<number[]> {
   return (await page.locator('#map[data-idle]').getAttribute('data-camera', { timeout: 30_000 }))!.split(',').map(Number)
 }

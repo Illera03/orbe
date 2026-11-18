@@ -39,7 +39,7 @@ test('en globo, al acercarse por encima de z6 pasa solo a plano', async ({ page 
   const mapa = page.locator('#map')
   await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
   await page.mouse.move(640, 400)
-  // Rueda hacia dentro hasta pasar de z6 (data-camera termina en el zoom).
+  // Rueda hacia dentro hasta pasar de z6 (el tercer valor de data-camera es el zoom).
   await expect(async () => {
     await page.mouse.wheel(0, -600)
     const zoom = Number((await mapa.getAttribute('data-camera'))!.split(',')[2])
