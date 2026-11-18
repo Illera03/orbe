@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { StyleSpecification } from 'maplibre-gl'
-import { cssVars, themeCss, themes, type ThemeName } from '../src/theme/tokens'
+import { cssVars, mapType, themeCss, themes, type ThemeName } from '../src/theme/tokens'
 import { expression, latest, type StylePropertySpecification } from '@maplibre/maplibre-gl-style-spec'
 import { GLOBENESS_STATE, SUBNATIONAL_MIN_ZOOM, themeMapStyle, themeSky } from '../src/theme/map'
 
@@ -97,7 +97,7 @@ describe('tokens de tema', () => {
       if (exp.result !== 'success') throw new Error(JSON.stringify(exp.value))
       return exp.value.evaluate({ zoom })
     }
-    const full = n === 'dark' ? 1 : 0.6
+    const full = themes[n].map.atmosphere
     expect(blend(0, 1)).toBeCloseTo(full)
     expect(blend(0, 0.5)).toBeCloseTo(full / 2)
     expect(blend(0, 0)).toBe(0)
@@ -105,7 +105,7 @@ describe('tokens de tema', () => {
     expect(blend(6, 1)).toBe(0)
   })
 
-  it('themeMapStyle oculta a zoom bajo los límites subnacionales de dark y positron, no los de país', () => {
+  it('themeMapStyle oculta a zoom bajo los límites del mapa base: subnacionales con fundido y de país hasta z5', () => {
     const line = (id: string, filter: unknown, minzoom?: number) =>
       ({ id, type: 'line', source: 'o', 'source-layer': 'boundary', filter, minzoom, paint: { 'line-opacity': 1 } })
     // Filtros copiados de los estilos dark y positron de OpenFreeMap.
@@ -124,7 +124,66 @@ describe('tokens de tema', () => {
       expect(state.minzoom).toBe(SUBNATIONAL_MIN_ZOOM)
       expect(prov.minzoom).toBe(8)
       expect(state.paint).toMatchObject({ 'line-color': themes[t].map.border, 'line-opacity': ['interpolate', ['linear'], ['zoom'], SUBNATIONAL_MIN_ZOOM, 0, SUBNATIONAL_MIN_ZOOM + 1, 1] })
-      for (const l of [country, disputed]) expect(l).toMatchObject({ minzoom: undefined, paint: { 'line-opacity': 1 } })
+      // Hasta z5 las fronteras de país las dibuja solo `countries-line` (Natural Earth); sin fundido.
+      for (const l of [country, disputed]) expect(l).toMatchObject({ minzoom: SUBNATIONAL_MIN_ZOOM, paint: { 'line-opacity': 1 } })
+    }
+  })
+
+  it('themeMapStyle: etiquetas sin mayúsculas, por clase y zoom, y sin nombres con el globo', () => {
+    const sym = (id: string, src: string, filter: unknown, minzoom?: number) =>
+      ({ id, type: 'symbol', source: 'o', 'source-layer': src, filter, minzoom, layout: { 'text-transform': 'uppercase', 'text-letter-spacing': 0.2 }, paint: {} })
+    // Filtros recortados de dark (una clase por capa) y positron (`label_other`, varias clases).
+    const base = {
+      version: 8,
+      sources: {},
+      layers: [
+        sym('place_country_major', 'place', ['all', ['==', ['get', 'class'], 'country']]),
+        sym('place_state', 'place', ['all', ['==', ['get', 'class'], 'state']]),
+        sym('place_city', 'place', ['all', ['==', ['get', 'class'], 'city']]),
+        sym('label_other', 'place', ['match', ['get', 'class'], ['city', 'continent', 'country', 'state', 'town', 'village'], false, true], 8),
+        sym('water_name', 'water_name', null),
+      ],
+    } as StyleSpecification
+    for (const t of names) {
+      const [country, state, city, other, water] = themeMapStyle(base, t).layers as Array<{ minzoom?: number; layout: Record<string, unknown>; paint: Record<string, unknown> }>
+      expect([country, state, city, other, water].map((l) => l.minzoom)).toEqual([
+        mapType.country.minzoom, mapType.state.minzoom, mapType.city.minzoom, mapType.minor.minzoom, mapType.water.minzoom,
+      ])
+      // Con el globo (zoom inicial ≈ 2,2) no hay ninguna etiqueta del mapa base.
+      for (const l of [country, state, city, other, water]) {
+        expect(l.minzoom).toBeGreaterThanOrEqual(4)
+        expect(l.layout).toMatchObject({ 'text-transform': 'none', 'text-letter-spacing': 0 })
+      }
+      expect(country.paint['text-color']).toBe(themes[t].map.label)
+      expect(city.paint['text-color']).toBe(themes[t].map.labelMinor)
+    }
+  })
+
+  it('jerarquía del tema oscuro «Silueta»: espacio = tierra < océano < fronteras < etiquetas', () => {
+    const m = themes.dark.map
+    expect(m.land).toBe(themes.dark.color.bg)
+    const l = (c: string) => lum(rgb(c))
+    expect(l(m.land)).toBeLessThan(l(m.ocean))
+    expect(l(m.ocean)).toBeLessThan(l(m.border))
+    expect(l(m.border)).toBeLessThan(l(m.labelMinor))
+    expect(l(m.labelMinor)).toBeLessThan(l(m.label))
+  })
+
+  it('etiquetas del mapa ≥ 4,5:1 y contorno de país ≥ 3:1 sobre tierra y océano en ambos temas', () => {
+    for (const t of names) {
+      const m = themes[t].map
+      for (const c of [m.label, m.labelMinor]) for (const bg of [m.land, m.ocean]) expect(contrast(rgb(c), rgb(bg))).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(rgb(m.labelWater), rgb(m.ocean))).toBeGreaterThanOrEqual(4.5)
+      for (const bg of [m.land, m.ocean]) expect(contrast(rgb(m.countryBorder, rgb(bg)), rgb(bg))).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('conmutador activo: texto ≥ 4,5:1 sobre su tinte encima del panel', () => {
+    for (const t of names) {
+      const c = themes[t].color
+      // Peor caso del tema oscuro: panel translúcido sobre blanco, como el resto de pruebas de panel.
+      const panel = rgb(c.panelBg)
+      expect(contrast(rgb(c.controlActiveText), rgb(c.controlActiveBg, panel))).toBeGreaterThanOrEqual(4.5)
     }
   })
 })

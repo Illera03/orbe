@@ -1,6 +1,6 @@
 // Estilos de mapa por tema: estilo base de OpenFreeMap + sobrescritura de colores con los tokens.
-import type { LayerSpecification, SkySpecification, StyleSpecification } from 'maplibre-gl'
-import { themes, type ThemeName } from './tokens'
+import type { ExpressionSpecification, LayerSpecification, SkySpecification, StyleSpecification } from 'maplibre-gl'
+import { mapType, themes, type ThemeName } from './tokens'
 
 /** URL del estilo base de cada tema (oscuro «espacial» sobre dark, claro «editorial» sobre positron). */
 export const MAP_STYLE_URL: Record<ThemeName, string> = {
@@ -25,7 +25,7 @@ export function themeSky(theme: ThemeName): SkySpecification {
     'horizon-fog-blend': 0.6,
     'fog-ground-blend': 0.9,
     // MapLibre exige el `zoom` en el `interpolate` exterior; el estado global escala el halo durante la animación.
-    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, ['*', theme === 'dark' ? 1 : 0.6, ['global-state', GLOBENESS_STATE]], 6, 0],
+    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, ['*', m.atmosphere, ['global-state', GLOBENESS_STATE]], 6, 0],
     // Sin el suavizado de 300 ms de MapLibre: si no, el halo va por detrás del aplanado y destella al volver a globo.
     'atmosphere-blend-transition': { duration: 0 },
   }
@@ -42,10 +42,49 @@ function paintFor(layer: LayerSpecification, theme: ThemeName): Record<string, s
   if (layer.type === 'fill' && (src === 'landcover' || src === 'landuse' || src === 'park')) return { 'fill-color': m.land }
   if (layer.type === 'line' && src === 'waterway') return { 'line-color': m.ocean }
   if (layer.type === 'line' && src === 'boundary') return { 'line-color': m.border }
-  if (layer.type === 'symbol' && src === 'place') return { 'text-color': m.label, 'text-halo-color': m.labelHalo }
-  if (layer.type === 'symbol' && (src === 'water_name' || src === 'waterway'))
-    return { 'text-color': m.labelWater, 'text-halo-color': m.labelHalo }
   return undefined
+}
+
+type LabelRole = keyof Omit<typeof mapType, 'halo' | 'borderWidth' | 'countryBorderWidth'>
+
+// Clase de una capa de etiquetas según las clases de OpenMapTiles que filtra; varias clases (positron `label_other`) = minor.
+function labelRole(layer: LayerSpecification): LabelRole | undefined {
+  if (layer.type !== 'symbol') return undefined
+  const src = layer['source-layer']
+  if (src === 'water_name' || src === 'waterway') return 'water'
+  if (src !== 'place') return undefined
+  const classes = JSON.stringify(layer.filter ?? null).match(/"(country|state|city|town)"/g) ?? []
+  const all = JSON.stringify(layer.filter ?? null).match(/"(country|state|city|town|village|suburb|hamlet|continent|neighbourhood|isolated_dwelling)"/g) ?? []
+  return classes.length === 1 && all.length === 1 ? (classes[0].slice(1, -1) as LabelRole) : 'minor'
+}
+
+const stops = (pairs: readonly (readonly [number, number])[]) => pairs.flat()
+
+/** Grosor por zoom de la línea de países propia (`countries-line` en web/src/map/globe.ts). */
+export const countryLineWidth: ExpressionSpecification = ['interpolate', ['linear'], ['zoom'], ...stops(mapType.countryBorderWidth)]
+
+/** Etiquetas sin mayúsculas ni espaciado, con tamaño, color y zoom de entrada por clase (tokens `mapType`). */
+function styleLabel(layer: LayerSpecification, role: LabelRole, theme: ThemeName): LayerSpecification {
+  const m = themes[theme].map
+  const t = mapType[role]
+  const color = role === 'country' ? m.label : role === 'water' ? m.labelWater : m.labelMinor
+  return {
+    ...layer,
+    minzoom: Math.max(layer.minzoom ?? 0, t.minzoom),
+    layout: {
+      ...layer.layout,
+      'text-transform': 'none',
+      'text-letter-spacing': 0,
+      'text-size': ['interpolate', ['linear'], ['zoom'], ...stops(t.size)],
+    },
+    paint: {
+      ...layer.paint,
+      'text-color': color,
+      'text-halo-color': m.labelHalo,
+      'text-halo-width': mapType.halo.width,
+      'text-halo-blur': mapType.halo.blur,
+    },
+  } as LayerSpecification
 }
 
 /** Zoom desde el que aparecen los límites subnacionales; por debajo solo se ve `countryBorder`. */
@@ -69,8 +108,15 @@ export function themeMapStyle(style: StyleSpecification, theme: ThemeName): Styl
     state: { ...style.state, [GLOBENESS_STATE]: { default: 1 } },
     sky: themeSky(theme),
     layers: style.layers.map((layer) => {
+      const role = labelRole(layer)
+      if (role) return styleLabel(layer, role, theme)
       const paint = paintFor(layer, theme)
-      const out = paint ? ({ ...layer, paint: { ...layer.paint, ...paint } } as LayerSpecification) : layer
+      let out = paint ? ({ ...layer, paint: { ...layer.paint, ...paint } } as LayerSpecification) : layer
+      if (out.type === 'line' && out['source-layer'] === 'boundary')
+        out = { ...out, paint: { ...out.paint, 'line-width': ['interpolate', ['linear'], ['zoom'], ...stops(mapType.borderWidth)] } }
+      // Fronteras de país del mapa base: hasta z5 las dibuja solo `countries-line` (Natural Earth); así no se ven dobles.
+      if (out.type === 'line' && out['source-layer'] === 'boundary' && !isSubnational(out))
+        return { ...out, minzoom: Math.max(out.minzoom ?? 0, SUBNATIONAL_MIN_ZOOM) }
       if (!isSubnational(out)) return out
       // Oculto por debajo de SUBNATIONAL_MIN_ZOOM y entra con fundido de un nivel de zoom en vez de aparecer de golpe.
       const z = Math.max(out.minzoom ?? 0, SUBNATIONAL_MIN_ZOOM)

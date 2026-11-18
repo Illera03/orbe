@@ -34,7 +34,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
 }
 
 .topbar__logo {
@@ -149,16 +149,18 @@ body {
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--color-text-muted);
-  font: var(--font-weight-strong) var(--font-size-sm) / var(--font-line-tight) var(--font-sans);
+  font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-tight) var(--font-sans);
   cursor: pointer;
+  touch-action: manipulation;
   transition:
     background var(--motion-fast) var(--motion-easing),
     color var(--motion-fast) var(--motion-easing);
 }
 
 .toggle__button[aria-pressed='true'] {
-  background: var(--color-accent);
-  color: var(--color-accent-text);
+  background: var(--color-control-active-bg);
+  color: var(--color-control-active-text);
+  font-weight: var(--font-weight-strong);
 }
 
 .toggle__button:focus-visible,
