@@ -1,10 +1,16 @@
 // Globo de la app: estilo base con tema, capa de países de data/geo y cámara para el buscador.
 import type * as maplibregl from 'maplibre-gl'
-import type { LngLatBoundsLike, ProjectionSpecification, StyleSpecification } from 'maplibre-gl'
+import type {
+  LayerSpecification,
+  LngLatBoundsLike,
+  ProjectionSpecification,
+  StyleSpecification,
+} from 'maplibre-gl'
 // Sin pasar por theme/index, que inyecta CSS y fuentes: así se puede probar sin DOM.
 import { reducedMotion, shared, type ThemeName } from '../theme/tokens'
 import { GLOBENESS_STATE as MORPH_STATE, mapColors, themeMapStyle } from '../theme/map'
 import { prefersReducedMotion, type ProjectionType } from './createMap'
+import type { Language } from '../state/store'
 
 /** Encuadre [oeste, sur, este, norte] de `data/geo/countries.json`. */
 export type Bbox = [number, number, number, number]
@@ -14,6 +20,38 @@ export const MAX_FIT_ZOOM = 6
 /** En globo, zoom en que empieza a aplanarse y zoom en que ya es Mercator. */
 export const FLATTEN_ZOOM = [5, 6] as const
 const BASE_SOURCE = 'openmaptiles'
+/** Estado global de MapLibre con el idioma de las etiquetas: cambiarlo no recarga el estilo ni mueve la cámara. */
+export const LANGUAGE_STATE = 'orbe-language'
+/** Estado global con la proyección elegida (`ProjectionType`), para alinear las etiquetas. */
+export const PROJECTION_STATE = 'orbe-projection'
+// `name:es` o `name:en`; si falta, la transliteración latina y, en último caso, el nombre local; sin otro debajo.
+const LABEL_FIELD = [
+  'coalesce',
+  ['get', ['concat', 'name:', ['global-state', LANGUAGE_STATE]]],
+  ['get', 'name:latin'],
+  ['get', 'name'],
+]
+// En globo, pegadas a la esfera para que no salgan del disco (MapLibre solo oculta un símbolo de pantalla si su anclaje
+// queda tras el horizonte); en plano, y en globo ya aplanado por zoom, de cara a la pantalla para que se lean inclinadas.
+const LABEL_PITCH = [
+  'step',
+  ['zoom'],
+  ['case', ['==', ['global-state', PROJECTION_STATE], 'globe'], 'map', 'viewport'],
+  FLATTEN_ZOOM[1],
+  'viewport',
+]
+
+/** Etiquetas del mapa base en el idioma de `LANGUAGE_STATE`; las que no son nombres (refs de carretera) no cambian. */
+function localizeLabels(layers: LayerSpecification[]): LayerSpecification[] {
+  return layers.map((l) =>
+    l.type === 'symbol' && JSON.stringify(l.layout?.['text-field'] ?? null).includes('["get","name"]')
+      ? ({
+          ...l,
+          layout: { ...l.layout, 'text-field': LABEL_FIELD, 'text-pitch-alignment': LABEL_PITCH },
+        } as LayerSpecification)
+      : l,
+  )
+}
 // Marca legal exigida por la ODbL; los nombres propios no se traducen.
 const BASE_ATTRIBUTION =
   '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> ' +
@@ -30,13 +68,14 @@ export function globeStyle(
   theme: ThemeName,
   countriesUrl: string,
   projection: ProjectionType,
+  language: Language,
 ): StyleSpecification {
   const style = themeMapStyle(base, theme)
   delete style.center
   delete style.zoom
   delete style.bearing
   delete style.pitch
-  const layers = [...style.layers]
+  const layers = localizeLabels(style.layers)
   // Bajo las etiquetas del mapa base para que los nombres sigan legibles.
   const firstSymbol = layers.findIndex((l) => l.type === 'symbol')
   layers.splice(firstSymbol < 0 ? layers.length : firstSymbol, 0, {
@@ -50,6 +89,7 @@ export function globeStyle(
   return {
     ...style,
     projection: projectionSpec(projection),
+    state: { ...style.state, [LANGUAGE_STATE]: { default: language }, [PROJECTION_STATE]: { default: projection } },
     sources: {
       ...style.sources,
       ...(baseSource?.type === 'vector' && { [BASE_SOURCE]: { ...baseSource, attribution: BASE_ATTRIBUTION } }),
@@ -149,4 +189,19 @@ export function animateProjection(
   }
   id = requestAnimationFrame(frame)
   return finish
+}
+
+// Hueco de la barra superior arriba (y, por simetría, abajo) y margen lateral, en px.
+const GLOBE_MARGIN = { vertical: 88, horizontal: 16 }
+
+/**
+ * Zoom con el que el disco del globo cabe en un lienzo de `width` × `height` px, con la cámara a `lat` y sin inclinar.
+ * MapLibre pinta la esfera con radio R = 512·2^z / (2π·cos lat) a una distancia D = h / (2·tan(fov/2)) de la cámara;
+ * en pantalla se ve con radio r = D·R / √(D² + 2DR), y de ahí se despeja R.
+ */
+export function fitGlobeZoom(width: number, height: number, lat: number, fovDeg: number): number {
+  const r = Math.max(1, Math.min(height / 2 - GLOBE_MARGIN.vertical, width / 2 - GLOBE_MARGIN.horizontal))
+  const d = height / 2 / Math.tan((fovDeg * Math.PI) / 360)
+  const radius = (r * r + r * Math.sqrt(r * r + d * d)) / d
+  return Math.log2((radius * 2 * Math.PI * Math.cos((lat * Math.PI) / 180)) / 512)
 }

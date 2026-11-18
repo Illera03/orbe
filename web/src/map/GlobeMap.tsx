@@ -5,7 +5,7 @@ import { MAP_STYLE_URL, type ThemeName } from '../theme'
 import { useAppStore } from '../state/store'
 import { createMap } from './createMap'
 import { FpsMeter, fpsRequested } from './FpsMeter'
-import { animateProjection, cameraMs, globeStyle, setActiveMap } from './globe'
+import { animateProjection, cameraMs, fitGlobeZoom, globeStyle, LANGUAGE_STATE, PROJECTION_STATE, setActiveMap } from './globe'
 import { preloadPmtiles } from './pmtiles'
 import { spinUntilInteraction } from './spin'
 import { starsBackground } from './stars'
@@ -28,6 +28,8 @@ export function GlobeMap() {
     // Antes de crear el mapa, para que la cabecera viaje en paralelo con el estilo base (D21).
     const countriesUrl = preloadPmtiles('data/geo/countries.pmtiles')
     const map = createMap(el, null)
+    // El globo llena la ventana: en escritorio lo limita el alto y en móvil el ancho.
+    map.setZoom(fitGlobeZoom(el.clientWidth, el.clientHeight, map.getCenter().lat, map.getVerticalFieldOfView()))
     let stopMorph: (() => void) | null = null
     const apply = (theme: ThemeName) => {
       stopMorph?.()
@@ -36,7 +38,7 @@ export function GlobeMap() {
       el.style.backgroundImage = starsBackground(theme)
       // La proyección se lee al llegar el estilo: así vale también la elegida mientras se descargaba.
       const transformStyle = (_prev: unknown, next: maplibregl.StyleSpecification) =>
-        globeStyle(next, theme, countriesUrl, useAppStore.getState().projection)
+        globeStyle(next, theme, countriesUrl, useAppStore.getState().projection, useAppStore.getState().language)
       map.setStyle(MAP_STYLE_URL[theme], { transformStyle })
     }
     apply(useAppStore.getState().theme)
@@ -48,6 +50,9 @@ export function GlobeMap() {
     if (stopSpin) el.dataset.spinning = ''
     const unsubscribe = useAppStore.subscribe((s, prev) => {
       if (s.theme !== prev.theme) apply(s.theme)
+      // Sin estilo cargado (aún no ha llegado el primero) no hay estado que cambiar: transformStyle leerá el idioma nuevo.
+      // `Style._loaded` es API interna de MapLibre: revisarla al subir de versión maplibre-gl.
+      if (s.language !== prev.language && map.style?._loaded) map.setGlobalStateProperty(LANGUAGE_STATE, s.language)
       // Buscar o cambiar de proyección también son interacciones.
       if (s.lastInteraction !== prev.lastInteraction || s.projection !== prev.projection) stopSpin?.()
       if (s.projection === prev.projection) return
@@ -57,7 +62,13 @@ export function GlobeMap() {
       // Antes de llegar el primer estilo no hay nada que animar: transformStyle ya leerá la proyección nueva.
       if (from === undefined) return
       delete el.dataset.idle
-      stopMorph = animateProjection(map, s.projection, cameraMs(), () => (stopMorph = null), from)
+      // Etiquetas pegadas a la esfera desde que empieza a curvarse y de cara a la pantalla solo cuando ya es plano.
+      const labels = () => map.setGlobalStateProperty(PROJECTION_STATE, s.projection)
+      if (s.projection === 'globe') labels()
+      stopMorph = animateProjection(map, s.projection, cameraMs(), () => {
+        stopMorph = null
+        if (s.projection === 'mercator') labels()
+      }, from)
     })
     map.on('idle', () => {
       // A mitad de la animación del botón el mapa puede quedarse quieto un fotograma: aún no está listo.
@@ -65,8 +76,15 @@ export function GlobeMap() {
       // Proyección que se ve (en globo, por encima del umbral de zoom ya es plano), para e2e y capturas.
       el.dataset.projection = (map.style.projection?.transitionState ?? 1) > 0 ? 'globe' : 'mercator'
       const { lng, lat } = map.getCenter()
-      // Cámara en el DOM para que el e2e compruebe que el cambio de tema no la mueve.
-      el.dataset.camera = [lng, lat, map.getZoom()].map((n) => n.toFixed(4)).join(',')
+      // Cámara (con la inclinación) en el DOM para que el e2e compruebe que el tema o el idioma no la mueven.
+      el.dataset.camera = [lng, lat, map.getZoom(), map.getPitch()].map((n) => n.toFixed(4)).join(',')
+      // Etiquetas de lugares colocadas por MapLibre, ya evaluadas (texto y alineación), para el e2e. Incluye algunas
+      // que no llega a dibujar, como las que quedan muy oblicuas en el borde del globo.
+      const places = map
+        .queryRenderedFeatures({ filter: ['has', 'class'] })
+        .flatMap((f) => (f.layer.type === 'symbol' && f.sourceLayer === 'place' ? [f.layer.layout ?? {}] : []))
+      el.dataset.labels = places.map((l) => String(l['text-field'])).join('|')
+      el.dataset.labelPitch = String(places[0]?.['text-pitch-alignment'] ?? '')
       el.dataset.idle = ''
     })
     map.on('dataloading', () => delete el.dataset.idle)
