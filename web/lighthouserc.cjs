@@ -4,11 +4,9 @@
 const PORT = 4174
 const desktop = process.env.LH_FORM === 'desktop'
 
-// shortcut: D29, las aserciones son 'warn' porque el WebGL por software del runner da cifras poco fiables;
-// con cinco ejecuciones de referencia en main, cambiar LEVEL a 'error' y fijar los umbrales de SPEC
-// (escritorio: rendimiento >= 0.85, LCP < 2500 ms, CLS < 0.1; móvil: rendimiento >= 0.70),
-// o los que den esas ejecuciones si están por encima, y anotarlo en DECISIONS.md.
-const LEVEL = 'warn'
+// Umbrales: unos 5 puntos por debajo del peor rendimiento de las ejecuciones de main entre #34 y #47
+// (WebGL por software del runner, D39), para que bloqueen regresiones; los objetivos de SPEC se miden a mano.
+const LEVEL = 'error'
 
 module.exports = {
   ci: {
@@ -25,7 +23,7 @@ module.exports = {
     },
     assert: {
       assertions: {
-        'categories:performance': [LEVEL, { minScore: desktop ? 0.85 : 0.7 }],
+        'categories:performance': [LEVEL, { minScore: desktop ? 0.56 : 0.57 }],
         'categories:seo': [LEVEL, { minScore: 0.9 }],
         // SPEC fija LCP y CLS solo en escritorio.
         ...(desktop

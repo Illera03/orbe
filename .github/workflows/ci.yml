@@ -33,7 +33,7 @@ jobs:
       - run: npm run build
       - name: Presupuesto de JS inicial (500 KB gzip)
         run: node tests/presupuesto-js.mjs
-      # Aserciones en 'warn' hasta tener cinco ejecuciones de referencia en main (D29); ver lighthouserc.cjs.
+      # Aserciones bloqueantes con los umbrales de lighthouserc.cjs (D39).
       - name: Lighthouse escritorio
         run: npx lhci autorun --config=lighthouserc.cjs
         env:
