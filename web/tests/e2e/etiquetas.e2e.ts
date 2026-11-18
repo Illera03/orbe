@@ -16,8 +16,10 @@ async function acercar(page: Page) {
   await page.locator('#map canvas').focus()
   // Tecla a tecla hasta z≥4: MapLibre ignora una pulsación que llega en mitad de la animación anterior.
   for (let i = 0; i < 6 && (await zoom()) < 4; i++) {
+    const antes = await zoom()
     await page.keyboard.press('Equal')
-    await page.waitForTimeout(400)
+    // Espera a que el zoom cambie (o vuelve a pulsar si MapLibre ignoró la tecla) antes de la siguiente.
+    await expect.poll(zoom, { timeout: 3_000 }).toBeGreaterThan(antes).catch(() => {})
     await idle(page)
   }
   expect(await zoom()).toBeGreaterThanOrEqual(4)

@@ -71,6 +71,8 @@ function styleLabel(layer: LayerSpecification, role: LabelRole, theme: ThemeName
   return {
     ...layer,
     minzoom: Math.max(layer.minzoom ?? 0, t.minzoom),
+    // dark corta los países grandes a z6: con los países entrando a z4 se quedarían solo dos niveles de zoom.
+    ...(role === 'country' && layer.maxzoom !== undefined && { maxzoom: Math.max(layer.maxzoom, 9) }),
     layout: {
       ...layer.layout,
       ...('font' in t && { 'text-font': [...t.font] }),

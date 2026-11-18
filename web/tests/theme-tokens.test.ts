@@ -126,6 +126,8 @@ describe('tokens de tema', () => {
       expect(state.paint).toMatchObject({ 'line-color': themes[t].map.border, 'line-opacity': ['interpolate', ['linear'], ['zoom'], SUBNATIONAL_MIN_ZOOM, 0, SUBNATIONAL_MIN_ZOOM + 1, 1] })
       // Hasta z5 las fronteras de país las dibuja solo `countries-line` (Natural Earth); sin fundido.
       for (const l of [country, disputed]) expect(l).toMatchObject({ minzoom: SUBNATIONAL_MIN_ZOOM, paint: { 'line-opacity': 1 } })
+      // Ninguna línea de frontera pinta las marítimas (dark las dibujaba como bandas en la costa).
+      for (const l of [state, prov, country, disputed]) expect(JSON.stringify((l as { filter?: unknown }).filter)).toContain('["!=",["get","maritime"],1]')
     }
   })
 
@@ -155,6 +157,7 @@ describe('tokens de tema', () => {
         expect(l.layout).toMatchObject({ 'text-transform': 'none', 'text-letter-spacing': 0 })
       }
       expect(country.paint['text-color']).toBe(themes[t].map.label)
+      expect(country.layout['text-font']).toEqual(['Noto Sans Bold'])
       expect(city.paint['text-color']).toBe(themes[t].map.labelMinor)
     }
   })

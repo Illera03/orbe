@@ -47,7 +47,8 @@ export const mapType = {
   // Grosor de las fronteras del mapa base por zoom: finas con el globo, ganan peso al acercarse.
   borderWidth: [[0, 0.3], [4, 0.6], [6, 1], [10, 1.6]],
   // Línea de países propia (Natural Earth): un punto más que las del mapa base, que no se ven por debajo de z5.
-  countryBorderWidth: [[0, 0.4], [3, 0.6], [6, 1.1], [10, 1.8]],
+  // Mínimo 0,7 px: en el oscuro la costa la marca esta línea (tierra/océano ≈ 1,2:1) y más fina el antialiasing la diluye.
+  countryBorderWidth: [[0, 0.7], [3, 0.8], [6, 1.1], [10, 1.8]],
 } as const
 
 /** Duraciones con `prefers-reduced-motion: reduce` (SPEC: transiciones cortas); sustituyen a `shared.motion`. */
