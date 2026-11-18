@@ -113,8 +113,9 @@ body {
 }
 
 .search__option[aria-selected='true'] {
-  background: var(--color-accent);
-  color: var(--color-accent-text);
+  background: var(--color-control-active-bg);
+  color: var(--color-control-active-text);
+  font-weight: var(--font-weight-strong);
 }
 
 .visually-hidden {

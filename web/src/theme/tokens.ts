@@ -33,11 +33,12 @@ export const shared = {
 /**
  * Tipografía y densidad de las etiquetas del mapa base (fuente Noto Sans de OpenFreeMap; aquí solo tamaños y zooms).
  * `minzoom`: desde qué zoom aparece cada clase; `size`: pares [zoom, px] que se interpolan linealmente.
- * Con el globo (z < 4) solo hay nombres de país; regiones y ciudades entran a partir de z4–z5.
+ * Con el globo (z < 4) no hay etiquetas (D40); países y ciudades entran a z4, regiones a z5,5 y agua a z5.
  */
 export const mapType = {
-  country: { minzoom: 4, size: [[1, 10], [3, 12], [5, 14], [7, 16]] },
-  state: { minzoom: 4.5, size: [[4.5, 10], [8, 12]] },
+  // Fuentes de OpenFreeMap (mismo servidor de glifos): países en negrita y regiones en cursiva para separarlos de las ciudades.
+  country: { minzoom: 4, size: [[4, 12], [6, 15], [8, 17]], font: ['Noto Sans Bold'] },
+  state: { minzoom: 5.5, size: [[5.5, 10], [8, 12]], font: ['Noto Sans Italic'] },
   city: { minzoom: 4, size: [[4, 10.5], [8, 13], [12, 15]] },
   town: { minzoom: 6, size: [[6, 10], [12, 13]] },
   minor: { minzoom: 8, size: [[8, 10], [14, 12]] },
@@ -109,7 +110,7 @@ export const themes = {
   },
   light: {
     color: {
-      bg: '#ebe7df',
+      bg: '#e2dccf',
       panelBg: '#fffdf8',
       panelBorder: '#e3ddd0',
       controlBorder: '#8a8478',
@@ -138,9 +139,10 @@ export const themes = {
       countrySelected: '#b35900',
       noDataBg: '#ece7dc',
       noDataStripe: '#c9c2b4',
-      sky: '#ebe7df',
-      horizon: '#b8cbdc',
-      fog: '#ebe7df',
+      sky: '#e2dccf',
+      // Más azul y hondo que el fondo, para recortar el borde del globo donde la tierra marfil lo toca.
+      horizon: '#8fa9c2',
+      fog: '#e2dccf',
       stars: '#ffffff',
       starsOpacity: 0,
       atmosphere: 0.6,

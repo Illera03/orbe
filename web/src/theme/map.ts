@@ -73,6 +73,7 @@ function styleLabel(layer: LayerSpecification, role: LabelRole, theme: ThemeName
     minzoom: Math.max(layer.minzoom ?? 0, t.minzoom),
     layout: {
       ...layer.layout,
+      ...('font' in t && { 'text-font': [...t.font] }),
       'text-transform': 'none',
       'text-letter-spacing': 0,
       'text-size': ['interpolate', ['linear'], ['zoom'], ...stops(t.size)],
@@ -113,7 +114,12 @@ export function themeMapStyle(style: StyleSpecification, theme: ThemeName): Styl
       const paint = paintFor(layer, theme)
       let out = paint ? ({ ...layer, paint: { ...layer.paint, ...paint } } as LayerSpecification) : layer
       if (out.type === 'line' && out['source-layer'] === 'boundary')
-        out = { ...out, paint: { ...out.paint, 'line-width': ['interpolate', ['linear'], ['zoom'], ...stops(mapType.borderWidth)] } }
+        out = {
+          ...out,
+          // Sin las líneas marítimas (dark las pinta como bandas en la costa y círculos alrededor de islotes).
+          filter: ['all', out.filter ?? true, ['!=', ['get', 'maritime'], 1]],
+          paint: { ...out.paint, 'line-width': ['interpolate', ['linear'], ['zoom'], ...stops(mapType.borderWidth)] },
+        } as LayerSpecification
       // Fronteras de país del mapa base: hasta z5 las dibuja solo `countries-line` (Natural Earth); así no se ven dobles.
       if (out.type === 'line' && out['source-layer'] === 'boundary' && !isSubnational(out))
         return { ...out, minzoom: Math.max(out.minzoom ?? 0, SUBNATIONAL_MIN_ZOOM) }
