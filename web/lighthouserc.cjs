@@ -6,6 +6,9 @@ const desktop = process.env.LH_FORM === 'desktop'
 
 // Umbrales: unos 5 puntos por debajo del peor rendimiento de las ejecuciones de main entre #34 y #47
 // (WebGL por software del runner, D39), para que bloqueen regresiones; los objetivos de SPEC se miden a mano.
+// Con el TBT ya en 0 en el runner, el rendimiento no baja de ~0,60 aunque empeore el hilo principal:
+// eso lo vigila tests/presupuesto-js.mjs. Los umbrales cuentan con que lhci juzga la mejor de las 3 ejecuciones
+// (agregación optimista por defecto); con mediana o con una sola, el 0,52 suelto visto en #49 daría un falso rojo.
 const LEVEL = 'error'
 
 module.exports = {
