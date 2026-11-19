@@ -8,7 +8,7 @@ import type {
 } from 'maplibre-gl'
 // Sin pasar por theme/index, que inyecta CSS y fuentes: así se puede probar sin DOM.
 import { reducedMotion, shared, type ThemeName } from '../theme/tokens'
-import { GLOBENESS_STATE as MORPH_STATE, mapColors, themeMapStyle } from '../theme/map'
+import { GLOBENESS_STATE as MORPH_STATE, countryLineWidth, mapColors, themeMapStyle } from '../theme/map'
 import { prefersReducedMotion, type ProjectionType } from './createMap'
 import type { Language } from '../state/store'
 
@@ -83,7 +83,7 @@ export function globeStyle(
     type: 'line',
     source: 'countries',
     'source-layer': 'countries',
-    paint: { 'line-color': mapColors(theme).countryBorder, 'line-width': 0.8 },
+    paint: { 'line-color': mapColors(theme).countryBorder, 'line-width': countryLineWidth },
   })
   const baseSource = style.sources[BASE_SOURCE]
   return {

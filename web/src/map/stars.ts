@@ -1,7 +1,9 @@
 import { mapColors, type ThemeName } from '../theme'
 
 const TILE = 512
-const STARS = 140
+const STARS = 90
+// Una de cada doce estrellas es algo mayor y más brillante: da profundidad sin llenar el fondo de ruido.
+const BRIGHT_EVERY = 12
 
 /**
  * Fondo de estrellas tenues: una tesela de 512 px con puntos pseudoaleatorios (semilla fija, siempre igual)
@@ -18,9 +20,10 @@ export function starsBackground(theme: ThemeName): string {
   const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646
   ctx.fillStyle = stars
   for (let i = 0; i < STARS; i++) {
-    ctx.globalAlpha = starsOpacity * (0.3 + 0.7 * rand())
+    const bright = i % BRIGHT_EVERY === 0
+    ctx.globalAlpha = bright ? Math.min(1, starsOpacity * 2.4) : starsOpacity * (0.25 + 0.6 * rand())
     ctx.beginPath()
-    ctx.arc(rand() * TILE, rand() * TILE, 0.4 + rand() * 0.8, 0, 2 * Math.PI)
+    ctx.arc(rand() * TILE, rand() * TILE, bright ? 0.9 + rand() * 0.3 : 0.3 + rand() * 0.45, 0, 2 * Math.PI)
     ctx.fill()
   }
   return `url(${canvas.toDataURL()})`

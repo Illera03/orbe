@@ -30,6 +30,27 @@ export const shared = {
   motion: { fast: '150ms', base: '300ms', camera: '1200ms', easing: 'cubic-bezier(0.2, 0, 0, 1)' },
 } as const
 
+/**
+ * Tipografía y densidad de las etiquetas del mapa base (fuente Noto Sans de OpenFreeMap; aquí solo tamaños y zooms).
+ * `minzoom`: desde qué zoom aparece cada clase; `size`: pares [zoom, px] que se interpolan linealmente.
+ * Con el globo (z < 4) no hay etiquetas (D40); países y ciudades entran a z4, regiones a z5,5 y agua a z5.
+ */
+export const mapType = {
+  // Fuentes de OpenFreeMap (mismo servidor de glifos): países en negrita y regiones en cursiva para separarlos de las ciudades.
+  country: { minzoom: 4, size: [[4, 12], [6, 15], [8, 17]], font: ['Noto Sans Bold'] },
+  state: { minzoom: 5.5, size: [[5.5, 10], [8, 12]], font: ['Noto Sans Italic'] },
+  city: { minzoom: 4, size: [[4, 10.5], [8, 13], [12, 15]] },
+  town: { minzoom: 6, size: [[6, 10], [12, 13]] },
+  minor: { minzoom: 8, size: [[8, 10], [14, 12]] },
+  water: { minzoom: 5, size: [[5, 10], [10, 12]] },
+  halo: { width: 1.2, blur: 0.6 },
+  // Grosor de las fronteras del mapa base por zoom: finas con el globo, ganan peso al acercarse.
+  borderWidth: [[0, 0.3], [4, 0.6], [6, 1], [10, 1.6]],
+  // Línea de países propia (Natural Earth): un punto más que las del mapa base, que no se ven por debajo de z5.
+  // Mínimo 0,7 px: en el oscuro la costa la marca esta línea (tierra/océano ≈ 1,2:1) y más fina el antialiasing la diluye.
+  countryBorderWidth: [[0, 0.7], [3, 0.8], [6, 1.1], [10, 1.8]],
+} as const
+
 /** Duraciones con `prefers-reduced-motion: reduce` (SPEC: transiciones cortas); sustituyen a `shared.motion`. */
 export const reducedMotion = { fast: '0ms', base: '100ms', camera: '300ms' } as const
 
@@ -43,37 +64,44 @@ export const reducedMotion = { fast: '0ms', base: '100ms', camera: '300ms' } as 
 export const themes = {
   dark: {
     color: {
-      bg: '#05070d',
-      panelBg: 'rgba(14, 18, 28, 0.85)',
-      panelBorder: 'rgba(255, 255, 255, 0.10)',
+      bg: '#020307',
+      panelBg: 'rgba(10, 14, 24, 0.85)',
+      panelBorder: 'rgba(255, 255, 255, 0.08)',
       // Contorno de controles (campo, conmutadores): ≥ 3:1 sobre el panel (WCAG 1.4.11); panelBorder solo separa.
       controlBorder: '#7b8494',
       text: '#e8ecf3',
       textMuted: '#a3acbb',
       accent: '#7cc4ff',
       accentText: '#05070d',
+      // Conmutador activo: tinte del acento en vez de relleno sólido; el texto da ≥ 4,5:1 sobre el tinte.
+      controlActiveBg: 'rgba(124, 196, 255, 0.16)',
+      controlActiveText: '#a8d8ff',
       focus: '#ffd166',
       danger: '#ff8a80',
     },
-    shadow: { panel: '0 8px 32px rgba(0, 0, 0, 0.45)' },
-    blur: { panel: '14px' },
+    shadow: { panel: '0 4px 24px rgba(0, 0, 0, 0.35)' },
+    blur: { panel: '18px' },
     map: {
-      ocean: '#0b1422',
-      land: '#232833',
-      border: '#4a5262',
-      label: '#9aa3b2',
-      labelWater: '#7a95ba',
-      labelHalo: '#05070d',
-      countryBorder: 'rgba(232, 236, 243, 0.40)',
+      // «Silueta» (D40): países del mismo negro que el espacio sobre un océano azul noche; luminosidad
+      // espacio = tierra < océano < fronteras < etiquetas.
+      ocean: '#0c1b33',
+      land: '#020307',
+      border: '#3a4e6b',
+      label: '#b0bfd3',
+      labelMinor: '#8b9db6',
+      labelWater: '#7896bf',
+      labelHalo: 'rgba(2, 3, 7, 0.8)',
+      countryBorder: 'rgba(176, 191, 211, 0.50)',
       countryHover: '#e8ecf3',
       countrySelected: '#ffd166',
-      noDataBg: '#2a2f3a',
-      noDataStripe: '#4a5160',
-      sky: '#05070d',
-      horizon: '#3d6fb6',
-      fog: '#05070d',
-      stars: '#ffffff',
-      starsOpacity: 0.6,
+      noDataBg: '#0b0f18',
+      noDataStripe: '#27303f',
+      sky: '#020307',
+      horizon: '#4f7fc4',
+      fog: '#020307',
+      stars: '#dfe8ff',
+      starsOpacity: 0.35,
+      atmosphere: 0.8,
     },
     data: {
       sequential: 'viridis',
@@ -83,7 +111,7 @@ export const themes = {
   },
   light: {
     color: {
-      bg: '#e9e6df',
+      bg: '#e2dccf',
       panelBg: '#fffdf8',
       panelBorder: '#e3ddd0',
       controlBorder: '#8a8478',
@@ -91,28 +119,34 @@ export const themes = {
       textMuted: '#5c574d',
       accent: '#1f5f99',
       accentText: '#ffffff',
+      controlActiveBg: 'rgba(31, 95, 153, 0.12)',
+      controlActiveText: '#1f5f99',
       focus: '#b35900',
       danger: '#b3261e',
     },
     shadow: { panel: '0 2px 12px rgba(29, 27, 23, 0.12)' },
     blur: { panel: '0px' },
     map: {
-      ocean: '#d6e0e8',
-      land: '#f6f1e6',
+      // «Editorial» (D40): papel marfil sobre un océano gris azulado algo más hondo, que recorta las costas.
+      ocean: '#cbd8e3',
+      land: '#f7f3ea',
       border: '#b9b2a3',
-      label: '#4a4740',
-      labelWater: '#4a5e75',
-      labelHalo: '#f6f1e6',
+      label: '#3d3a34',
+      labelMinor: '#5f5a50',
+      labelWater: '#3f5670',
+      labelHalo: 'rgba(247, 243, 234, 0.85)',
       countryBorder: 'rgba(29, 27, 23, 0.55)',
       countryHover: '#1d1b17',
       countrySelected: '#b35900',
       noDataBg: '#ece7dc',
       noDataStripe: '#c9c2b4',
-      sky: '#e9e6df',
-      horizon: '#c7d6e3',
-      fog: '#e9e6df',
+      sky: '#e2dccf',
+      // Más azul y hondo que el fondo, para recortar el borde del globo donde la tierra marfil lo toca.
+      horizon: '#8fa9c2',
+      fog: '#e2dccf',
       stars: '#ffffff',
       starsOpacity: 0,
+      atmosphere: 0.6,
     },
     data: {
       sequential: 'viridis',
