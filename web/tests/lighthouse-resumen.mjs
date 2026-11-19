@@ -1,5 +1,5 @@
 // Tabla Markdown con las cifras de Lighthouse (ejecución representativa) para el resumen del job.
-// Sirve para reunir las cinco ejecuciones de referencia de D29.
+// Sirve para recalibrar los umbrales de lighthouserc.cjs.
 import { existsSync, readFileSync } from 'node:fs'
 
 const filas = []

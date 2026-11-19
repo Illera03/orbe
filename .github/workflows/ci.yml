@@ -8,6 +8,7 @@ permissions:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: web
@@ -33,7 +34,7 @@ jobs:
       - run: npm run build
       - name: Presupuesto de JS inicial (500 KB gzip)
         run: node tests/presupuesto-js.mjs
-      # Aserciones en 'warn' hasta tener cinco ejecuciones de referencia en main (D29); ver lighthouserc.cjs.
+      # Aserciones bloqueantes con los umbrales de lighthouserc.cjs (D39).
       - name: Lighthouse escritorio
         run: npx lhci autorun --config=lighthouserc.cjs
         env:
@@ -50,16 +51,22 @@ jobs:
           name: lighthouse
           path: web/lighthouse/
           retention-days: 14
+      # Las e2e corren aunque Lighthouse dé rojo, para no ocultar sus fallos.
       - name: Versión de Playwright
+        if: ${{ !cancelled() }}
         id: pw
         run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v6
+      - if: ${{ !cancelled() }}
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
       # Con caché solo se instalan las dependencias del sistema; sin ella, también los navegadores.
-      - run: npx playwright install --with-deps chromium webkit
-      - run: npm run e2e
+      - if: ${{ !cancelled() }}
+        run: npx playwright install --with-deps chromium webkit
+        timeout-minutes: 8
+      - if: ${{ !cancelled() }}
+        run: npm run e2e
       # Las capturas y su subida no dependen de que e2e pase; informe y resultados aparte para no pisar los de e2e.
       - if: ${{ !cancelled() }}
         run: npm run capturas -- --output=test-results-capturas
