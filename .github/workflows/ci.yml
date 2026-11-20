@@ -6,9 +6,10 @@ on:
 permissions:
   contents: read
 jobs:
+  # Puerta rápida (check obligatorio en main, D41): lint, tests, build, presupuesto de JS y pytest, en ≈ 30 s.
   ci:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: web
@@ -34,7 +35,25 @@ jobs:
       - run: npm run build
       - name: Presupuesto de JS inicial (500 KB gzip)
         run: node tests/presupuesto-js.mjs
-      # Aserciones bloqueantes con los umbrales de lighthouserc.cjs (D39).
+
+  # Comprobaciones lentas (D41): Lighthouse, e2e y capturas. En los PR avisan sin bloquear el merge;
+  # en main se ejecutan tras integrar y un rojo se arregla en el momento.
+  pesado:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # Aserciones con los umbrales de lighthouserc.cjs (D39).
       - name: Lighthouse escritorio
         run: npx lhci autorun --config=lighthouserc.cjs
         env:

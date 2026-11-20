@@ -22,10 +22,11 @@ de alcance lo decides tú y lo anotas en `docs/DECISIONS.md`.
 - Ramas: `feat/mN-…`, `data/mN-…`, `ci/mN-…`, `docs/mN-…`. `main` está protegida: todo entra
   por PR con la CI en verde. Nada de `push --force` ni `reset --hard`.
 
-## Presupuestos de rendimiento (bloquean el merge)
+## Presupuestos de rendimiento
 
-- JavaScript inicial ≤ 500 KB comprimido. deck.gl y los modos secundarios, con `import()` bajo demanda.
-- LCP < 2,5 s y CLS < 0,1 en escritorio. Lighthouse de rendimiento ≥ 85 en escritorio y ≥ 70 en móvil.
+- JavaScript inicial ≤ 500 KB comprimido (bloquea el merge). deck.gl y los modos secundarios, con `import()` bajo demanda.
+- LCP < 2,5 s y CLS < 0,1 en escritorio. Lighthouse de rendimiento ≥ 85 en escritorio y ≥ 70 en móvil, medido a mano
+  en hardware real al cerrar cada hito; en CI, los umbrales de D39.
 - Globo a 60 fps en un portátil medio y ≥ 30 fps en un móvil de gama media con la coropleta activa.
 - Ningún fichero de datos > 2 MB; un indicador carga en < 300 ms con caché.
 - Si un efecto no cabe en el presupuesto, se degrada o se quita.
@@ -96,4 +97,7 @@ Antes de abrir un PR: build, lint y tests en verde en local.
 
 - Uno por tarea, pequeño, con criterios de aceptación en la descripción.
 - Si el cambio es visual, adjunta capturas en ambos temas y en móvil.
-- QA revisa todos y Diseño los visuales. No se integra con la CI en rojo ni con comentarios abiertos.
+- QA revisa todos y Diseño los visuales. No se integra con el check `ci` en rojo ni con comentarios abiertos.
+- CI en dos jobs (D41): `ci` es la puerta obligatoria y rápida (lint, tests, build, presupuesto de JS y pytest, ≈ 30 s);
+  `pesado` (Lighthouse, e2e en Chromium y WebKit y capturas) avisa en el PR sin bloquear y se vigila en main tras
+  integrar. Un rojo de `pesado` en el PR se mira antes de integrar; uno en main se arregla en el momento.
