@@ -2,7 +2,7 @@
 import '@fontsource/inter/latin-400.css'
 import '@fontsource/inter/latin-600.css'
 import '@fontsource/space-grotesk/latin-600.css'
-import { themeCss, type ThemeName } from './tokens'
+import { themeCss, themes, type ThemeName } from './tokens'
 
 export * from './tokens'
 export * from './map'
@@ -19,4 +19,12 @@ style.textContent = themeCss()
 /** Activa un tema en `<html data-theme>`; la elección y su persistencia son del estado (interfaz). */
 export function applyTheme(theme: ThemeName): void {
   document.documentElement.dataset.theme = theme
+  // Color de la barra del navegador móvil, el del fondo del tema (pautas web: theme-color = fondo de la página).
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    document.head.append(meta)
+  }
+  meta.content = themes[theme].color.bg
 }
