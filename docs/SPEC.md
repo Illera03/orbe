@@ -227,7 +227,7 @@ Es la operación más frecuente y no debe requerir tocar la interfaz: se añade 
 
 ## Requisitos de calidad
 
-Los umbrales de esta tabla se comprueban en CI y bloquean el merge si fallan; los marcados como manuales se revisan al cerrar cada hito.
+Los umbrales de esta tabla se comprueban en CI y los marcados como manuales se revisan al cerrar cada hito. Bloquean el merge el presupuesto de JS, los tests y el build (check `ci`, D41); Lighthouse, las e2e y axe-core corren en el job `pesado`, que avisa en el PR y se vigila en `main` tras integrar.
 
 | Área | Requisito | Cómo se comprueba |
 | --- | --- | --- |
