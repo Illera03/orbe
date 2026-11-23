@@ -1,5 +1,6 @@
 # Definición de indicadores. Cada entrada se valida con `Entry` (build_data.py).
 # `source.module` es el módulo de pipeline/sources/ que descarga los datos;
+# `scale.domain` [mín, máx] es opcional: fija el dominio de color (si falta, percentiles 2–98 de latestYear).
 # `range` es el rango plausible [mín, máx]: un valor fuera de él impide publicar el indicador.
 # Categorías: demografia, economia, salud, educacion, medio-ambiente, energia, geografia, sociedad.
 
@@ -22,6 +23,7 @@
     kind: sequential
     transform: linear
     palette: viridis
+    domain: [45, 85]  # Diseño: con el dominio del último año, 1960 sale entero en el extremo bajo
   source:
     module: worldbank
     name: World Bank, World Development Indicators

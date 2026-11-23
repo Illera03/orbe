@@ -86,6 +86,34 @@ def test_licencia_obligatoria_y_nc():
         bd.Entry.model_validate({**raw, "license": {**raw["license"], "attribution": ""}})
 
 
+@pytest.mark.parametrize(
+    "scale",
+    [
+        {"domain": [85, 45]},
+        {"domain": [45, 45]},
+        {"domain": [45]},
+        {"domain": [45, 85, 90]},
+        {"domain": ["a", 85]},
+        {"domain": [0, 85], "transform": "log"},
+        {"domain": [-1, 85], "transform": "log"},
+    ],
+)
+def test_domain_invalido(scale):
+    raw = ENTRY.model_dump()
+    with pytest.raises(ValidationError):
+        bd.Entry.model_validate({**raw, "scale": {**raw["scale"], **scale}})
+
+
+def test_domain_valido_y_omitido(data_dir):
+    raw = ENTRY.model_dump()
+    log = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": [0.5, 85], "transform": "log"}})
+    assert log.scale.domain == (0.5, 85)
+    no_domain = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": None}})
+    assert bd.run([no_domain], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
+    (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
+    assert "domain" not in ind["scale"]
+
+
 def test_contrato(data_dir):
     fixture = worldbank.parse(json.loads(FIXTURE.read_text()), VALID)
     recs = fixture + [r for r in records() if r[0] not in {a3 for a3, _, _ in fixture}]
@@ -99,6 +127,7 @@ def test_contrato(data_dir):
     ]
     assert ind["source"]["accessed"] == "2026-01-01" and ind["file"] == "indicators/esperanza-vida.json"
     assert "midpoint" not in ind["scale"]
+    assert ind["scale"]["domain"] == [45, 85]
     raw = (data_dir / ind["file"]).read_text()
     assert " " not in raw  # JSON compacto
     data = json.loads(raw)

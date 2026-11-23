@@ -41,6 +41,18 @@ class Scale(Model):
     transform: Literal["linear", "log", "quantile"]
     palette: str = Field(min_length=1)
     midpoint: float | None = None
+    # int | float para que [45, 85] salga tal cual en el JSON y no como [45.0, 85.0].
+    domain: tuple[int | float, int | float] | None = None
+
+    @model_validator(mode="after")
+    def domain_valido(self):
+        if self.domain is not None:
+            lo, hi = self.domain
+            if not lo < hi:
+                raise ValueError(f"domain {self.domain}: min debe ser menor que max")
+            if self.transform == "log" and lo <= 0:
+                raise ValueError(f"domain {self.domain}: con transform log, min debe ser > 0")
+        return self
 
 
 class Source(Model):
@@ -132,7 +144,7 @@ def dump_indicator(data: dict) -> bytes:
 
 
 def catalog_entry(entry: Entry, data: dict, accessed: str) -> dict:
-    d = entry.model_dump(exclude={"range"}, exclude_none=True)
+    d = entry.model_dump(mode="json", exclude={"range"}, exclude_none=True)  # json: tuplas como listas, comparables con lo publicado
     d["source"] = {"name": entry.source.name, "url": entry.source.url, "accessed": accessed}
     return {
         **d,
