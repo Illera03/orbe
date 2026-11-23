@@ -60,5 +60,15 @@
     "noResults": "No country matches",
     "loading": "Loading countries…",
     "error": "The country list could not be loaded. Please try again."
+  },
+  "categories": {
+    "demografia": "Demographics",
+    "economia": "Economy",
+    "salud": "Health",
+    "educacion": "Education",
+    "medio-ambiente": "Environment",
+    "energia": "Energy",
+    "geografia": "Geography",
+    "sociedad": "Society"
   }
 }
