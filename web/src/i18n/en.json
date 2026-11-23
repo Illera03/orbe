@@ -85,5 +85,19 @@
     "nonCommercial": "Non-commercial use",
     "clear": "Remove indicator",
     "newTab": "(opens in a new tab)"
+  },
+  "values": {
+    "noData": "No data",
+    "withUnit": "{{value}} {{unit}}",
+    "inYear": "in {{year}}"
+  },
+  "ranking": {
+    "title": "Ranking",
+    "caption": "{{unit}} in {{year}}",
+    "rank": "Rank",
+    "missing_one": "{{count}} country without data this year",
+    "missing_other": "{{count}} countries without data this year",
+    "loading": "Loading ranking…",
+    "error": "The ranking could not be loaded."
   }
 }

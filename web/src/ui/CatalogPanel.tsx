@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { initIndicator, useAppStore } from '../state/store'
-import { groupByCategory } from './catalog'
-
-// La misma consulta que app.css usa para la disposición móvil.
-const MOBILE = '(max-width: 640px), (pointer: coarse)'
+import { groupByCategory, MOBILE } from './catalog'
 
 /**
  * Catálogo de indicadores por categoría, generado solo con `catalog.json`.

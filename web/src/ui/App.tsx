@@ -1,7 +1,9 @@
 import { GlobeMap } from '../map/GlobeMap'
 import { CatalogPanel } from './CatalogPanel'
+import { Ranking } from './Ranking'
 import { SourceCard } from './SourceCard'
 import { TopBar } from './TopBar'
+import { Tooltip } from './Tooltip'
 import './app.css'
 
 // Disposición (app.css): columna izquierda con catálogo y ficha de fuente. Huecos para la ola 2 de M2:
@@ -16,6 +18,8 @@ export function App() {
           <CatalogPanel />
           <SourceCard />
         </div>
+        <Ranking />
+        <Tooltip />
       </main>
     </>
   )

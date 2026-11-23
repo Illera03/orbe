@@ -15,7 +15,7 @@ export function SourceCard() {
  * Nombre, fuente, año, unidad y licencia con su atribución. Nombre, unidad y textos de la fuente salen del catálogo.
  * Escritorio: la ficha va entera y no se pliega. Móvil (app.css): una fila de 44 px con nombre, año y licencia
  * siempre visibles; la fuente y la atribución quedan a un clic con «Fuente» (SPEC, principio 2). Hasta
- * 419 px, «Fuente» es solo icono y «Quitar indicador» pasa a la ficha desplegada.
+ * 479 px (el botón de la clasificación ocupa la misma fila), «Fuente» es solo icono y «Quitar indicador» pasa a la ficha desplegada.
  */
 export function SourceCardView({ meta, year, language }: { meta: IndicatorMeta; year: number | null; language: Language }) {
   const { t } = useTranslation()

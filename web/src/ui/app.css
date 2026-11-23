@@ -569,8 +569,8 @@ body {
   }
 }
 
-/* Móviles estrechos (hasta 419 px): «Fuente» solo con icono y «Quitar» en la ficha desplegada, para que quepa el nombre. */
-@media (max-width: 419px) {
+/* Móviles estrechos (hasta 479 px, con el botón de la clasificación en la fila): «Fuente» solo con icono y «Quitar» en la ficha desplegada, para que quepa el nombre. */
+@media (max-width: 479px) {
   .source {
     padding-left: var(--space-2);
   }
@@ -596,5 +596,205 @@ body {
 
   .source:not([data-expanded]) .source__clear {
     display: none;
+  }
+}
+
+/*
+ * Clasificación (INT-6): panel derecho a la altura de la columna izquierda, sobre la atribución del mapa.
+ * Móvil o táctil: botón de 44 px al final de la fila inferior; abierta, una hoja del ancho de la fila.
+ */
+.ranking {
+  position: fixed;
+  z-index: 5;
+  top: calc(var(--space-12) + var(--space-4));
+  right: var(--space-3);
+  width: calc(var(--space-12) * 5);
+  max-height: calc(100% - var(--space-12) * 2 - var(--space-4));
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text);
+  font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
+}
+
+.ranking__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.ranking__toggle,
+.ranking__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--size-control);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.ranking__toggle {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-strong);
+}
+
+.ranking__chevron {
+  margin-left: auto;
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.ranking[data-open] .ranking__chevron {
+  transform: rotate(180deg);
+}
+
+.ranking__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 var(--space-2) var(--space-2);
+}
+
+.ranking__body[hidden] {
+  display: none;
+}
+
+.ranking__caption,
+.ranking__status {
+  margin: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.ranking__list {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.ranking__row {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  font-variant-numeric: var(--font-numeric-table);
+}
+
+.ranking__rank {
+  flex: none;
+  min-width: 3ch;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.ranking__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ranking__row[data-hovered] {
+  background: var(--color-control-active-bg);
+  color: var(--color-control-active-text);
+  font-weight: var(--font-weight-strong);
+}
+
+@media (hover: hover) {
+  .ranking__toggle:hover,
+  .ranking__row:hover {
+    background: var(--color-panel-border);
+  }
+}
+
+/* Contorno hacia dentro: la lista recorta lo que sobresale. */
+.ranking__toggle:focus-visible,
+.ranking__row:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: calc(var(--focus-width) * -1);
+}
+
+/* Sigue al puntero (Tooltip.tsx fija transform); nunca captura eventos. */
+.tooltip {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
+  font-variant-numeric: var(--font-numeric-table);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip__year {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px), (pointer: coarse) {
+  /* La fila inferior deja sitio al botón de la clasificación. */
+  .stage:has(.ranking) .sidebar {
+    right: calc(var(--space-2) * 2 + var(--size-control-touch));
+  }
+
+  .ranking {
+    top: auto;
+    right: var(--space-2);
+    bottom: calc(var(--space-12) + var(--dock, 0px));
+    width: auto;
+    max-height: none;
+  }
+
+  .ranking[data-open] {
+    z-index: 6;
+    left: var(--space-2);
+  }
+
+  .ranking__toggle,
+  .ranking__row {
+    min-height: var(--size-control-touch);
+  }
+
+  .ranking:not([data-open]) .ranking__toggle {
+    justify-content: center;
+    width: var(--size-control-touch);
+    padding: 0;
+  }
+
+  /* Solo icono: el texto sigue siendo el nombre accesible del botón. */
+  .ranking:not([data-open]) .ranking__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ranking:not([data-open]) .ranking__chevron {
+    display: none;
+  }
+
+  .ranking__body {
+    max-height: 50vh;
+  }
+}
+
+/* Por debajo de 370 px la ficha no cabe junto a los dos botones: el de la clasificación sube encima de la fila. */
+@media (max-width: 369px) {
+  .stage:has(.ranking) .sidebar {
+    right: var(--space-2);
+  }
+
+  .ranking:not([data-open]) {
+    bottom: calc(var(--space-12) + var(--dock, 0px) + var(--size-control-touch) + var(--space-2));
   }
 }

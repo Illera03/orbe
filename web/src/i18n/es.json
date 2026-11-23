@@ -85,5 +85,19 @@
     "nonCommercial": "Uso no comercial",
     "clear": "Quitar indicador",
     "newTab": "(se abre en una pestaña nueva)"
+  },
+  "values": {
+    "noData": "Sin dato",
+    "withUnit": "{{value}} {{unit}}",
+    "inYear": "en {{year}}"
+  },
+  "ranking": {
+    "title": "Clasificación",
+    "caption": "{{unit}} en {{year}}",
+    "rank": "Puesto",
+    "missing_one": "{{count}} país sin dato este año",
+    "missing_other": "{{count}} países sin dato este año",
+    "loading": "Cargando clasificación…",
+    "error": "No se ha podido cargar la clasificación."
   }
 }
