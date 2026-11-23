@@ -11,6 +11,7 @@ import { reducedMotion, shared, type ThemeName } from '../theme/tokens'
 import { GLOBENESS_STATE as MORPH_STATE, countryLineWidth, mapColors, themeMapStyle } from '../theme/map'
 import { prefersReducedMotion, type ProjectionType } from './createMap'
 import type { Language } from '../state/store'
+import { choroplethLayers, COUNTRY_ID_PROPERTY } from './choropleth'
 
 /** Encuadre [oeste, sur, este, norte] de `data/geo/countries.json`. */
 export type Bbox = [number, number, number, number]
@@ -76,9 +77,12 @@ export function globeStyle(
   delete style.bearing
   delete style.pitch
   const layers = localizeLabels(style.layers)
-  // Bajo las etiquetas del mapa base para que los nombres sigan legibles.
+  // Sobre carreteras y vías (la coropleta las tapa) y bajo los límites y etiquetas del mapa base, que siguen legibles.
+  // En dark hay símbolos (nombres de agua) antes que las carreteras: por eso manda la primera capa de límites.
+  const boundary = layers.findIndex((l) => 'source-layer' in l && l['source-layer'] === 'boundary')
   const firstSymbol = layers.findIndex((l) => l.type === 'symbol')
-  layers.splice(firstSymbol < 0 ? layers.length : firstSymbol, 0, {
+  const at = boundary >= 0 ? boundary : firstSymbol >= 0 ? firstSymbol : layers.length
+  layers.splice(at, 0, ...choroplethLayers(theme), {
     id: 'countries-line',
     type: 'line',
     source: 'countries',
@@ -93,7 +97,7 @@ export function globeStyle(
     sources: {
       ...style.sources,
       ...(baseSource?.type === 'vector' && { [BASE_SOURCE]: { ...baseSource, attribution: BASE_ATTRIBUTION } }),
-      countries: { type: 'vector', url: countriesUrl, attribution: 'Natural Earth' },
+      countries: { type: 'vector', url: countriesUrl, attribution: 'Natural Earth', promoteId: COUNTRY_ID_PROPERTY },
     },
     layers,
   }

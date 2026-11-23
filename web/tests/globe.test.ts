@@ -42,9 +42,16 @@ describe('globeStyle', () => {
   const style = globeStyle(base, 'dark', 'pmtiles://x', 'globe', 'es')
 
   it('añade los países bajo las etiquetas, con el borde del tema', () => {
-    expect(style.layers.map((l) => l.id)).toEqual(['bg', 'countries-line', 'place', 'shield'])
-    expect(style.layers[1]).toMatchObject({ paint: { 'line-color': mapColors('dark').countryBorder } })
-    expect(style.sources.countries).toMatchObject({ type: 'vector', url: 'pmtiles://x' })
+    expect(style.layers.map((l) => l.id)).toEqual(['bg', 'countries-nodata', 'countries-fill', 'countries-line', 'place', 'shield'])
+    expect(style.layers[3]).toMatchObject({ paint: { 'line-color': mapColors('dark').countryBorder } })
+    expect(style.sources.countries).toMatchObject({ type: 'vector', url: 'pmtiles://x', promoteId: 'ISO_A3' })
+  })
+
+  it('con límites en el mapa base, la coropleta va sobre las carreteras y bajo los límites (dark)', () => {
+    const line = (id: string, src: string) => ({ id, type: 'line', source: 'openmaptiles', 'source-layer': src }) as const
+    const dark = { ...base, layers: [base.layers[0], base.layers[2], line('road', 'transportation'), line('border', 'boundary'), base.layers[1]] }
+    const ids = globeStyle(dark, 'dark', 'pmtiles://x', 'globe', 'es').layers.map((l) => l.id)
+    expect(ids).toEqual(['bg', 'shield', 'road', 'countries-nodata', 'countries-fill', 'countries-line', 'border', 'place'])
   })
 
   it('globo, atribución completa de OSM y sin cámara que mueva el mapa al cambiar de tema', () => {
@@ -61,7 +68,7 @@ describe('etiquetas', () => {
   it('los nombres van en el idioma del estado global, con la transliteración latina y el local de respaldo', () => {
     expect(style.state?.[LANGUAGE_STATE]).toEqual({ default: 'en' })
     expect(style.state?.[PROJECTION_STATE]).toEqual({ default: 'globe' })
-    expect(style.layers[2]).toMatchObject({
+    expect(style.layers[4]).toMatchObject({
       layout: {
         'text-field': [
           'coalesce',
@@ -82,7 +89,7 @@ describe('etiquetas', () => {
   })
 
   it('las referencias de carretera no cambian', () => {
-    expect(style.layers[3]).toEqual(base.layers[2])
+    expect(style.layers[5]).toEqual(base.layers[2])
   })
 })
 
