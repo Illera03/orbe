@@ -12,6 +12,7 @@ import importlib
 import json
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Literal
 
@@ -101,19 +102,23 @@ def validate(entry: Entry, records: list[Record], valid: set[str]) -> None:
     lo, hi = entry.range
     if out := [r for r in records if r[2] is not None and not lo <= r[2] <= hi]:
         raise ValueError(f"{len(out)} valores fuera del rango plausible {entry.range}, p. ej. {out[0]}")
-    present = [(a3, y) for a3, y, v in records if v is not None]
-    if not present:
+    if not any(v is not None for _, _, v in records):
         raise ValueError("sin datos")
-    latest = max(y for _, y in present)
-    n = sum(1 for _, y in present if y == latest)
-    if n < MIN_COUNTRIES:
-        raise ValueError(f"solo {n} países con dato en {latest} (mínimo {MIN_COUNTRIES})")
+    if latest_year(records) is None:
+        raise ValueError(f"ningún año con {MIN_COUNTRIES} países con dato")
+
+
+def latest_year(records: list[Record]) -> int | None:
+    """Último año con al menos MIN_COUNTRIES países con dato; los posteriores no se publican."""
+    counts = Counter(y for _, y, v in records if v is not None)
+    return max((y for y, n in counts.items() if n >= MIN_COUNTRIES), default=None)
 
 
 def build(entry: Entry, records: list[Record]) -> dict:
-    """Fichero del indicador: años del primero al último con algún dato y solo países con algún dato."""
-    present = [(a3, y, v) for a3, y, v in records if v is not None]
-    years = list(range(min(y for _, y, _ in present), max(y for _, y, _ in present) + 1))
+    """Fichero del indicador: del primer año con dato a `latest_year`, solo países con algún dato."""
+    last = latest_year(records)
+    present = [(a3, y, v) for a3, y, v in records if v is not None and y <= last]
+    years = list(range(min(y for _, y, _ in present), last + 1))
     col = {y: i for i, y in enumerate(years)}
     values: dict[str, list] = {}
     for a3, y, v in sorted(present):

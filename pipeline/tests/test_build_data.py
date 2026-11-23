@@ -55,7 +55,7 @@ def test_validaciones_pasan():
         (records() + [("WLD", 2024, 70.0)], "countries.json"),
         (records() + [(CODES[0], 2024, 71.0)], "duplicados"),
         (records(value=150.0), "rango"),
-        (records(n=99), "99 países"),
+        (records(n=99), "ningún año con 100"),
         ([(CODES[0], 2024, None)], "sin datos"),
     ],
 )
@@ -64,10 +64,14 @@ def test_validaciones_fallan(recs, msg):
         bd.validate(ENTRY, recs, VALID)
 
 
-def test_cobertura_en_el_ultimo_anio_con_dato():
-    # 2025 con un solo país hace que el año más reciente no llegue a 100.
-    with pytest.raises(ValueError, match="2025"):
-        bd.validate(ENTRY, records() + [(CODES[0], 2025, 70.0)], VALID)
+def test_recorta_anios_finales_con_poca_cobertura(data_dir):
+    # 2025 con 40 países no llega a 100: no se publica y latestYear es 2024.
+    recs = records() + [(a3, 2025, 70.0) for a3 in CODES[:40]]
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
+    data = json.loads((data_dir / ind["file"]).read_text())
+    assert ind["latestYear"] == ind["years"][1] == data["years"][-1] == 2024
+    assert all(len(v) == len(data["years"]) for v in data["values"].values())
 
 
 def test_licencia_obligatoria_y_nc():
