@@ -70,5 +70,20 @@
     "energia": "Energy",
     "geografia": "Geography",
     "sociedad": "Society"
+  },
+  "catalog": {
+    "title": "Indicators",
+    "loading": "Loading indicators…",
+    "error": "The indicator catalogue could not be loaded.",
+    "retry": "Try again"
+  },
+  "source": {
+    "source": "Source",
+    "year": "Year",
+    "unit": "Unit",
+    "license": "Licence",
+    "nonCommercial": "Non-commercial use",
+    "clear": "Remove indicator",
+    "newTab": "(opens in a new tab)"
   }
 }

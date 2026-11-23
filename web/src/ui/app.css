@@ -229,3 +229,242 @@ body {
     color: var(--color-text);
   }
 }
+
+/*
+ * Columna izquierda: catálogo arriba y ficha de fuente abajo. El centro inferior (leyenda y año) y el lateral
+ * derecho (ranking, ficha de país) quedan libres para la ola 2 de M2; la atribución del mapa va abajo a la derecha.
+ * La columna no captura el puntero: entre paneles se sigue moviendo el mapa.
+ */
+.sidebar {
+  position: fixed;
+  z-index: 5;
+  /* Bajo la barra superior (control de 32 px, relleno y margen). */
+  top: calc(var(--space-12) + var(--space-4));
+  bottom: var(--space-3);
+  left: var(--space-3);
+  width: calc(var(--space-12) * 6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.sidebar > * {
+  pointer-events: auto;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--color-text);
+  font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
+}
+
+.catalog__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.catalog__toggle,
+.catalog__option,
+.catalog__retry,
+.source__clear {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.catalog__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--size-control);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-strong);
+}
+
+.catalog__chevron {
+  margin-left: auto;
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.catalog[data-open] .catalog__chevron {
+  transform: rotate(180deg);
+}
+
+.catalog__body {
+  overflow-y: auto;
+  padding: 0 var(--space-2) var(--space-2);
+}
+
+.catalog__body[hidden] {
+  display: none;
+}
+
+.catalog__group + .catalog__group {
+  margin-top: var(--space-2);
+}
+
+.catalog__category {
+  margin: var(--space-2) var(--space-2) var(--space-1);
+  color: var(--color-text-muted);
+  font: var(--font-weight-strong) var(--font-size-xs) / var(--font-line-tight) var(--font-sans);
+}
+
+.catalog__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.catalog__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--size-control);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.catalog__option[aria-pressed='true'] {
+  background: var(--color-control-active-bg);
+  color: var(--color-control-active-text);
+  font-weight: var(--font-weight-strong);
+}
+
+@media (hover: hover) {
+  .catalog__option:hover,
+  .catalog__toggle:hover,
+  .source__clear:hover {
+    background: var(--color-panel-border);
+  }
+}
+
+.catalog__description {
+  margin: 0 var(--space-2) var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.catalog__status {
+  margin: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.catalog__retry {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.catalog__toggle:focus-visible,
+.catalog__option:focus-visible,
+.catalog__retry:focus-visible,
+.source__clear:focus-visible,
+.source a:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+.source {
+  margin-top: auto;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  color: var(--color-text);
+  font: var(--font-weight-regular) var(--font-size-xs) / var(--font-line-base) var(--font-sans);
+}
+
+.source__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.source__title {
+  flex: 1;
+  margin: 0;
+  font: var(--font-weight-strong) var(--font-size-md) / var(--font-line-tight) var(--font-display);
+}
+
+.source__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--size-control);
+  height: var(--size-control);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+}
+
+.source__facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-half) var(--space-3);
+  margin: var(--space-2) 0 0;
+}
+
+.source__facts > div {
+  display: contents;
+}
+
+.source__facts dt {
+  color: var(--color-text-muted);
+}
+
+.source__facts dd {
+  margin: 0;
+  font-variant-numeric: var(--font-numeric-table);
+}
+
+.source a {
+  color: var(--color-text);
+}
+
+.source__nc {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border: var(--border-width) solid var(--color-danger);
+  border-radius: var(--radius-pill);
+  color: var(--color-danger);
+}
+
+.source__attribution {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+}
+
+/* Móvil o táctil: la columna baja sobre la atribución; el catálogo es una hoja inferior que abre un botón de 44 px. */
+@media (max-width: 640px), (pointer: coarse) {
+  .sidebar {
+    top: auto;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: var(--space-12);
+    width: auto;
+  }
+
+  .catalog__toggle {
+    min-height: var(--size-control-touch);
+  }
+
+  .catalog__body {
+    max-height: 50vh;
+  }
+
+  .catalog__option,
+  .source__clear {
+    min-height: var(--size-control-touch);
+    min-width: var(--size-control-touch);
+  }
+
+  .source {
+    margin-top: 0;
+  }
+}

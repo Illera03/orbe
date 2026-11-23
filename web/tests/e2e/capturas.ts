@@ -45,6 +45,13 @@ for (const { vista, tema, plano } of casos) {
       await page.getByRole('option').first().waitFor()
       await page.keyboard.press('ArrowDown')
       await page.screenshot({ path: `capturas/${nombre}-buscador.png`, fullPage: true })
+      // Catálogo con un indicador activo y su ficha de fuente (en móvil, con la hoja abierta).
+      await page.goto('./?indicador=esperanza-vida')
+      await pararRotacion(page)
+      await page.locator('.source').waitFor()
+      if (vista.isMobile) await page.getByRole('button', { name: es.catalog.title }).click()
+      await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+      await page.screenshot({ path: `capturas/${nombre}-catalogo.png`, fullPage: true })
     })
   })
 }

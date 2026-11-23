@@ -70,5 +70,20 @@
     "energia": "Energía",
     "geografia": "Geografía",
     "sociedad": "Sociedad"
+  },
+  "catalog": {
+    "title": "Indicadores",
+    "loading": "Cargando indicadores…",
+    "error": "No se ha podido cargar el catálogo de indicadores.",
+    "retry": "Reintentar"
+  },
+  "source": {
+    "source": "Fuente",
+    "year": "Año",
+    "unit": "Unidad",
+    "license": "Licencia",
+    "nonCommercial": "Uso no comercial",
+    "clear": "Quitar indicador",
+    "newTab": "(se abre en una pestaña nueva)"
   }
 }
