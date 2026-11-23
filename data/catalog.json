@@ -23,7 +23,11 @@
       "scale": {
         "kind": "sequential",
         "transform": "linear",
-        "palette": "viridis"
+        "palette": "viridis",
+        "domain": [
+          45,
+          85
+        ]
       },
       "source": {
         "name": "World Bank, World Development Indicators",
