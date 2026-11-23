@@ -3,6 +3,7 @@ import type * as maplibregl from 'maplibre-gl'
 import { useTranslation } from 'react-i18next'
 import { MAP_STYLE_URL, type ThemeName } from '../theme'
 import { useAppStore } from '../state/store'
+import { attachChoropleth } from './choropleth'
 import { createMap } from './createMap'
 import { FpsMeter, fpsRequested } from './FpsMeter'
 import { animateProjection, cameraMs, fitGlobeZoom, globeStyle, LANGUAGE_STATE, PROJECTION_STATE, setActiveMap } from './globe'
@@ -14,7 +15,7 @@ import './globe.css'
 // MapLibre 5+ solo funciona con WebGL2.
 const hasWebGL2 = () => !!document.createElement('canvas').getContext('webgl2')
 
-/** Mapa a pantalla completa de la home. Marca `data-idle` cuando MapLibre ha terminado de pintar (e2e y capturas). */
+/** Mapa a pantalla completa de la home. Marca `data-idle` cuando MapLibre ha terminado de pintar y `data-choropleth` con la coropleta dibujada (e2e y capturas). */
 export function GlobeMap() {
   const { t } = useTranslation()
   const container = useRef<HTMLDivElement>(null)
@@ -89,9 +90,11 @@ export function GlobeMap() {
     })
     map.on('dataloading', () => delete el.dataset.idle)
     map.on('movestart', () => delete el.dataset.idle)
+    const detachChoropleth = attachChoropleth(map, el)
     setActiveMap(map)
     mapRef.current = map
     return () => {
+      detachChoropleth()
       unsubscribe()
       stopSpin?.()
       stopMorph?.()
