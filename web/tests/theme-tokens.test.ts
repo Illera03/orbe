@@ -207,9 +207,11 @@ describe('tokens de tema', () => {
     }
   })
 
-  it.each(names)('rayado de sin dato ≥ 2:1 con el océano y con su fondo en %s', (n) => {
+  // El fondo del rayado casi iguala a la tierra (≈ 1,1:1): lo que separa el «sin dato» de un país sin capa es la raya.
+  it.each(names)('rayado de sin dato ≥ 2:1 con el océano, la tierra y su fondo en %s', (n) => {
     const m = themes[n].map
     expect(contrast(rgb(m.noDataStripe), rgb(m.ocean))).toBeGreaterThanOrEqual(2)
+    expect(contrast(rgb(m.noDataStripe), rgb(m.land))).toBeGreaterThanOrEqual(2)
     expect(contrast(rgb(m.noDataStripe), rgb(m.noDataBg))).toBeGreaterThanOrEqual(2)
   })
 

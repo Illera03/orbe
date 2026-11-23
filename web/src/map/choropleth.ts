@@ -45,9 +45,10 @@ const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 
 
 /**
  * Rayado diagonal de «sin dato» con los tokens del tema (`noDataStripe` sobre `noDataBg`), en píxeles RGBA.
- * Se repite sin costuras: la raya depende de (x + y) módulo el lado.
+ * Se repite sin costuras: la raya depende de (x + y) módulo el lado. A `pixelRatio` 2 queda una raya de 3 px CSS cada 8:
+ * densa para que un territorio pequeño a zoom de globo lleve varias, y lo bastante gruesa para no fundirse con el fondo.
  */
-export function stripes(theme: ThemeName, size = 16, width = 5): { width: number; height: number; data: Uint8Array } {
+export function stripes(theme: ThemeName, size = 16, width = 6): { width: number; height: number; data: Uint8Array } {
   const { noDataBg, noDataStripe } = mapColors(theme)
   const [bg, fg] = [rgb(noDataBg), rgb(noDataStripe)]
   const data = new Uint8Array(size * size * 4)
@@ -70,10 +71,17 @@ export function attachChoropleth(map: maplibregl.Map, el: HTMLElement): () => vo
   let colors: Map<string, string> | null = null
   let key = ''
 
+  // El rayado se registra antes de mostrar su capa: si llega tarde por `styleimagemissing`, las teselas ya analizadas
+  // se quedan sin patrón hasta recargarse (en móvil, Somalilandia salía del color de la tierra).
+  const addPattern = (id: string) => {
+    if (id.startsWith(NODATA_IMAGE) && !map.hasImage(id)) map.addImage(id, stripes(id.slice(NODATA_IMAGE.length) as ThemeName), { pixelRatio: 2 })
+  }
+
   const paint = () => {
     if (!map.style?._loaded || !map.getLayer(FILL_LAYER)) return
     map.removeFeatureState(SOURCE)
     for (const [id, color] of colors ?? []) map.setFeatureState({ ...SOURCE, id }, { color })
+    if (colors) addPattern(map.getPaintProperty(NODATA_LAYER, 'fill-pattern') as string)
     map.setLayoutProperty(NODATA_LAYER, 'visibility', colors ? 'visible' : 'none')
     const painted = key
     // setFeatureState no lanza `dataloading`: se espera al siguiente idle para saber que ya se ve.
@@ -142,11 +150,8 @@ export function attachChoropleth(map: maplibregl.Map, el: HTMLElement): () => vo
   map.on('styledata', onStyle)
   map.on('mousemove', FILL_LAYER, onMove)
   map.on('mouseleave', FILL_LAYER, onLeave)
-  // El rayado sigue al tema: cada estilo pide su imagen y se genera al vuelo.
-  const onMissing = (e: { id: string }) => {
-    if (e.id.startsWith(NODATA_IMAGE) && !map.hasImage(e.id))
-      map.addImage(e.id, stripes(e.id.slice(NODATA_IMAGE.length) as ThemeName), { pixelRatio: 2 })
-  }
+  // Respaldo: el rayado sigue al tema y cualquier estilo que lo pida sin tenerlo lo genera al vuelo.
+  const onMissing = (e: { id: string }) => addPattern(e.id)
   map.on('styleimagemissing', onMissing)
   const unsubscribe = useAppStore.subscribe((s, prev) => {
     if (s.indicatorId !== prev.indicatorId || s.year !== prev.year || s.catalog !== prev.catalog) void update()
