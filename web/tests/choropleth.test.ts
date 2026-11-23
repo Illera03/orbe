@@ -29,7 +29,7 @@ function fakeMap() {
   return { map: map as unknown as maplibregl.Map, states, fire, visibility: () => visibility }
 }
 
-const meta = { id: 'x', latestYear: 2001, file: 'x.json', scale: { kind: 'sequential', transform: 'linear', palette: 'viridis' } }
+const meta = { id: 'x', years: [2000, 2001], latestYear: 2001, file: 'x.json', scale: { kind: 'sequential', transform: 'linear', palette: 'viridis' } }
 const flush = () => new Promise((r) => setTimeout(r, 0))
 
 describe('attachChoropleth', () => {

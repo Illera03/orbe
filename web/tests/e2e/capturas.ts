@@ -55,6 +55,11 @@ for (const { vista, tema, plano } of casos) {
       const quieta = () => page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)))
       await quieta()
       await page.screenshot({ path: `capturas/${nombre}-catalogo.png`, fullPage: true })
+      // Leyenda y año: con Inicio, el primer año (más países sin dato y valores por debajo del dominio).
+      await page.getByRole('slider', { name: es.dock.year }).press('Home')
+      await page.locator('#map[data-choropleth$=":1960"]').waitFor({ timeout: 30_000 })
+      await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+      await page.screenshot({ path: `capturas/${nombre}-leyenda.png`, fullPage: true })
       if (!vista.isMobile) return
       // Móvil: ficha desplegada con «Fuente» y, aparte, la hoja del catálogo abierta (que oculta la ficha).
       await page.getByRole('button', { name: es.source.source, exact: true }).click()

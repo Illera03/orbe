@@ -85,5 +85,10 @@
     "nonCommercial": "Uso no comercial",
     "clear": "Quitar indicador",
     "newTab": "(se abre en una pestaña nueva)"
+  },
+  "dock": {
+    "title": "Leyenda y año",
+    "year": "Año",
+    "noData": "Sin dato"
   }
 }
