@@ -37,3 +37,13 @@
   font-variant-numeric: var(--font-numeric-table);
   pointer-events: none;
 }
+
+/* Móvil: abajo queda la columna del catálogo; arriba a la derecha, bajo la barra (control de 44 px, rellenos y margen). */
+@media (max-width: 640px), (pointer: coarse) {
+  .fps-meter {
+    left: auto;
+    right: var(--space-2);
+    bottom: auto;
+    top: calc(var(--space-2) * 2 + var(--size-control-touch) + var(--space-4));
+  }
+}
