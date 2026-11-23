@@ -139,7 +139,8 @@ body {
 }
 
 .toggle__button,
-.switch {
+.switch,
+.topbar__action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -165,14 +166,16 @@ body {
 }
 
 .toggle__button:focus-visible,
-.switch:focus-visible {
+.switch:focus-visible,
+.topbar__action:focus-visible {
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: var(--focus-offset);
 }
 
 @media (hover: hover) {
   .toggle__button:hover,
-  .switch:hover {
+  .switch:hover,
+  .topbar__action:hover:enabled {
     color: var(--color-text);
   }
 }
@@ -222,7 +225,8 @@ body {
     display: none;
   }
 
-  .switch {
+  .switch,
+  .topbar__action {
     display: inline-flex;
     min-width: var(--size-control-touch);
     height: var(--size-control-touch);
@@ -596,5 +600,181 @@ body {
 
   .source:not([data-expanded]) .source__clear {
     display: none;
+  }
+}
+
+/* shortcut: no hay token de control desactivado; se atenúa con opacidad hasta que Diseño lo defina. */
+.topbar__action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/*
+ * Tabla del indicador (INT-7): diálogo modal nativo en la capa superior, centrado en escritorio y a pantalla
+ * completa en móvil. Las cabeceras de columna quedan fijas al desplazarse; el cierre, también.
+ */
+.table {
+  box-sizing: border-box;
+  width: min(calc(var(--space-12) * 10), calc(100vw - var(--space-8)));
+  max-height: calc(100vh - var(--space-12));
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  overflow-y: auto;
+  color: var(--color-table-text);
+  font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
+}
+
+.table[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.table::backdrop {
+  background: var(--color-panel-bg);
+}
+
+.table__close,
+.table__sort {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.table__close {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--size-control);
+  height: var(--size-control);
+  margin-bottom: calc(-1 * var(--size-control));
+  border-radius: var(--radius-pill);
+}
+
+.table__grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table__caption {
+  min-height: var(--size-control);
+  margin-bottom: var(--space-2);
+  text-align: left;
+  font: var(--font-weight-strong) var(--font-size-md) / var(--font-line-tight) var(--font-display);
+}
+
+.table__th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: 0;
+  background: var(--color-panel-bg);
+  border-bottom: var(--border-width) solid var(--color-table-divider);
+  text-align: left;
+}
+
+.table__th--value,
+.table__grid td {
+  text-align: right;
+}
+
+.table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--size-control);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-strong);
+}
+
+.table__grid tbody th,
+.table__grid td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-table-divider);
+}
+
+.table__grid tbody th {
+  font-weight: var(--font-weight-regular);
+  text-align: left;
+}
+
+.table__grid td {
+  font-variant-numeric: var(--font-numeric-table);
+  white-space: nowrap;
+}
+
+/* Hueco para el cierre, que queda fijo en la fila de cabeceras al desplazarse. */
+.table__th--value,
+.table__grid td,
+.table__caption {
+  padding-right: calc(var(--size-control) + var(--space-2));
+}
+
+.table__grid tbody tr {
+  background: var(--color-table-row-bg);
+}
+
+.table__grid tbody tr:nth-child(even) {
+  background: var(--color-table-row-alt-bg);
+}
+
+@media (hover: hover) {
+  .table__grid tbody tr:hover {
+    background: var(--color-table-row-hover-bg);
+  }
+
+  .table__close:hover,
+  .table__sort:hover {
+    background: var(--color-panel-border);
+  }
+}
+
+.table__grid td.table__nodata,
+.table__status {
+  color: var(--color-table-text-muted);
+}
+
+.table__close:focus-visible,
+.table__sort:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: calc(-1 * var(--focus-width));
+}
+
+@media (max-width: 640px), (pointer: coarse) {
+  .table {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .table__close {
+    width: var(--size-control-touch);
+    height: var(--size-control-touch);
+    margin-bottom: calc(-1 * var(--size-control-touch));
+  }
+
+  .table__caption {
+    min-height: var(--size-control-touch);
+  }
+
+  .table__th--value,
+  .table__grid td,
+  .table__caption {
+    padding-right: calc(var(--size-control-touch) + var(--space-2));
+  }
+
+  .table__sort {
+    min-height: var(--size-control-touch);
   }
 }

@@ -85,5 +85,15 @@
     "nonCommercial": "Non-commercial use",
     "clear": "Remove indicator",
     "newTab": "(opens in a new tab)"
+  },
+  "table": {
+    "open": "View as table",
+    "close": "Close the table",
+    "caption": "{{name}}, {{year}} ({{unit}})",
+    "country": "Country",
+    "value": "Value",
+    "noData": "No data",
+    "loading": "Loading the table…",
+    "error": "The table could not be loaded. Close it and open it again."
   }
 }

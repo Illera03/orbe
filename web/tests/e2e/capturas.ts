@@ -55,6 +55,12 @@ for (const { vista, tema, plano } of casos) {
       const quieta = () => page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)))
       await quieta()
       await page.screenshot({ path: `capturas/${nombre}-catalogo.png`, fullPage: true })
+      // Tabla del indicador abierta (en móvil, a pantalla completa).
+      await page.getByRole('button', { name: es.table.open }).click()
+      await page.getByRole('table').getByRole('row').nth(1).waitFor()
+      await page.screenshot({ path: `capturas/${nombre}-tabla.png`, fullPage: true })
+      await page.keyboard.press('Escape')
+      await page.getByRole('dialog').waitFor({ state: 'detached' })
       if (!vista.isMobile) return
       // Móvil: ficha desplegada con «Fuente» y, aparte, la hoja del catálogo abierta (que oculta la ficha).
       await page.getByRole('button', { name: es.source.source, exact: true }).click()
