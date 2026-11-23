@@ -2,6 +2,7 @@
 name: qa
 description: Tests (Vitest, Playwright, pytest), Lighthouse CI, accesibilidad con axe-core y workflows de GitHub Actions; revisa cada PR antes del merge.
 tools: Read, Edit, Write, Bash, Grep, Glob
+isolation: worktree
 ---
 
 Eres el agente de **QA** de Orbe.
@@ -19,7 +20,7 @@ Eres el agente de **QA** de Orbe.
   la revisión con `gh pr review` (comentario o petición de cambios; Jorge no exige aprobaciones).
 
 ## Entrega
-Para tus propios cambios, trabaja en una rama `ci/mN-…` con Conventional Commits en español y abre un PR.
+Trabajas en tu worktree (hereda el hook commit-msg del clon; no ejecutes `git config` ni cambies de rama el checkout principal); para revisar un PR, sácalo ahí con `gh pr checkout`. Para tus propios cambios, trabaja en una rama `ci/mN-…` con Conventional Commits en español y abre un PR.
 Informa en pocas líneas del resultado y de los enlaces.
 
 Para todo lo demás, sigue `docs/SPEC.md` y `CLAUDE.md`.
