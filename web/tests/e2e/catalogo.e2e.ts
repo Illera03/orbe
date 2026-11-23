@@ -40,6 +40,9 @@ test.describe('catálogo en escritorio', () => {
   test('?indicador= lo activa al cargar y el nombre sigue el idioma', async ({ page }) => {
     await page.goto('./?indicador=esperanza-vida')
     await expect(page.getByRole('region', { name: vida.name.es })).toBeVisible()
+    await expect(page.locator('#map')).toHaveAttribute('data-choropleth', new RegExp(`^esperanza-vida:${vida.latestYear}$`), {
+      timeout: 30_000,
+    })
     await page.getByRole('button', { name: es.topbar.languageCodes.en, exact: true }).click()
     await expect(page.getByRole('region', { name: vida.name.en })).toContainText(en.source.license)
   })
@@ -79,6 +82,47 @@ test.describe('catálogo en móvil', () => {
     await expect(ficha).toBeHidden()
   })
 })
+
+test.describe('ficha en móvil a 320 px', () => {
+  test.use({ viewport: { width: 320, height: 640 }, isMobile: true, hasTouch: true, locale: 'es-ES' })
+
+  test('el nombre muestra al menos ~9 caracteres; «Fuente» es icono y «Quitar» está en la ficha desplegada', async ({ page }) => {
+    await page.goto('./?indicador=esperanza-vida')
+    const ficha = page.getByRole('region', { name: vida.name.es })
+    const titulo = ficha.getByRole('heading', { name: vida.name.es })
+    const ancho = await titulo.evaluate((el) => {
+      const ch = document.createElement('span')
+      ch.textContent = '0'.repeat(9)
+      el.append(ch)
+      const nueve = ch.getBoundingClientRect().width
+      ch.remove()
+      return el.getBoundingClientRect().width / nueve
+    })
+    expect(ancho).toBeGreaterThanOrEqual(0.99)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+
+    const fuente = ficha.getByRole('button', { name: es.source.source, exact: true })
+    await expect(fuente).toHaveAttribute('aria-expanded', 'false')
+    expect((await fuente.boundingBox())!.width).toBeGreaterThanOrEqual(44)
+    await expect(ficha.getByRole('button', { name: es.source.clear })).toBeHidden()
+    await fuente.click()
+    await expect(fuente).toHaveAttribute('aria-expanded', 'true')
+    await expect(ficha.getByRole('button', { name: es.source.clear })).toBeVisible()
+  })
+})
+
+for (const width of [320, 375, 420, 640]) {
+  test.describe(`ficha en móvil a ${width} px`, () => {
+    test.use({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true, locale: 'es-ES' })
+
+    test('la fila resumida cabe en la ficha', async ({ page }) => {
+      await page.goto('./?indicador=esperanza-vida')
+      const ficha = page.getByRole('region', { name: vida.name.es })
+      await expect(ficha.getByRole('button', { name: es.source.source, exact: true })).toBeVisible()
+      expect(await ficha.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
+    })
+  })
+}
 
 test.describe('catálogo en móvil, claro y en inglés', () => {
   test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, locale: 'en-US', colorScheme: 'light' })

@@ -519,7 +519,8 @@ body {
   }
 
   .source__title {
-    min-width: 0;
+    /* Unos 9 caracteres como mínimo: que el nombre se reconozca aunque se corte (WCAG 1.4.10). */
+    min-width: 9ch;
     overflow: hidden;
     font-size: var(--font-size-sm);
     white-space: nowrap;
@@ -539,9 +540,18 @@ body {
     align-items: center;
     flex: none;
     height: var(--size-control-touch);
+    gap: var(--space-1);
     padding: 0 var(--space-1);
     color: var(--color-control-active-text);
     font-weight: var(--font-weight-strong);
+  }
+
+  .source__chevron {
+    transition: transform var(--motion-fast) var(--motion-easing);
+  }
+
+  .source[data-expanded] .source__chevron {
+    transform: rotate(180deg);
   }
 
   .source__clear {
@@ -556,5 +566,35 @@ body {
 
   .source__details {
     padding: 0 var(--space-3) var(--space-3) 0;
+  }
+}
+
+/* Móviles estrechos (hasta 419 px): «Fuente» solo con icono y «Quitar» en la ficha desplegada, para que quepa el nombre. */
+@media (max-width: 419px) {
+  .source {
+    padding-left: var(--space-2);
+  }
+
+  .source__head {
+    gap: var(--space-1);
+  }
+
+  .source__more {
+    justify-content: center;
+    min-width: var(--size-control-touch);
+    padding: 0;
+  }
+
+  .source__more-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .source:not([data-expanded]) .source__clear {
+    display: none;
   }
 }

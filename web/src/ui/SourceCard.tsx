@@ -12,10 +12,10 @@ export function SourceCard() {
 }
 
 /**
- * Nombre, fuente, año, unidad y licencia con su atribución. No se pliega (como la atribución del mapa, D31).
- * Nombre, unidad y textos de la fuente salen del catálogo, no de i18n.
- * Móvil (app.css): una fila de 44 px con nombre, año y licencia; el botón «Fuente» despliega el resto.
- * En escritorio esa fila resumida y el botón no se muestran y la ficha va entera.
+ * Nombre, fuente, año, unidad y licencia con su atribución. Nombre, unidad y textos de la fuente salen del catálogo.
+ * Escritorio: la ficha va entera y no se pliega. Móvil (app.css): una fila de 44 px con nombre, año y licencia
+ * siempre visibles; la fuente y la atribución quedan a un clic con «Fuente» (SPEC, principio 2). Hasta
+ * 419 px, «Fuente» es solo icono y «Quitar indicador» pasa a la ficha desplegada.
  */
 export function SourceCardView({ meta, year, language }: { meta: IndicatorMeta; year: number | null; language: Language }) {
   const { t } = useTranslation()
@@ -48,7 +48,10 @@ export function SourceCardView({ meta, year, language }: { meta: IndicatorMeta; 
           aria-controls="source-details"
           onClick={() => setExpanded((x) => !x)}
         >
-          {t('source.source')}
+          <span className="source__more-label">{t('source.source')}</span>
+          <svg className="source__chevron" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         <button type="button" className="source__clear" aria-label={t('source.clear')} title={t('source.clear')} onClick={clearIndicator}>
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
