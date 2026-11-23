@@ -30,6 +30,14 @@ export function CatalogPanel() {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- la carga es externa; solo marca el fallo
   useEffect(load, [load])
 
+  // Al cruzar el corte móvil (rotación, redimensionado) el panel toma el estado de esa disposición.
+  useEffect(() => {
+    const query = globalThis.matchMedia?.(MOBILE)
+    const onChange = (e: MediaQueryListEvent) => setOpen(!e.matches)
+    query?.addEventListener('change', onChange)
+    return () => query?.removeEventListener('change', onChange)
+  }, [])
+
   const collapse = () => {
     setOpen(false)
     toggle.current?.focus()

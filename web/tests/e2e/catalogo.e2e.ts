@@ -79,3 +79,45 @@ test.describe('catálogo en móvil', () => {
     await expect(ficha).toBeHidden()
   })
 })
+
+test.describe('catálogo en móvil, claro y en inglés', () => {
+  test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, locale: 'en-US', colorScheme: 'light' })
+
+  test('axe sin errores con la hoja abierta', async ({ page }) => {
+    await page.goto('./?indicador=esperanza-vida')
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await page.getByRole('button', { name: en.catalog.title }).click()
+    await expect(page.getByRole('button', { name: vida.name.en })).toBeVisible()
+    const { violations } = await new AxeBuilder({ page }).analyze()
+    const graves = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')
+    expect(graves.map((v) => `${v.id}: ${v.help}`)).toEqual([])
+  })
+})
+
+test.describe('catálogo al cambiar el ancho', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, locale: 'es-ES' })
+
+  test('se cierra al pasar a móvil y se abre al volver a escritorio', async ({ page }) => {
+    await page.goto('./')
+    const boton = page.getByRole('button', { name: es.catalog.title })
+    await expect(boton).toHaveAttribute('aria-expanded', 'true')
+    await page.setViewportSize({ width: 375, height: 812 })
+    await expect(boton).toHaveAttribute('aria-expanded', 'false')
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await expect(boton).toHaveAttribute('aria-expanded', 'true')
+  })
+})
+
+test.describe('catálogo sin red', () => {
+  test.use({ viewport: { width: 1280, height: 800 }, locale: 'es-ES' })
+
+  test('si falla la carga avisa y «Reintentar» lo vuelve a pedir', async ({ page }) => {
+    let fallar = true
+    await page.route('**/data/catalog.json', (ruta) => (fallar ? ruta.abort() : ruta.continue()))
+    await page.goto('./')
+    await expect(page.getByRole('alert')).toContainText(es.catalog.error)
+    fallar = false
+    await page.getByRole('button', { name: es.catalog.retry }).click()
+    await expect(page.getByRole('button', { name: vida.name.es })).toBeVisible()
+  })
+})
