@@ -1,0 +1,47 @@
+{
+  "generated": "2026-11-23",
+  "indicators": [
+    {
+      "id": "esperanza-vida",
+      "sourceCode": "SP.DYN.LE00.IN",
+      "order": "desc",
+      "name": {
+        "es": "Esperanza de vida al nacer",
+        "en": "Life expectancy at birth"
+      },
+      "description": {
+        "es": "Años que viviría un recién nacido si se mantuvieran los patrones de mortalidad del año de su nacimiento.",
+        "en": "Number of years a newborn would live if the mortality patterns at the time of birth stayed the same."
+      },
+      "unit": {
+        "es": "años",
+        "en": "years"
+      },
+      "decimals": 1,
+      "category": "salud",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/SP.DYN.LE00.IN",
+        "accessed": "2026-11-23"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (SP.DYN.LE00.IN), CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1960,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/esperanza-vida.json"
+    }
+  ]
+}
