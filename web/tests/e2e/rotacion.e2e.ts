@@ -80,4 +80,38 @@ test.describe('contador de fps', () => {
     await expect(contador).toHaveAttribute('data-fps', /^\d+$/, { timeout: 5_000 })
     await expect(contador).toHaveText(/^\d+ fps$/)
   })
+
+  // Enlace de la medida en móvil (D42). `?indicador=` lo lee initIndicator desde la interfaz (INT-4).
+  test('convive con la coropleta, no tapa la barra y no repinta el mapa', async ({ page }) => {
+    // Cuenta las llamadas de dibujo de WebGL: con el mapa quieto no debe haber ninguna aunque el contador mida.
+    await page.addInitScript(() => {
+      const w = window as unknown as { draws: number }
+      w.draws = 0
+      for (const name of ['drawElements', 'drawArrays'] as const) {
+        const proto = WebGL2RenderingContext.prototype as unknown as Record<string, (...a: unknown[]) => void>
+        const original = proto[name]
+        proto[name] = function (this: unknown, ...args: unknown[]) {
+          w.draws++
+          return original.apply(this, args)
+        }
+      }
+    })
+    await page.goto('./?fps=1&indicador=esperanza-vida')
+    await pararRotacion(page)
+    await expect(page.locator('#map')).toHaveAttribute('data-choropleth', /^esperanza-vida:\d{4}$/, { timeout: 30_000 })
+    await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+    const contador = page.locator('.fps-meter')
+    await expect(contador).toHaveAttribute('data-fps', /^\d+$/, { timeout: 5_000 })
+
+    const caja = (await contador.boundingBox())!
+    const barra = (await page.locator('.topbar').boundingBox())!
+    expect(caja.y).toBeGreaterThanOrEqual(barra.y + barra.height)
+    expect(caja.x).toBeGreaterThan(375 / 2)
+
+    const draws = () => page.evaluate(() => (window as unknown as { draws: number }).draws)
+    const antes = await draws()
+    expect(antes).toBeGreaterThan(0)
+    await page.waitForTimeout(2000)
+    expect(await draws()).toBe(antes)
+  })
 })
