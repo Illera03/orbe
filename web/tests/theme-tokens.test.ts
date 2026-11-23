@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { StyleSpecification } from 'maplibre-gl'
-import { cssVars, mapType, themeCss, themes, type ThemeName } from '../src/theme/tokens'
+import * as chromatic from 'd3-scale-chromatic'
+import { cssVars, DATA_SCALES, mapType, themeCss, themes, type ThemeName } from '../src/theme/tokens'
 import { expression, latest, type StylePropertySpecification } from '@maplibre/maplibre-gl-style-spec'
 import { GLOBENESS_STATE, SUBNATIONAL_MIN_ZOOM, themeMapStyle, themeSky } from '../src/theme/map'
 
@@ -187,6 +188,39 @@ describe('tokens de tema', () => {
       // Peor caso del tema oscuro: panel translúcido sobre blanco, como el resto de pruebas de panel.
       const panel = rgb(c.panelBg)
       expect(contrast(rgb(c.controlActiveText), rgb(c.controlActiveBg, panel))).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  // DIS-5: medido contra el océano «Silueta» (#0c1b33). Viridis al 0 % da 1,13:1, al 15 % 1,69:1 y al 20 % 1,97:1;
+  // 0,2 es el recorte más bajo (dentro del 15–20 % pedido) que llega a ≈ 2:1. PuOr se recorta simétrico hasta el mismo umbral.
+  it('escalas de datos: extremos recortados ≈ 2:1 con océano y tierra en ambos temas', () => {
+    const color = (s: { scheme: string; range: readonly number[] }, t: number) =>
+      rgb((chromatic as unknown as Record<string, (t: number) => string>)[`interpolate${s.scheme}`](t))
+    expect(DATA_SCALES.sequential).toEqual({ scheme: 'Viridis', range: [0.2, 1] })
+    expect(DATA_SCALES.diverging).toEqual({ scheme: 'PuOr', range: [0.12, 0.88] })
+    // El centro de la divergente sigue en 0,5.
+    expect(DATA_SCALES.diverging.range[0] + DATA_SCALES.diverging.range[1]).toBeCloseTo(1)
+    for (const t of names) {
+      const m = themes[t].map
+      for (const s of [DATA_SCALES.sequential, DATA_SCALES.diverging])
+        for (const bg of [m.ocean, m.land]) expect(contrast(color(s, s.range[0]), rgb(bg))).toBeGreaterThanOrEqual(1.95)
+    }
+  })
+
+  it.each(names)('rayado de sin dato ≥ 2:1 con el océano y con su fondo en %s', (n) => {
+    const m = themes[n].map
+    expect(contrast(rgb(m.noDataStripe), rgb(m.ocean))).toBeGreaterThanOrEqual(2)
+    expect(contrast(rgb(m.noDataStripe), rgb(m.noDataBg))).toBeGreaterThanOrEqual(2)
+  })
+
+  it.each(names)('leyenda y tabla del indicador cumplen WCAG AA en %s', (n) => {
+    const c = themes[n].color
+    const panel = rgb(c.panelBg)
+    expect(contrast(rgb(c.legendBorder), panel)).toBeGreaterThanOrEqual(3)
+    for (const row of [c.tableRowAltBg, c.tableRowHoverBg]) {
+      const bg = rgb(row, panel)
+      expect(contrast(rgb(c.tableText), bg)).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(rgb(c.tableTextMuted), bg)).toBeGreaterThanOrEqual(4.5)
     }
   })
 })

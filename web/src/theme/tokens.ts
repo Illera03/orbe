@@ -51,13 +51,21 @@ export const mapType = {
   countryBorderWidth: [[0, 0.7], [3, 0.8], [6, 1.1], [10, 1.8]],
 } as const
 
+// Escalas de datos para d3-scale-chromatic (`interpolate${scheme}` evaluado entre range[0] y range[1]), iguales en ambos temas.
+// Recorte (DIS-5): el extremo oscuro de viridis (0 % = #440154) y de PuOr se funde con el océano de «Silueta» (≈ 1,1:1 y 1,0:1);
+// desde 0,2 en viridis y 0,12–0,88 en PuOr (simétrico, el centro sigue en 0,5) llegan a ≈ 2:1; el 3:1 lo da `countryBorder` (D23).
+export const DATA_SCALES = {
+  sequential: { scheme: 'Viridis', range: [0.2, 1] },
+  diverging: { scheme: 'PuOr', range: [0.12, 0.88] },
+} as const
+
 /** Duraciones con `prefers-reduced-motion: reduce` (SPEC: transiciones cortas); sustituyen a `shared.motion`. */
 export const reducedMotion = { fast: '0ms', base: '100ms', camera: '300ms' } as const
 
 /**
  * Valores por tema. `color` es interfaz, `map` es mapa base, globo y capa de países.
- * Paleta de datos: secuencial viridis, divergente PuOr (ColorBrewer, apta para daltonismo) y
- * categórica Okabe-Ito sin el negro; el «sin dato» es un rayado neutro (`noDataStripe` sobre `noDataBg`).
+ * Paleta de datos: secuencial y divergente en `DATA_SCALES`; aquí la categórica Okabe-Ito sin el negro.
+ * El «sin dato» es un rayado neutro (`noDataStripe` sobre `noDataBg`); la raya da ≥ 2:1 con el océano y con el fondo.
  * Algunos colores de datos (amarillo Okabe-Ito y extremos de viridis) no llegan a 3:1 con `land`: todo país
  * relleno con dato lleva el contorno `countryBorder`, que sí da ≥ 3:1 sobre `land` (WCAG 1.4.11).
  */
@@ -78,6 +86,15 @@ export const themes = {
       controlActiveText: '#a8d8ff',
       focus: '#ffd166',
       danger: '#ff8a80',
+      // Leyenda: contorno de la barra de color (≥ 3:1 con el panel, separa los extremos de la escala del fondo).
+      legendBorder: '#7b8494',
+      // Tabla del indicador: filas alternas tintadas sobre el panel; el separador solo ordena (decorativo).
+      tableRowBg: 'transparent',
+      tableRowAltBg: 'rgba(255, 255, 255, 0.04)',
+      tableRowHoverBg: 'rgba(124, 196, 255, 0.10)',
+      tableDivider: 'rgba(255, 255, 255, 0.08)',
+      tableText: '#e8ecf3',
+      tableTextMuted: '#a3acbb',
     },
     shadow: { panel: '0 4px 24px rgba(0, 0, 0, 0.35)' },
     blur: { panel: '18px' },
@@ -95,7 +112,7 @@ export const themes = {
       countryHover: '#e8ecf3',
       countrySelected: '#ffd166',
       noDataBg: '#0b0f18',
-      noDataStripe: '#27303f',
+      noDataStripe: '#4a5261',
       sky: '#020307',
       horizon: '#4f7fc4',
       fog: '#020307',
@@ -104,8 +121,6 @@ export const themes = {
       atmosphere: 0.8,
     },
     data: {
-      sequential: 'viridis',
-      diverging: 'PuOr',
       categorical: ['#e69f00', '#56b4e9', '#009e73', '#f0e442', '#0072b2', '#d55e00', '#cc79a7'],
     },
   },
@@ -123,6 +138,13 @@ export const themes = {
       controlActiveText: '#1f5f99',
       focus: '#b35900',
       danger: '#b3261e',
+      legendBorder: '#8a8478',
+      tableRowBg: 'transparent',
+      tableRowAltBg: 'rgba(29, 27, 23, 0.035)',
+      tableRowHoverBg: 'rgba(31, 95, 153, 0.08)',
+      tableDivider: '#e3ddd0',
+      tableText: '#1d1b17',
+      tableTextMuted: '#5c574d',
     },
     shadow: { panel: '0 2px 12px rgba(29, 27, 23, 0.12)' },
     blur: { panel: '0px' },
@@ -139,7 +161,7 @@ export const themes = {
       countryHover: '#1d1b17',
       countrySelected: '#b35900',
       noDataBg: '#ece7dc',
-      noDataStripe: '#c9c2b4',
+      noDataStripe: '#958e80',
       sky: '#e2dccf',
       // Más azul y hondo que el fondo, para recortar el borde del globo donde la tierra marfil lo toca.
       horizon: '#8fa9c2',
@@ -149,8 +171,6 @@ export const themes = {
       atmosphere: 0.6,
     },
     data: {
-      sequential: 'viridis',
-      diverging: 'PuOr',
       categorical: ['#e69f00', '#56b4e9', '#009e73', '#f0e442', '#0072b2', '#d55e00', '#cc79a7'],
     },
   },
