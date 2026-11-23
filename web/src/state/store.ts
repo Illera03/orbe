@@ -25,6 +25,8 @@ export interface AppState {
   markInteraction: () => void
   /** Activa un indicador del catálogo y pone su `latestYear`; un id desconocido (o sin catálogo) no cambia nada. */
   setIndicator: (id: string) => void
+  /** Deja el mapa sin indicador (y sin año). */
+  clearIndicator: () => void
   setYear: (year: number) => void
   setHoveredCountry: (a3: string | null) => void
 }
@@ -90,6 +92,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const meta = get().catalog?.indicators.find((i) => i.id === id)
     if (meta) set({ indicatorId: id, year: meta.latestYear })
   },
+  clearIndicator: () => set({ indicatorId: null, year: null }),
   setYear: (year) => set({ year }),
   setHoveredCountry: (hoveredCountry) => set({ hoveredCountry }),
 }))

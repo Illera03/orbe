@@ -100,6 +100,8 @@ describe('indicador en el store', () => {
     expect(useAppStore.getState().year).toBe(2023)
     s.setIndicator('no-existe')
     expect(useAppStore.getState().indicatorId).toBe('esperanza-vida')
+    s.clearIndicator()
+    expect(useAppStore.getState()).toMatchObject({ indicatorId: null, year: null })
   })
 })
 
