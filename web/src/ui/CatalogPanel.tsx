@@ -30,11 +30,20 @@ export function CatalogPanel() {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- la carga es externa; solo marca el fallo
   useEffect(load, [load])
 
+  const collapse = () => {
+    setOpen(false)
+    toggle.current?.focus()
+  }
+
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && open) {
-      setOpen(false)
-      toggle.current?.focus()
-    }
+    if (e.key === 'Escape' && open) collapse()
+  }
+
+  // En móvil la hoja se cierra al elegir, para ver el mapa; en escritorio el panel sigue abierto.
+  const choose = (id: string, active: boolean) => {
+    if (active) clearIndicator()
+    else setIndicator(id)
+    if (globalThis.matchMedia?.(MOBILE).matches) collapse()
   }
 
   return (
@@ -51,7 +60,7 @@ export function CatalogPanel() {
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          {t('catalog.title')}
+          <span className="catalog__label">{t('catalog.title')}</span>
           <svg className="catalog__chevron" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -85,7 +94,7 @@ export function CatalogPanel() {
                         className="catalog__option"
                         aria-pressed={active}
                         aria-describedby={`catalog-desc-${i.id}`}
-                        onClick={() => (active ? clearIndicator() : setIndicator(i.id))}
+                        onClick={() => choose(i.id, active)}
                       >
                         {i.name[language]}
                       </button>

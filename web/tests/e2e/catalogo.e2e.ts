@@ -56,11 +56,26 @@ test.describe('catálogo en móvil', () => {
     expect(caja!.height).toBeGreaterThanOrEqual(44)
 
     await boton.click()
-    const opcion = page.getByRole('button', { name: vida.name.es })
-    await opcion.click()
-    await expect(page.getByRole('region', { name: vida.name.es })).toBeVisible()
-    await opcion.press('Escape')
+    await page.getByRole('button', { name: es.catalog.title }).press('Escape')
+    await expect(boton).toHaveAttribute('aria-expanded', 'false')
+
+    // Al elegir, la hoja se cierra y el foco vuelve al botón.
+    await boton.click()
+    await page.getByRole('button', { name: vida.name.es }).click()
     await expect(boton).toHaveAttribute('aria-expanded', 'false')
     await expect(boton).toBeFocused()
+
+    // Ficha en una fila: nombre, año y licencia; «Fuente» despliega la fuente.
+    const ficha = page.getByRole('region', { name: vida.name.es })
+    expect((await ficha.boundingBox())!.height).toBeLessThanOrEqual(46) // 44 px más el borde
+    await expect(ficha).toContainText(String(vida.latestYear))
+    await expect(ficha.getByRole('link', { name: vida.license.id })).toBeVisible()
+    await expect(ficha.getByRole('link', { name: vida.source.name })).toBeHidden()
+    await ficha.getByRole('button', { name: es.source.source, exact: true }).click()
+    await expect(ficha.getByRole('link', { name: vida.source.name })).toBeVisible()
+
+    // La hoja abierta oculta la ficha en vez de apilarse encima.
+    await boton.click()
+    await expect(ficha).toBeHidden()
   })
 })

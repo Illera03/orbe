@@ -269,7 +269,8 @@ body {
 .catalog__toggle,
 .catalog__option,
 .catalog__retry,
-.source__clear {
+.source__clear,
+.source__more {
   border: 0;
   background: transparent;
   color: inherit;
@@ -367,6 +368,7 @@ body {
 .catalog__option:focus-visible,
 .catalog__retry:focus-visible,
 .source__clear:focus-visible,
+.source__more:focus-visible,
 .source a:focus-visible {
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: var(--focus-offset);
@@ -440,14 +442,57 @@ body {
   color: var(--color-text-muted);
 }
 
-/* Móvil o táctil: la columna baja sobre la atribución; el catálogo es una hoja inferior que abre un botón de 44 px. */
+/* Resumen de la ficha y botón «Fuente»: solo en móvil. */
+.source__brief,
+.source__more {
+  display: none;
+}
+
+/*
+ * Móvil o táctil: una sola fila sobre la atribución con el botón del catálogo (solo icono si hay ficha) y la ficha
+ * resumida. La hoja del catálogo, al abrirse, ocupa la fila entera y oculta la ficha.
+ * --dock: alto que reservará la leyenda con el año (INT-5) bajo esta fila; hoy 0.
+ */
 @media (max-width: 640px), (pointer: coarse) {
   .sidebar {
+    --dock: 0px;
     top: auto;
     left: var(--space-2);
     right: var(--space-2);
-    bottom: var(--space-12);
+    bottom: calc(var(--space-12) + var(--dock));
     width: auto;
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .catalog {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sidebar:has(.source) .catalog:not([data-open]) {
+    flex: none;
+  }
+
+  .sidebar:has(.source) .catalog:not([data-open]) .catalog__toggle {
+    justify-content: center;
+    width: var(--size-control-touch);
+    padding: 0;
+  }
+
+  /* Solo icono: el texto sigue siendo el nombre accesible del botón. */
+  .sidebar:has(.source) .catalog:not([data-open]) .catalog__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .sidebar:has(.source) .catalog:not([data-open]) .catalog__chevron,
+  .sidebar:has(.catalog[data-open]) .source {
+    display: none;
   }
 
   .catalog__toggle {
@@ -458,13 +503,58 @@ body {
     max-height: 50vh;
   }
 
-  .catalog__option,
-  .source__clear {
+  .catalog__option {
     min-height: var(--size-control-touch);
-    min-width: var(--size-control-touch);
   }
 
   .source {
+    flex: 1;
+    min-width: 0;
     margin-top: 0;
+    padding: 0 0 0 var(--space-3);
+  }
+
+  .source__head {
+    min-height: var(--size-control-touch);
+  }
+
+  .source__title {
+    min-width: 0;
+    overflow: hidden;
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .source__brief {
+    display: flex;
+    flex: none;
+    gap: var(--space-2);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .source__more {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    height: var(--size-control-touch);
+    padding: 0 var(--space-1);
+    color: var(--color-control-active-text);
+    font-weight: var(--font-weight-strong);
+  }
+
+  .source__clear {
+    width: var(--size-control-touch);
+    height: var(--size-control-touch);
+  }
+
+  .source:not([data-expanded]) .source__details,
+  .source[data-expanded] .source__brief {
+    display: none;
+  }
+
+  .source__details {
+    padding: 0 var(--space-3) var(--space-3) 0;
   }
 }

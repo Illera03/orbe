@@ -49,9 +49,18 @@ for (const { vista, tema, plano } of casos) {
       await page.goto('./?indicador=esperanza-vida')
       await pararRotacion(page)
       await page.locator('.source').waitFor()
-      if (vista.isMobile) await page.getByRole('button', { name: es.catalog.title }).click()
       await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+      // Espera a que acaben las transiciones CSS (la flecha del catálogo gira al abrirlo).
+      const quieta = () => page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)))
       await page.screenshot({ path: `capturas/${nombre}-catalogo.png`, fullPage: true })
+      if (!vista.isMobile) return
+      // Móvil: ficha desplegada con «Fuente» y, aparte, la hoja del catálogo abierta (que oculta la ficha).
+      await page.getByRole('button', { name: es.source.source, exact: true }).click()
+      await quieta()
+      await page.screenshot({ path: `capturas/${nombre}-fuente.png`, fullPage: true })
+      await page.getByRole('button', { name: es.catalog.title }).click()
+      await quieta()
+      await page.screenshot({ path: `capturas/${nombre}-hoja.png`, fullPage: true })
     })
   })
 }
