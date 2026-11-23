@@ -21,10 +21,17 @@ jobs:
           if [ -n "$BASE" ]; then range="$BASE..$HEAD"
           elif [ -n "$BEFORE" ] && ! echo "$BEFORE" | grep -q '^0*$'; then range="$BEFORE..$HEAD"
           else range="$HEAD"; fi
-          git log --format=%B "$range" | .githooks/check-attribution.sh
+          git log --format=%B "$range" > mensajes.txt
+          .githooks/check-attribution.sh < mensajes.txt
+          .githooks/check-rutas.sh < mensajes.txt
+      - name: Rutas de usuario en los ficheros
+        run: .githooks/check-rutas.sh --repo
       - name: Descripción del PR
         if: github.event_name == 'pull_request'
         env:
           BODY: ${{ github.event.pull_request.body }}
           TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n%s\n' "$TITLE" "$BODY" | .githooks/check-attribution.sh
+        run: |
+          printf '%s\n%s\n' "$TITLE" "$BODY" > pr.txt
+          .githooks/check-attribution.sh < pr.txt
+          .githooks/check-rutas.sh < pr.txt
