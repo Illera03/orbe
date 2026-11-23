@@ -28,6 +28,8 @@ export interface IndicatorMeta {
     transform: 'linear' | 'log' | 'quantile'
     palette: string
     midpoint?: number
+    /** Dominio fijo [min, max] de la escala; si falta, percentiles 2 y 98 de `latestYear` (MAPA-5). */
+    domain?: [number, number]
   }
   source: { name: string; url: string; accessed: string }
   license: { id: string; url: string; attribution: string; commercial: boolean }
