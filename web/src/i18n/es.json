@@ -60,5 +60,15 @@
     "noResults": "Ningún país coincide",
     "loading": "Cargando países…",
     "error": "No se ha podido cargar la lista de países. Vuelve a intentarlo."
+  },
+  "categories": {
+    "demografia": "Demografía",
+    "economia": "Economía",
+    "salud": "Salud",
+    "educacion": "Educación",
+    "medio-ambiente": "Medio ambiente",
+    "energia": "Energía",
+    "geografia": "Geografía",
+    "sociedad": "Sociedad"
   }
 }

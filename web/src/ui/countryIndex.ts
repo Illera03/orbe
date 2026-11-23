@@ -1,6 +1,7 @@
 import type { Bbox } from '../map/globe'
 import type { Language } from '../state/store'
 import aliases from '../config/country-aliases.json'
+import { loadData } from '../state/data'
 
 export interface Country {
   a3: string
@@ -66,18 +67,5 @@ export function search(index: CountryEntry[], query: string, language: Language,
     .map((r) => r.entry)
 }
 
-let pending: Promise<Country[]> | null = null
-
 /** Descarga `countries.json` una sola vez; si falla, el siguiente intento vuelve a pedirlo. */
-export function loadCountries(): Promise<Country[]> {
-  pending ??= fetch(`${import.meta.env.BASE_URL}data/geo/countries.json`)
-    .then((r) => {
-      if (!r.ok) throw new Error(`countries.json: HTTP ${r.status}`)
-      return r.json() as Promise<Country[]>
-    })
-    .catch((error: unknown) => {
-      pending = null
-      throw error
-    })
-  return pending
-}
+export const loadCountries = () => loadData<Country[]>('geo/countries.json')
