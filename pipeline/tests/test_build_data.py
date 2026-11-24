@@ -179,3 +179,13 @@ def test_datos_publicados_cumplen():
         assert data["id"] == ind["id"] and set(data["values"]) <= VALID
         latest = sum(v[-1] is not None for v in data["values"].values())
         assert latest >= bd.MIN_COUNTRIES
+
+
+@pytest.mark.parametrize("ind", json.loads((REAL_DATA / "catalog.json").read_text())["indicators"], ids=lambda i: i["id"])
+def test_catalogo_publicado(ind):
+    # Lo que se sirve en data/: licencia enlazada, fichero presente y ≥ 100 países en latestYear.
+    lic = ind["license"]
+    assert lic["id"] and lic["url"].startswith("https://") and lic["attribution"]
+    data = json.loads((REAL_DATA / ind["file"]).read_text())
+    i = data["years"].index(ind["latestYear"])
+    assert sum(v[i] is not None for v in data["values"].values()) >= 100
