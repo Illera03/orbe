@@ -99,5 +99,20 @@
     "missing_other": "{{count}} countries without data this year",
     "loading": "Loading ranking…",
     "error": "The ranking could not be loaded."
+  },
+  "dock": {
+    "title": "Legend and year",
+    "year": "Year",
+    "noData": "No data"
+  },
+  "table": {
+    "open": "View as table",
+    "close": "Close the table",
+    "caption": "{{name}}, {{year}} ({{unit}})",
+    "country": "Country",
+    "value": "Value",
+    "noData": "No data",
+    "loading": "Loading the table…",
+    "error": "The table could not be loaded. Close it and open it again."
   }
 }

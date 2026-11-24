@@ -39,6 +39,9 @@ export function Ranking() {
 
   useEffect(() => {
     const query = globalThis.matchMedia?.(MOBILE)
+    // Si el ancho cambió entre el primer render y la suscripción, ese cambio no llega como evento.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con matchMedia, un sistema externo
+    if (query) setOpen(!query.matches)
     const onChange = (e: MediaQueryListEvent) => setOpen(!e.matches)
     query?.addEventListener('change', onChange)
     return () => query?.removeEventListener('change', onChange)

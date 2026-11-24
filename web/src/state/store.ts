@@ -27,6 +27,7 @@ export interface AppState {
   setIndicator: (id: string) => void
   /** Deja el mapa sin indicador (y sin año). */
   clearIndicator: () => void
+  /** Cambia el año del indicador activo, redondeado y limitado a su `years`; sin indicador no hace nada. */
   setYear: (year: number) => void
   setHoveredCountry: (a3: string | null) => void
 }
@@ -93,7 +94,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
     if (meta) set({ indicatorId: id, year: meta.latestYear })
   },
   clearIndicator: () => set({ indicatorId: null, year: null }),
-  setYear: (year) => set({ year }),
+  setYear: (year) => {
+    const meta = get().catalog?.indicators.find((i) => i.id === get().indicatorId)
+    if (meta && Number.isFinite(year)) set({ year: Math.min(Math.max(Math.round(year), meta.years[0]), meta.years[1]) })
+  },
   setHoveredCountry: (hoveredCountry) => set({ hoveredCountry }),
 }))
 

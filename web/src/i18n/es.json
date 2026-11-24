@@ -99,5 +99,20 @@
     "missing_other": "{{count}} países sin dato este año",
     "loading": "Cargando clasificación…",
     "error": "No se ha podido cargar la clasificación."
+  },
+  "dock": {
+    "title": "Leyenda y año",
+    "year": "Año",
+    "noData": "Sin dato"
+  },
+  "table": {
+    "open": "Ver como tabla",
+    "close": "Cerrar la tabla",
+    "caption": "{{name}}, {{year}} ({{unit}})",
+    "country": "País",
+    "value": "Valor",
+    "noData": "Sin dato",
+    "loading": "Cargando la tabla…",
+    "error": "No se ha podido cargar la tabla. Ciérrala y vuelve a abrirla."
   }
 }
