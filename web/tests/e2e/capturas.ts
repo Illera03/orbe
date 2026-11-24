@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { test } from '@playwright/test'
-import { pararRotacion } from './mapa'
+import { test } from './mapa'
 
 // El proyecto usa locale es-ES.
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
@@ -24,7 +23,6 @@ for (const { vista, tema, plano } of casos) {
     test(nombre, async ({ page }) => {
       // Las de plano llevan también el contador de ?fps=1, para revisarlo en los dos temas y en móvil.
       await page.goto(plano ? './?fps=1' : './')
-      await pararRotacion(page)
       if (plano) {
         await page.getByRole('button', { name: botonPlano(vista.isMobile), exact: true }).click()
         await page.locator('#map[data-projection="mercator"]').waitFor({ timeout: 30_000 })
@@ -47,7 +45,6 @@ for (const { vista, tema, plano } of casos) {
       await page.screenshot({ path: `capturas/${nombre}-buscador.png`, fullPage: true })
       // Catálogo con un indicador activo y su ficha de fuente (en móvil, con la hoja abierta).
       await page.goto('./?indicador=esperanza-vida')
-      await pararRotacion(page)
       await page.locator('.source').waitFor()
       await page.locator('#map[data-choropleth^="esperanza-vida:"]').waitFor({ timeout: 30_000 })
       await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
