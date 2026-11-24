@@ -86,6 +86,11 @@
     "clear": "Quitar indicador",
     "newTab": "(se abre en una pestaña nueva)"
   },
+  "dock": {
+    "title": "Leyenda y año",
+    "year": "Año",
+    "noData": "Sin dato"
+  },
   "table": {
     "open": "Ver como tabla",
     "close": "Cerrar la tabla",

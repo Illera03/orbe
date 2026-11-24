@@ -103,6 +103,33 @@ describe('indicador en el store', () => {
     s.clearIndicator()
     expect(useAppStore.getState()).toMatchObject({ indicatorId: null, year: null })
   })
+
+  it('setYear redondea y limita el año a meta.years; sin indicador no hace nada', async () => {
+    const { initIndicator, useAppStore } = await load()
+    await initIndicator()
+    const s = useAppStore.getState()
+    s.setYear(2000)
+    expect(useAppStore.getState().year).toBeNull()
+    s.setIndicator('esperanza-vida')
+    s.setYear(1900)
+    expect(useAppStore.getState().year).toBe(1960)
+    s.setYear(2030)
+    expect(useAppStore.getState().year).toBe(2023)
+    s.setYear(1999.6)
+    expect(useAppStore.getState().year).toBe(2000)
+    s.setYear(NaN)
+    expect(useAppStore.getState().year).toBe(2000)
+  })
+
+  it('initIndicator se puede reintentar tras un fallo de carga', async () => {
+    const { initIndicator, useAppStore } = await load('?indicador=esperanza-vida')
+    fetchMock.mockResolvedValueOnce(new Response('', { status: 500 }))
+    await expect(initIndicator()).rejects.toThrow('HTTP 500')
+    expect(useAppStore.getState().catalog).toBeNull()
+    await initIndicator()
+    expect(useAppStore.getState()).toMatchObject({ catalog, indicatorId: 'esperanza-vida', year: 2023 })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
 })
 
 describe('categorías', () => {

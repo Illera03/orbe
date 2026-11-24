@@ -86,6 +86,11 @@
     "clear": "Remove indicator",
     "newTab": "(opens in a new tab)"
   },
+  "dock": {
+    "title": "Legend and year",
+    "year": "Year",
+    "noData": "No data"
+  },
   "table": {
     "open": "View as table",
     "close": "Close the table",
