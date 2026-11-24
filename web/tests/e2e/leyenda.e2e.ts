@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { pararRotacion } from './mapa'
 
 const json = (ruta: string) => JSON.parse(readFileSync(new URL(ruta, import.meta.url), 'utf8'))
 const es = json('../../src/i18n/es.json')
@@ -21,6 +22,8 @@ test.describe('leyenda y año en escritorio', () => {
 
   test('el año se cambia con teclado y el mapa lo pinta', async ({ page }) => {
     await page.goto('./?indicador=esperanza-vida')
+    // Con el globo girando y GL por software, cada fotograma con coropleta es caro (CI).
+    await pararRotacion(page)
     const dock = page.getByRole('region', { name: es.dock.title })
     const año = dock.getByRole('slider', { name: es.dock.year })
     await expect(año).toHaveValue(String(vida.latestYear))
@@ -47,9 +50,27 @@ test.describe('leyenda y año en escritorio', () => {
     await expect(año).toHaveValue(String(primero))
     await page.keyboard.press('End')
     await pintado(page, ultimo)
+  })
 
+  test('axe sin errores con la leyenda', async ({ page }) => {
+    await page.goto('./?indicador=esperanza-vida')
+    await pararRotacion(page)
+    await pintado(page, vida.latestYear)
     expect(await graves(page)).toEqual([])
   })
+
+  // Diseño (#82): entre 641 y ~1000 px el dock no se sale por la derecha ni tapa la atribución del mapa.
+  for (const width of [660, 900]) {
+    test(`a ${width} px cabe y deja ver la atribución`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 })
+      await page.goto('./?indicador=esperanza-vida')
+      const dock = (await page.getByRole('region', { name: es.dock.title }).boundingBox())!
+      const atribucion = (await page.locator('.maplibregl-ctrl-attrib').boundingBox())!
+      expect(dock.x + dock.width).toBeLessThanOrEqual(width)
+      expect(dock.y + dock.height).toBeLessThanOrEqual(atribucion.y)
+      expect(await page.locator('.dock').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true)
+    })
+  }
 
   test('sin indicador no hay leyenda; en inglés cambia el texto', async ({ page }) => {
     await page.goto('./')

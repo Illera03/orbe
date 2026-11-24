@@ -20,9 +20,17 @@ body {
   border: var(--border-width) solid var(--color-panel-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
-  /* En claro --blur-panel vale 0px y el fondo es opaco. */
   backdrop-filter: blur(var(--blur-panel));
   -webkit-backdrop-filter: blur(var(--blur-panel));
+}
+
+/*
+ * En claro --blur-panel vale 0px y el fondo es opaco: sin backdrop-filter, que aun a 0 px obliga a recomponer cada
+ * panel con el mapa en cada fotograma (con el globo girando y GL por software, la CI se quedaba sin fotogramas).
+ */
+[data-theme='light'] .panel {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .topbar {
@@ -604,12 +612,16 @@ body {
  * Filas de alto fijo (leyenda --space-6, año un control) para que la fila móvil de la ficha sepa cuánto subir (--dock).
  */
 .dock {
+  /* Centrado si cabe; si no, pegado a la columna izquierda y limitado al hueco hasta --dock-right (lo subirá el ranking). */
+  --dock-left: max(calc(50% - var(--space-12) * 4), calc(var(--space-12) * 6 + var(--space-3) * 2));
+  --dock-right: var(--space-3);
   position: fixed;
   z-index: 5;
-  bottom: var(--space-3);
-  left: max(calc(50% - var(--space-12) * 4), calc(var(--space-12) * 6 + var(--space-3) * 2));
+  /* Por encima de la franja de atribución del mapa (obligatoria, D31), que va abajo a la derecha. */
+  bottom: var(--space-8);
+  left: var(--dock-left);
   box-sizing: border-box;
-  width: calc(var(--space-12) * 8);
+  width: min(calc(var(--space-12) * 8), calc(100% - var(--dock-left) - var(--dock-right)));
   padding: var(--space-1) var(--space-3);
   color: var(--color-text);
   font: var(--font-weight-regular) var(--font-size-xs) / var(--font-line-tight) var(--font-sans);
