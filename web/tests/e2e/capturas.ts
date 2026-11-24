@@ -77,6 +77,10 @@ for (const { vista, tema, plano } of casos) {
       await page.screenshot({ path: `capturas/${nombre}-tabla.png`, fullPage: true })
       await page.keyboard.press('Escape')
       await page.getByRole('dialog').waitFor({ state: 'detached' })
+      // Vista completa del recorrido del corte (QA-4): catálogo, ficha, leyenda en 1960, clasificación y tooltip.
+      await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
+      await quieta()
+      await page.screenshot({ path: `capturas/${nombre}-corte.png`, fullPage: true })
       if (!vista.isMobile) return
       // Móvil: ficha desplegada con «Fuente» y, aparte, la hoja del catálogo abierta (que oculta la ficha).
       await page.getByRole('button', { name: es.source.source, exact: true }).click()
