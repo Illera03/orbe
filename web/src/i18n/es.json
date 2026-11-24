@@ -85,5 +85,15 @@
     "nonCommercial": "Uso no comercial",
     "clear": "Quitar indicador",
     "newTab": "(se abre en una pestaña nueva)"
+  },
+  "table": {
+    "open": "Ver como tabla",
+    "close": "Cerrar la tabla",
+    "caption": "{{name}}, {{year}} ({{unit}})",
+    "country": "País",
+    "value": "Valor",
+    "noData": "Sin dato",
+    "loading": "Cargando la tabla…",
+    "error": "No se ha podido cargar la tabla. Ciérrala y vuelve a abrirla."
   }
 }
