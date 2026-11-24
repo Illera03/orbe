@@ -93,7 +93,7 @@
   },
   "ranking": {
     "title": "Clasificación",
-    "caption": "{{unit}} en {{year}}",
+    "caption": "{{year}} · {{unit}}",
     "rank": "Puesto",
     "missing_one": "{{count}} país sin dato este año",
     "missing_other": "{{count}} países sin dato este año",

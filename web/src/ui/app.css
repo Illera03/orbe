@@ -1105,6 +1105,11 @@ body {
     left: var(--space-2);
   }
 
+  /* La hoja abierta oculta la fila de catálogo y ficha en vez de apilarse encima (como la del catálogo, D49). */
+  .stage:has(.ranking[data-open]) .sidebar {
+    display: none;
+  }
+
   .ranking__toggle,
   .ranking__row {
     min-height: var(--size-control-touch);

@@ -6,6 +6,9 @@ import { MOBILE } from './catalog'
 import { numberFormat, rankCountries, type RankedCountry } from './rankingOrder'
 import { useIndicatorValues } from './useIndicatorValues'
 
+/** Donde empieza plegada: móvil y escritorio estrecho, donde abierta junto al catálogo taparía casi todo el mapa. */
+const FOLDED = '(max-width: 1023px), (pointer: coarse)'
+
 const NEXT: Record<string, (i: number, n: number) => number> = {
   ArrowDown: (i, n) => Math.min(i + 1, n - 1),
   ArrowUp: (i) => Math.max(i - 1, 0),
@@ -16,7 +19,7 @@ const NEXT: Record<string, (i: number, n: number) => number> = {
 /**
  * Clasificación del indicador activo en el año activo, según `order` del catálogo; los países sin dato quedan fuera
  * y se cuentan al pie. Nada sin indicador.
- * Escritorio: panel derecho plegable, abierto al empezar. Móvil: botón de 44 px al final de la fila inferior que abre
+ * Escritorio: panel derecho plegable, abierto al empezar desde 1024 px. Móvil: botón de 44 px al final de la fila inferior que abre
  * una hoja. Las filas son botones con tabulación itinerante (una sola parada de Tab; flechas, Inicio y Fin) y al
  * pulsarlas la cámara vuela al país. Se resalta la fila del país bajo el puntero.
  */
@@ -25,7 +28,7 @@ export function Ranking() {
   const { meta, year, language, values, countries, failed } = useIndicatorValues()
   const hovered = useAppStore((s) => s.hoveredCountry)
   const markInteraction = useAppStore((s) => s.markInteraction)
-  const [open, setOpen] = useState(() => !globalThis.matchMedia?.(MOBILE).matches)
+  const [open, setOpen] = useState(() => !globalThis.matchMedia?.(FOLDED).matches)
   const [active, setActive] = useState(0)
   const toggle = useRef<HTMLButtonElement>(null)
   const list = useRef<HTMLOListElement>(null)
@@ -38,7 +41,7 @@ export function Ranking() {
   const current = rows ? Math.min(active, rows.length - 1) : 0
 
   useEffect(() => {
-    const query = globalThis.matchMedia?.(MOBILE)
+    const query = globalThis.matchMedia?.(FOLDED)
     // Si el ancho cambió entre el primer render y la suscripción, ese cambio no llega como evento.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con matchMedia, un sistema externo
     if (query) setOpen(!query.matches)

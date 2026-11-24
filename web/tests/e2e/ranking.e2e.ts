@@ -96,6 +96,8 @@ test.describe('clasificación en móvil', () => {
     await boton.click()
     const filas = page.getByRole('region', { name: es.ranking.title }).getByRole('listitem').getByRole('button')
     await expect(filas.first()).toBeVisible()
+    // La hoja oculta la fila de la ficha en vez de apilarse encima.
+    await expect(page.getByRole('region', { name: vida.name.es })).toBeHidden()
     const hoja = (await page.locator('.ranking').boundingBox())!
     expect(hoja.height / 812).toBeLessThan(0.6)
     const { violations } = await new AxeBuilder({ page }).analyze()
@@ -106,5 +108,19 @@ test.describe('clasificación en móvil', () => {
     await expect(boton).toHaveAttribute('aria-expanded', 'false')
     await expect(boton).toBeFocused()
     await expect.poll(async () => (await camara(page)).join(), { timeout: 30_000 }).not.toBe(antes)
+  })
+})
+
+test.describe('clasificación en escritorio estrecho', () => {
+  test.use({ viewport: { width: 660, height: 800 }, locale: 'es-ES' })
+
+  test('empieza plegada por debajo de 1024 px y se abre al ensanchar', async ({ page }) => {
+    await page.goto('./?indicador=esperanza-vida')
+    const boton = page.getByRole('button', { name: es.ranking.title })
+    await expect(boton).toHaveAttribute('aria-expanded', 'false')
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await expect(boton).toHaveAttribute('aria-expanded', 'true')
+    await page.setViewportSize({ width: 900, height: 800 })
+    await expect(boton).toHaveAttribute('aria-expanded', 'false')
   })
 })
