@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { test } from './mapa'
+import { expect, test } from './mapa'
 
 // El proyecto usa locale es-ES.
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 // Botón «Plano» del grupo en escritorio y botón único «Ver en plano» en móvil.
+const brasil = new Intl.DisplayNames(['es'], { type: 'region' }).of('BR')!
 const botonPlano = (isMobile: boolean) => (isMobile ? es.topbar.actions.mercator : es.topbar.projections.mercator)
 
 // Capturas para revisar PR visuales: `npm run capturas`; salen en web/capturas/ (ignorada por git).
@@ -52,6 +53,19 @@ for (const { vista, tema, plano } of casos) {
       const quieta = () => page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)))
       await quieta()
       await page.screenshot({ path: `capturas/${nombre}-catalogo.png`, fullPage: true })
+      // Clasificación: en escritorio, tras volar a Brasil desde su fila y con su tooltip; en móvil, la hoja abierta.
+      if (vista.isMobile) await page.getByRole('button', { name: es.ranking.title }).click()
+      else {
+        await page.getByRole('region', { name: es.ranking.title }).getByRole('button', { name: new RegExp(`: ${brasil} ?, `) }).click()
+        const longitud = async () => Number((await page.locator('#map[data-idle]').getAttribute('data-camera'))!.split(',')[0])
+        await expect.poll(longitud, { timeout: 30_000 }).toBeLessThan(-40)
+        const mapa = (await page.locator('#map').boundingBox())!
+        await page.mouse.move(mapa.x + mapa.width / 2, mapa.y + mapa.height / 2)
+        await page.locator('.tooltip').waitFor()
+      }
+      await quieta()
+      await page.screenshot({ path: `capturas/${nombre}-ranking.png`, fullPage: true })
+      if (vista.isMobile) await page.keyboard.press('Escape')
       // Leyenda y año: con Inicio, el primer año (más países sin dato y valores por debajo del dominio).
       await page.getByRole('slider', { name: es.dock.year }).press('Home')
       await page.locator('#map[data-choropleth$=":1960"]').waitFor({ timeout: 30_000 })

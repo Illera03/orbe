@@ -1,12 +1,14 @@
 import { GlobeMap } from '../map/GlobeMap'
 import { CatalogPanel } from './CatalogPanel'
 import { Dock } from './Dock'
+import { Ranking } from './Ranking'
 import { SourceCard } from './SourceCard'
 import { TopBar } from './TopBar'
+import { Tooltip } from './Tooltip'
 import './app.css'
 
 // Disposición (app.css): columna izquierda con catálogo y ficha de fuente; leyenda y año abajo en el centro (Dock).
-// Huecos para la ola 2 de M2: ranking a la derecha y el botón de tabla en la barra superior.
+// Clasificación a la derecha (Ranking) y botón de tabla en la barra superior.
 export function App() {
   return (
     <>
@@ -17,6 +19,8 @@ export function App() {
           <CatalogPanel />
           <SourceCard />
         </div>
+        <Ranking />
+        <Tooltip />
         <Dock />
       </main>
     </>
