@@ -603,10 +603,21 @@ body {
   }
 }
 
-/* shortcut: no hay token de control desactivado; se atenúa con opacidad hasta que Diseño lo defina. */
+/* En escritorio, el botón de la tabla lleva el mismo contorno de píldora que los conmutadores. */
+.topbar__action {
+  border: var(--border-width) solid var(--color-control-border);
+}
+
 .topbar__action:disabled {
-  opacity: 0.5;
+  border-color: var(--color-control-disabled-text);
+  color: var(--color-control-disabled-text);
   cursor: default;
+}
+
+@media (max-width: 640px), (pointer: coarse) {
+  .topbar__action {
+    border: 0;
+  }
 }
 
 /*
@@ -629,7 +640,7 @@ body {
 }
 
 .table::backdrop {
-  background: var(--color-panel-bg);
+  background: var(--color-scrim);
 }
 
 .table__close,
@@ -710,9 +721,8 @@ body {
   white-space: nowrap;
 }
 
-/* Hueco para el cierre, que queda fijo en la fila de cabeceras al desplazarse. */
+/* Hueco para el cierre, que queda fijo en la fila de cabeceras al desplazarse; las celdas no lo necesitan. */
 .table__th--value,
-.table__grid td,
 .table__caption {
   padding-right: calc(var(--size-control) + var(--space-2));
 }
@@ -769,7 +779,6 @@ body {
   }
 
   .table__th--value,
-  .table__grid td,
   .table__caption {
     padding-right: calc(var(--size-control-touch) + var(--space-2));
   }

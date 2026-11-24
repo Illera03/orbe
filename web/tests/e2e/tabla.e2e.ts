@@ -46,6 +46,15 @@ test.describe('tabla en escritorio', () => {
     await expect(filas.last()).toContainText(es.table.noData)
     await sinErroresAxe(page)
 
+    // Que un CSS roto (p. ej. reglas atrapadas en un @media móvil) no pase en verde: diálogo centrado y estrecho,
+    // cabecera fija y cifras a la derecha.
+    const caja = (await dialogo.boundingBox())!
+    expect(caja.width).toBeLessThan(800)
+    expect(Math.abs(caja.x + caja.width / 2 - 640)).toBeLessThanOrEqual(1)
+    await expect(valor).toHaveCSS('position', 'sticky')
+    await expect(filas.nth(1).getByRole('cell')).toHaveCSS('text-align', 'right')
+    await expect(pais.getByRole('button')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+
     // Ordenar por país con teclado: Tab hasta su botón y Enter.
     await page.keyboard.press(tab)
     await expect(pais.getByRole('button')).toBeFocused()
