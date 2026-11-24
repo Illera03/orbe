@@ -628,7 +628,8 @@ body {
   box-sizing: border-box;
   width: min(calc(var(--space-12) * 10), calc(100vw - var(--space-8)));
   max-height: calc(100vh - var(--space-12));
-  padding: var(--space-2) var(--space-3) var(--space-3);
+  /* Sin relleno arriba: la cabecera fija queda pegada al borde y las filas no asoman por encima al desplazar. */
+  padding: 0 var(--space-3) var(--space-3);
   overflow-y: auto;
   color: var(--color-table-text);
   font: var(--font-weight-regular) var(--font-size-sm) / var(--font-line-base) var(--font-sans);
@@ -664,7 +665,7 @@ body {
   flex: none;
   width: var(--size-control);
   height: var(--size-control);
-  margin-bottom: calc(-1 * var(--size-control));
+  margin: var(--space-2) 0 calc(-1 * var(--size-control));
   border-radius: var(--radius-pill);
 }
 
@@ -686,7 +687,8 @@ body {
   top: 0;
   padding: 0;
   background: var(--color-panel-bg);
-  border-bottom: var(--border-width) solid var(--color-table-divider);
+  /* Sombra y no borde: con border-collapse el borde no acompaña a la cabecera fija. */
+  box-shadow: inset 0 calc(-1 * var(--border-width)) 0 var(--color-table-divider);
   text-align: left;
 }
 
