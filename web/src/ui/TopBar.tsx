@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react'
+import { lazy, Suspense, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../state/store'
 import { CountrySearch } from './CountrySearch'
+
+const DataTable = lazy(() => import('./DataTable'))
 
 interface Option<T extends string> {
   value: T
@@ -69,11 +71,39 @@ export function TopBar() {
   const setTheme = useAppStore((s) => s.setTheme)
   const setLanguage = useAppStore((s) => s.setLanguage)
   const setProjection = useAppStore((s) => s.setProjection)
+  const meta = useAppStore((s) => s.catalog?.indicators.find((i) => i.id === s.indicatorId))
+  const [tableOpen, setTableOpen] = useState(false)
+  const tableButton = useRef<HTMLButtonElement>(null)
+  const closeTable = () => {
+    setTableOpen(false)
+    tableButton.current?.focus()
+  }
 
   return (
     <header className="topbar panel">
       <h1 className="topbar__logo">{t('app.title')}</h1>
       <CountrySearch />
+      {/* Sin indicador no hay tabla: el botón queda desactivado. */}
+      <button
+        ref={tableButton}
+        type="button"
+        className="topbar__action"
+        aria-label={t('table.open')}
+        aria-haspopup="dialog"
+        title={t('table.open')}
+        disabled={!meta}
+        onClick={() => setTableOpen(true)}
+      >
+        <svg {...icon}>
+          {/* Filas de país y valor; distinto de la rejilla de «Plano». */}
+          <path {...stroke} d="M4 6h9M17 6h3M4 12h9M17 12h3M4 18h9M17 18h3" />
+        </svg>
+      </button>
+      {tableOpen && meta && (
+        <Suspense>
+          <DataTable meta={meta} onClose={closeTable} />
+        </Suspense>
+      )}
       <Toggle
         label={t('topbar.language')}
         value={language}

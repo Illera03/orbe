@@ -13,7 +13,12 @@ function fakeMap() {
   const states = new Map<string, { color?: string }>()
   const handlers: Record<string, ((...a: unknown[]) => void)[]> = {}
   let visibility = 'none'
+  // Imágenes registradas y visibilidad del rayado en el momento de registrarlas.
+  const images = new Map<string, string>()
   const map = {
+    hasImage: (id: string) => images.has(id),
+    addImage: (id: string) => images.set(id, visibility),
+    getPaintProperty: () => 'orbe-nodata-dark',
     style: { _loaded: true },
     getLayer: () => ({}),
     removeFeatureState: () => states.clear(),
@@ -26,7 +31,7 @@ function fakeMap() {
     once: (ev: string, fn: () => void) => (handlers[ev] ??= []).push(fn),
   }
   const fire = (ev: string, arg?: unknown) => handlers[ev]?.splice(0).forEach((fn) => fn(arg))
-  return { map: map as unknown as maplibregl.Map, states, fire, visibility: () => visibility }
+  return { map: map as unknown as maplibregl.Map, states, fire, images, visibility: () => visibility }
 }
 
 const meta = { id: 'x', years: [2000, 2001], latestYear: 2001, file: 'x.json', scale: { kind: 'sequential', transform: 'linear', palette: 'viridis' } }
@@ -34,7 +39,7 @@ const flush = () => new Promise((r) => setTimeout(r, 0))
 
 describe('attachChoropleth', () => {
   it('pinta el año activo, muestra el rayado y lo quita sin indicador', async () => {
-    const { map, states, fire, visibility } = fakeMap()
+    const { map, states, fire, images, visibility } = fakeMap()
     const el = { dataset: {} } as HTMLElement
     useAppStore.setState({ catalog: { generated: '', indicators: [meta as unknown as IndicatorMeta] }, indicatorId: null, year: null })
     const detach = attachChoropleth(map, el)
@@ -44,6 +49,8 @@ describe('attachChoropleth', () => {
     // 2001: BBB no tiene dato, así que solo AAA lleva color (la escala llega con import() dinámico).
     await vi.waitFor(() => expect([...states.keys()]).toEqual(['AAA']))
     expect(visibility()).toBe('visible')
+    // El rayado se registra antes de mostrar su capa, no a la espera de `styleimagemissing`.
+    expect([...images]).toEqual([['orbe-nodata-dark', 'none']])
     fire('idle')
     expect(el.dataset.choropleth).toBe('x:2001')
 

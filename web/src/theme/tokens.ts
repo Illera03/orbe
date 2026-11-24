@@ -84,6 +84,11 @@ export const themes = {
       // Conmutador activo: tinte del acento en vez de relleno sólido; el texto da ≥ 4,5:1 sobre el tinte.
       controlActiveBg: 'rgba(124, 196, 255, 0.16)',
       controlActiveText: '#a8d8ff',
+      // Control desactivado: texto e icono ≈ 3,3:1 sobre el panel, más apagado que textMuted pero aún legible
+      // (WCAG lo exime; con opacity 0.5 el claro bajaba a 2,3:1). Sustituye a la opacidad.
+      controlDisabledText: '#5d6573',
+      // Velo tras un diálogo modal (::backdrop): oscurece el mapa sin ocultarlo y separa el diálogo del fondo.
+      scrim: 'rgba(2, 3, 7, 0.7)',
       focus: '#ffd166',
       danger: '#ff8a80',
       // Leyenda: contorno de la barra de color (≥ 3:1 con el panel, separa los extremos de la escala del fondo).
@@ -136,6 +141,8 @@ export const themes = {
       accentText: '#ffffff',
       controlActiveBg: 'rgba(31, 95, 153, 0.12)',
       controlActiveText: '#1f5f99',
+      controlDisabledText: '#8f897d',
+      scrim: 'rgba(29, 27, 23, 0.45)',
       focus: '#b35900',
       danger: '#b3261e',
       legendBorder: '#8a8478',

@@ -15,7 +15,7 @@ test.describe('barra superior en móvil (320 px)', () => {
     expect(await sinScrollHorizontal(page)).toBe(true)
 
     const botones = page.getByRole('banner').getByRole('button')
-    await expect(botones).toHaveCount(4)
+    await expect(botones).toHaveCount(5) // con «Ver como tabla», desactivado sin indicador
     for (const caja of await Promise.all((await botones.all()).map((b) => b.boundingBox()))) {
       expect(caja!.width).toBeGreaterThanOrEqual(44)
       expect(caja!.height).toBeGreaterThanOrEqual(44)
@@ -51,7 +51,7 @@ test.describe('barra superior en escritorio', () => {
 
   test('grupos con aria-pressed que se activan con teclado', async ({ page }) => {
     await page.goto('./')
-    await expect(page.getByRole('banner').getByRole('button')).toHaveCount(6)
+    await expect(page.getByRole('banner').getByRole('button')).toHaveCount(7)
     const plano = page.getByRole('group', { name: 'Proyección' }).getByRole('button', { name: 'Plano' })
     await expect(plano).toHaveAttribute('aria-pressed', 'false')
     await plano.focus()
