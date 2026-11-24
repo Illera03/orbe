@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
-import { pararRotacion } from './mapa'
+import type { Page } from '@playwright/test'
+import { expect, test } from './mapa'
 
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 
@@ -37,7 +37,6 @@ test.describe('cambio de tema', () => {
 
   test('repinta el mapa sin recargar, conserva la cámara y la atribución sigue visible', async ({ page }) => {
     await page.goto('./')
-    await pararRotacion(page)
     const mapa = page.locator('#map')
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     const inicial = await mapa.getAttribute('data-camera')

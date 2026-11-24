@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { pararRotacion } from './mapa'
+import { expect, test } from './mapa'
 
 const json = (ruta: string) => JSON.parse(readFileSync(new URL(ruta, import.meta.url), 'utf8'))
 const es = json('../../src/i18n/es.json')
@@ -24,7 +24,6 @@ async function camara(page: Page): Promise<number[]> {
 
 async function abrir(page: Page) {
   await page.goto('./?indicador=esperanza-vida')
-  await pararRotacion(page)
   await expect(page.locator('#map')).toHaveAttribute('data-choropleth', `esperanza-vida:${vida.latestYear}`, { timeout: 30_000 })
 }
 

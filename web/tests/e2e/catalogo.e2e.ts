@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './mapa'
 import AxeBuilder from '@axe-core/playwright'
-import { pararRotacion } from './mapa'
 
 const json = (ruta: string) => JSON.parse(readFileSync(new URL(ruta, import.meta.url), 'utf8'))
 const es = json('../../src/i18n/es.json')
@@ -146,11 +145,9 @@ test.describe('catálogo al cambiar el ancho', () => {
     await page.goto('./')
     const boton = page.getByRole('button', { name: es.catalog.title })
     await expect(boton).toHaveAttribute('aria-expanded', 'true')
-    // WebKit evalúa matchMedia y emite «change» en la actualización de renderizado, que el globo girando con WebGL
-    // por software (CI) puede retrasar más de 5 s: se para antes de redimensionar. El catálogo cargado, además,
-    // garantiza que el listener (un useEffect posterior al primer render) ya está registrado.
+    // WebKit evalúa matchMedia y emite «change» en la actualización de renderizado (por eso el fixture para el globo).
+    // El catálogo cargado garantiza que el listener (un useEffect posterior al primer render) ya está registrado.
     await expect(page.getByRole('region', { name: es.catalog.title }).getByRole('heading', { name: es.categories[vida.category] })).toBeVisible()
-    await pararRotacion(page)
     await page.setViewportSize({ width: 375, height: 812 })
     await expect(boton).toHaveAttribute('aria-expanded', 'false')
     await page.setViewportSize({ width: 1280, height: 800 })

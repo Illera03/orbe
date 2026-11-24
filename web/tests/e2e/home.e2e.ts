@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './mapa'
 import AxeBuilder from '@axe-core/playwright'
 
 const textos = (lng: string) =>

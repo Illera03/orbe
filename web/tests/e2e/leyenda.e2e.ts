@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './mapa'
 import AxeBuilder from '@axe-core/playwright'
-import { pararRotacion } from './mapa'
 
 const json = (ruta: string) => JSON.parse(readFileSync(new URL(ruta, import.meta.url), 'utf8'))
 const es = json('../../src/i18n/es.json')
@@ -22,8 +22,6 @@ test.describe('leyenda y año en escritorio', () => {
 
   test('el año se cambia con teclado y el mapa lo pinta', async ({ page }) => {
     await page.goto('./?indicador=esperanza-vida')
-    // Con el globo girando y GL por software, cada fotograma con coropleta es caro (CI).
-    await pararRotacion(page)
     const dock = page.getByRole('region', { name: es.dock.title })
     const año = dock.getByRole('slider', { name: es.dock.year })
     await expect(año).toHaveValue(String(vida.latestYear))
@@ -54,7 +52,6 @@ test.describe('leyenda y año en escritorio', () => {
 
   test('axe sin errores con la leyenda', async ({ page }) => {
     await page.goto('./?indicador=esperanza-vida')
-    await pararRotacion(page)
     await pintado(page, vida.latestYear)
     expect(await graves(page)).toEqual([])
   })

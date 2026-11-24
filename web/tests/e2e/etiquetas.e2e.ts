@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
-import { pararRotacion } from './mapa'
+import type { Page } from '@playwright/test'
+import { expect, test } from './mapa'
 
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 
@@ -37,7 +37,6 @@ async function aPlano(page: Page) {
 
 test('las etiquetas del mapa siguen al idioma sin mover la cámara ni perder tema y proyección', async ({ page }) => {
   await page.goto('./')
-  await pararRotacion(page)
   const mapa = page.locator('#map')
   await idle(page)
   expect(await nombres(page)).toEqual([])
@@ -60,7 +59,6 @@ test.describe('en plano oscuro', () => {
 
   test('sin name:es, las etiquetas caen en la transliteración latina y no en árabe u otra escritura', async ({ page }) => {
     await page.goto('./')
-    await pararRotacion(page)
     await aPlano(page)
     await acercar(page)
     const noLatinas = (await nombres(page)).filter((n) => /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u.test(n))
@@ -72,7 +70,6 @@ test.describe('en plano oscuro', () => {
 
 test('en globo las etiquetas se pegan a la esfera y en plano inclinado miran a la pantalla', async ({ page }) => {
   await page.goto('./')
-  await pararRotacion(page)
   const mapa = page.locator('#map')
   await idle(page)
   await acercar(page)

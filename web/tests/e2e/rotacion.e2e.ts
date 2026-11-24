@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
-import { pararRotacion } from './mapa'
+import type { Page } from '@playwright/test'
+import { expect, pararRotacion, test } from './mapa'
 
 const es = JSON.parse(readFileSync(new URL('../../src/i18n/es.json', import.meta.url), 'utf8'))
 const centro = { x: 560, y: 320, width: 160, height: 160 }
@@ -21,7 +21,7 @@ async function entrar(page: Page) {
 }
 
 test.describe('rotación de entrada', () => {
-  test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark', reducedMotion: 'no-preference' })
+  test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark', reducedMotion: 'no-preference', girar: true })
 
   test('gira al entrar y se para del todo al arrastrar', async ({ page }) => {
     await entrar(page)
@@ -36,6 +36,11 @@ test.describe('rotación de entrada', () => {
     // Tras la inercia del arrastre, quieto: no vuelve a girar.
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     expect(await gira(page, 1000)).toBe(false)
+  })
+
+  test('se para con una tecla sobre el mapa', async ({ page }) => {
+    await entrar(page)
+    await pararRotacion(page)
   })
 
   test('se para al buscar', async ({ page }) => {
@@ -56,7 +61,7 @@ test.describe('rotación de entrada', () => {
 })
 
 test.describe('con movimiento reducido', () => {
-  test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark', reducedMotion: 'reduce' })
+  test.use({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark', reducedMotion: 'reduce', girar: true })
 
   test('no gira', async ({ page }) => {
     await page.goto('./')
@@ -71,7 +76,6 @@ test.describe('contador de fps', () => {
 
   test('solo con ?fps=1, y mide', async ({ page }) => {
     await page.goto('./')
-    await pararRotacion(page)
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     await expect(page.locator('.fps-meter')).toHaveCount(0)
     await page.goto('./?fps=1')
@@ -97,7 +101,6 @@ test.describe('contador de fps', () => {
       }
     })
     await page.goto('./?fps=1&indicador=esperanza-vida')
-    await pararRotacion(page)
     await expect(page.locator('#map')).toHaveAttribute('data-choropleth', /^esperanza-vida:\d{4}$/, { timeout: 30_000 })
     await page.locator('#map[data-idle]').waitFor({ timeout: 30_000 })
     const contador = page.locator('.fps-meter')
