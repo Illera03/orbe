@@ -1646,6 +1646,224 @@
       "file": "indicators/agua-dulce.json"
     },
     {
+      "id": "tierra-agricola",
+      "sourceCode": "AG.LND.AGRI.ZS",
+      "order": "desc",
+      "name": {
+        "es": "Tierra agrícola",
+        "en": "Agricultural land"
+      },
+      "description": {
+        "es": "Tierra cultivable, cultivos permanentes y pastos permanentes, en porcentaje de la superficie terrestre.",
+        "en": "Arable land, permanent crops and permanent pastures, as a share of land area."
+      },
+      "unit": {
+        "es": "% de la superficie terrestre",
+        "en": "% of land area"
+      },
+      "decimals": 1,
+      "category": "geografia",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis",
+        "domain": [
+          0,
+          100
+        ]
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/AG.LND.AGRI.ZS",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (AG.LND.AGRI.ZS), data from FAO, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1961,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/tierra-agricola.json"
+    },
+    {
+      "id": "mortalidad-neonatal",
+      "sourceCode": "SH.DYN.NMRT",
+      "order": "asc",
+      "name": {
+        "es": "Mortalidad neonatal",
+        "en": "Neonatal mortality"
+      },
+      "description": {
+        "es": "Recién nacidos que mueren en sus primeros 28 días de vida por cada 1.000 nacidos vivos.",
+        "en": "Newborns who die during the first 28 days of life per 1,000 live births."
+      },
+      "unit": {
+        "es": "por 1.000 nacidos vivos",
+        "en": "per 1,000 live births"
+      },
+      "decimals": 1,
+      "category": "salud",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/SH.DYN.NMRT",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (SH.DYN.NMRT), data from UN IGME, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1960,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/mortalidad-neonatal.json"
+    },
+    {
+      "id": "finalizacion-secundaria-inferior",
+      "sourceCode": "SE.SEC.CMPT.LO.ZS",
+      "order": "desc",
+      "name": {
+        "es": "Finalización de la secundaria inferior",
+        "en": "Lower secondary completion rate"
+      },
+      "description": {
+        "es": "Alumnos que acceden al último curso de la secundaria inferior, en porcentaje de la población de esa edad; puede superar el 100 %.",
+        "en": "New entrants to the last grade of lower secondary as a share of the population of that age; it can exceed 100%."
+      },
+      "unit": {
+        "es": "% del grupo de edad",
+        "en": "% of relevant age group"
+      },
+      "decimals": 1,
+      "category": "educacion",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/SE.SEC.CMPT.LO.ZS",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (SE.SEC.CMPT.LO.ZS), data from UNESCO Institute for Statistics, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1970,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/finalizacion-secundaria-inferior.json"
+    },
+    {
+      "id": "acceso-electricidad",
+      "sourceCode": "EG.ELC.ACCS.ZS",
+      "order": "desc",
+      "name": {
+        "es": "Acceso a la electricidad",
+        "en": "Access to electricity"
+      },
+      "description": {
+        "es": "Población con acceso a la electricidad, en porcentaje del total.",
+        "en": "Share of the population with access to electricity."
+      },
+      "unit": {
+        "es": "% de la población",
+        "en": "% of population"
+      },
+      "decimals": 1,
+      "category": "energia",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis",
+        "domain": [
+          0,
+          100
+        ]
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/EG.ELC.ACCS.ZS",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (EG.ELC.ACCS.ZS), data from SDG 7.1.1 Electrification Dataset (World Bank, ESMAP), CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1990,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/acceso-electricidad.json"
+    },
+    {
+      "id": "extraccion-agua-dulce",
+      "sourceCode": "ER.H2O.FWTL.ZS",
+      "order": "asc",
+      "name": {
+        "es": "Extracción de agua dulce",
+        "en": "Freshwater withdrawals"
+      },
+      "description": {
+        "es": "Agua dulce extraída en un año, en porcentaje de los recursos renovables internos; por encima de 100 el país gasta más de lo que se renueva o depende de agua importada, fósil o desalada.",
+        "en": "Freshwater withdrawn in a year as a share of internal renewable resources; above 100 the country uses more than is renewed or relies on imported, fossil or desalinated water."
+      },
+      "unit": {
+        "es": "% de los recursos internos",
+        "en": "% of internal resources"
+      },
+      "decimals": 1,
+      "category": "medio-ambiente",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "quantile",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "World Bank, World Development Indicators",
+        "url": "https://data.worldbank.org/indicator/ER.H2O.FWTL.ZS",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "World Bank, World Development Indicators (ER.H2O.FWTL.ZS), data from FAO AQUASTAT, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1962,
+        2022
+      ],
+      "latestYear": 2022,
+      "file": "indicators/extraccion-agua-dulce.json"
+    },
+    {
       "id": "co2-total",
       "sourceCode": "annual-co2-emissions-per-country",
       "order": "desc",
@@ -1913,6 +2131,216 @@
       ],
       "latestYear": 2025,
       "file": "indicators/anomalia-temperatura.json"
+    },
+    {
+      "id": "electricidad-solar",
+      "sourceCode": "share-electricity-solar",
+      "order": "desc",
+      "name": {
+        "es": "Electricidad de origen solar",
+        "en": "Electricity from solar"
+      },
+      "description": {
+        "es": "Porcentaje de la electricidad generada con energía solar (fotovoltaica y termosolar).",
+        "en": "Share of electricity generated from solar power (photovoltaic and concentrated solar)."
+      },
+      "unit": {
+        "es": "% de la electricidad",
+        "en": "% of electricity"
+      },
+      "decimals": 1,
+      "category": "energia",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "Our World in Data, a partir de Ember (Yearly Electricity Data)",
+        "url": "https://ourworldindata.org/grapher/share-electricity-solar",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Ember, Yearly Electricity Data – with major processing by Our World in Data, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        2000,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/electricidad-solar.json"
+    },
+    {
+      "id": "electricidad-eolica",
+      "sourceCode": "share-electricity-wind",
+      "order": "desc",
+      "name": {
+        "es": "Electricidad de origen eólico",
+        "en": "Electricity from wind"
+      },
+      "description": {
+        "es": "Porcentaje de la electricidad generada con energía eólica, en tierra y en el mar.",
+        "en": "Share of electricity generated from wind power, onshore and offshore."
+      },
+      "unit": {
+        "es": "% de la electricidad",
+        "en": "% of electricity"
+      },
+      "decimals": 1,
+      "category": "energia",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "linear",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "Our World in Data, a partir de Ember (Yearly Electricity Data)",
+        "url": "https://ourworldindata.org/grapher/share-electricity-wind",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Ember, Yearly Electricity Data – with major processing by Our World in Data, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        2000,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/electricidad-eolica.json"
+    },
+    {
+      "id": "electricidad-per-capita",
+      "sourceCode": "per-capita-electricity-generation",
+      "order": "desc",
+      "name": {
+        "es": "Generación de electricidad per cápita",
+        "en": "Electricity generation per capita"
+      },
+      "description": {
+        "es": "Electricidad generada en el país en un año, dividida por su población.",
+        "en": "Electricity generated in the country in a year, divided by its population."
+      },
+      "unit": {
+        "es": "kWh por persona",
+        "en": "kWh per person"
+      },
+      "decimals": 0,
+      "category": "energia",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "log",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "Our World in Data, a partir de Ember (Yearly Electricity Data)",
+        "url": "https://ourworldindata.org/grapher/per-capita-electricity-generation",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Ember, Yearly Electricity Data; population based on various sources – with major processing by Our World in Data, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        2000,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/electricidad-per-capita.json"
+    },
+    {
+      "id": "gei-per-capita",
+      "sourceCode": "per-capita-ghg-emissions",
+      "order": "desc",
+      "name": {
+        "es": "Gases de efecto invernadero per cápita",
+        "en": "Greenhouse gas emissions per capita"
+      },
+      "description": {
+        "es": "Emisiones de dióxido de carbono, metano y óxido nitroso por habitante, en CO₂ equivalente a 100 años; incluye los cambios de uso del suelo, por lo que puede ser negativo.",
+        "en": "Carbon dioxide, methane and nitrous oxide emissions per person, in 100-year CO₂ equivalents; includes land-use change, so it can be negative."
+      },
+      "unit": {
+        "es": "t CO₂e por persona",
+        "en": "t CO₂e per person"
+      },
+      "decimals": 2,
+      "category": "medio-ambiente",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "quantile",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "Our World in Data, a partir de Jones et al. (National contributions to climate change)",
+        "url": "https://ourworldindata.org/grapher/per-capita-ghg-emissions",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Jones et al., National contributions to climate change (Zenodo); population based on various sources – with major processing by Our World in Data, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1850,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/gei-per-capita.json"
+    },
+    {
+      "id": "metano-per-capita",
+      "sourceCode": "per-capita-methane-emissions",
+      "order": "desc",
+      "name": {
+        "es": "Emisiones de metano per cápita",
+        "en": "Methane emissions per capita"
+      },
+      "description": {
+        "es": "Emisiones de metano por habitante de todas las fuentes, incluidos los cambios de uso del suelo, en CO₂ equivalente a 100 años.",
+        "en": "Methane emissions per person from all sources, including land-use change, in 100-year CO₂ equivalents."
+      },
+      "unit": {
+        "es": "t CO₂e por persona",
+        "en": "t CO₂e per person"
+      },
+      "decimals": 2,
+      "category": "medio-ambiente",
+      "layer": "choropleth",
+      "scale": {
+        "kind": "sequential",
+        "transform": "quantile",
+        "palette": "viridis"
+      },
+      "source": {
+        "name": "Our World in Data, a partir de Jones et al. (National contributions to climate change)",
+        "url": "https://ourworldindata.org/grapher/per-capita-methane-emissions",
+        "accessed": "2026-11-25"
+      },
+      "license": {
+        "id": "CC-BY-4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Jones et al., National contributions to climate change (Zenodo); population based on various sources – with major processing by Our World in Data, CC BY 4.0",
+        "commercial": true
+      },
+      "years": [
+        1850,
+        2024
+      ],
+      "latestYear": 2024,
+      "file": "indicators/metano-per-capita.json"
     }
   ]
 }
