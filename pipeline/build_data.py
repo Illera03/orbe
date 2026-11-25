@@ -10,6 +10,7 @@ cambian cuando cambia lo publicado, así que una ejecución sin cambios en la fu
 import datetime
 import importlib
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -25,6 +26,7 @@ MAX_BYTES = 2 * 1024 * 1024
 MIN_COUNTRIES = 100
 
 Record = tuple[str, int, float | None]
+PALETTES = {"sequential": "viridis", "diverging": "puor"}
 
 
 class Model(BaseModel):
@@ -39,15 +41,20 @@ class Text(Model):
 class Scale(Model):
     kind: Literal["sequential", "diverging"]
     transform: Literal["linear", "log", "quantile"]
-    palette: str = Field(min_length=1)
-    midpoint: float | None = None
+    # Una paleta por `kind`, la de DATA_SCALES en web/src/theme/tokens.ts (Viridis y PuOr).
+    palette: Literal["viridis", "puor"]
+    midpoint: float | None = Field(default=None, allow_inf_nan=False)
     # int | float para que [45, 85] salga tal cual en el JSON y no como [45.0, 85.0].
     domain: tuple[int | float, int | float] | None = None
 
     @model_validator(mode="after")
     def domain_valido(self):
+        if self.palette != PALETTES[self.kind]:
+            raise ValueError(f"palette {self.palette}: con kind {self.kind} debe ser {PALETTES[self.kind]}")
         if self.domain is not None:
             lo, hi = self.domain
+            if not (math.isfinite(lo) and math.isfinite(hi)):
+                raise ValueError(f"domain {self.domain}: inf o NaN")
             if not lo < hi:
                 raise ValueError(f"domain {self.domain}: min debe ser menor que max")
             if self.transform == "log" and lo <= 0:
@@ -114,6 +121,9 @@ def validate(entry: Entry, records: list[Record], valid: set[str]) -> None:
     lo, hi = entry.range
     if out := [r for r in records if r[2] is not None and not lo <= r[2] <= hi]:
         raise ValueError(f"{len(out)} valores fuera del rango plausible {entry.range}, p. ej. {out[0]}")
+    # Con el redondeo de `decimals`, porque es lo que se publica: 0,04 con un decimal sale como 0.
+    if entry.scale.transform == "log" and (bad := [r for r in records if r[2] is not None and round(r[2], entry.decimals) <= 0]):
+        raise ValueError(f"{len(bad)} valores ≤ 0 con transform log, p. ej. {bad[0]}")
     if not any(v is not None for _, _, v in records):
         raise ValueError("sin datos")
     if latest_year(records) is None:

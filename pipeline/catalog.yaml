@@ -34,3 +34,1151 @@
     attribution: "World Bank, World Development Indicators (SP.DYN.LE00.IN), CC BY 4.0"
     commercial: true
   range: [10, 100]
+
+# --- demografia ---
+- id: poblacion
+  sourceCode: SP.POP.TOTL
+  order: desc
+  name:
+    es: "Población"
+    en: "Population"
+  description:
+    es: "Residentes del país a mitad de año, sea cual sea su situación legal o su ciudadanía."
+    en: "Midyear count of all residents, regardless of legal status or citizenship."
+  unit:
+    es: "habitantes"
+    en: "people"
+  decimals: 0
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: log
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.POP.TOTL
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.POP.TOTL), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [1000, 2000000000]
+
+- id: densidad
+  sourceCode: EN.POP.DNST
+  order: desc
+  name:
+    es: "Densidad de población"
+    en: "Population density"
+  description:
+    es: "Habitantes por kilómetro cuadrado de superficie terrestre."
+    en: "People per square kilometre of land area."
+  unit:
+    es: "hab./km²"
+    en: "people/km²"
+  decimals: 1
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: log
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/EN.POP.DNST
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (EN.POP.DNST), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [0.01, 50000]
+
+- id: fecundidad
+  sourceCode: SP.DYN.TFRT.IN
+  order: desc
+  name:
+    es: "Tasa de fecundidad"
+    en: "Fertility rate"
+  description:
+    es: "Hijos que tendría una mujer si viviera hasta el final de su edad fértil con las tasas de fecundidad del año."
+    en: "Number of children a woman would have if she lived to the end of her childbearing years at that year's fertility rates."
+  unit:
+    es: "hijos por mujer"
+    en: "births per woman"
+  decimals: 2
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.DYN.TFRT.IN
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.DYN.TFRT.IN), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0.3, 10]
+
+- id: poblacion-urbana
+  sourceCode: SP.URB.TOTL.IN.ZS
+  order: desc
+  name:
+    es: "Población urbana"
+    en: "Urban population"
+  description:
+    es: "Porcentaje de la población que vive en zonas urbanas, según la definición de cada país."
+    en: "Share of the population living in urban areas, as defined by each country."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.URB.TOTL.IN.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.URB.TOTL.IN.ZS), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: crecimiento-poblacion
+  sourceCode: SP.POP.GROW
+  order: desc
+  name:
+    es: "Crecimiento de la población"
+    en: "Population growth"
+  description:
+    es: "Variación anual de la población; por debajo de cero, la población mengua."
+    en: "Annual change in population; below zero, the population is shrinking."
+  unit:
+    es: "% anual"
+    en: "annual %"
+  decimals: 2
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: diverging
+    transform: linear
+    palette: puor
+    midpoint: 0
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.POP.GROW
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.POP.GROW), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [-40, 40]
+
+- id: poblacion-65
+  sourceCode: SP.POP.65UP.TO.ZS
+  order: desc
+  name:
+    es: "Población de 65 años o más"
+    en: "Population aged 65 and over"
+  description:
+    es: "Porcentaje de la población que tiene 65 años o más."
+    en: "Share of the population aged 65 or older."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.POP.65UP.TO.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.POP.65UP.TO.ZS), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0, 60]
+
+- id: poblacion-0-14
+  sourceCode: SP.POP.0014.TO.ZS
+  order: desc
+  name:
+    es: "Población de 0 a 14 años"
+    en: "Population aged 0 to 14"
+  description:
+    es: "Porcentaje de la población que tiene entre 0 y 14 años."
+    en: "Share of the population aged 0 to 14."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.POP.0014.TO.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.POP.0014.TO.ZS), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0, 70]
+
+- id: migrantes
+  sourceCode: SM.POP.TOTL.ZS
+  order: desc
+  name:
+    es: "Población migrante"
+    en: "International migrant stock"
+  description:
+    es: "Personas que viven en un país distinto del de su nacimiento, en porcentaje de la población."
+    en: "People living in a country other than the one where they were born, as a share of the population."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: demografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SM.POP.TOTL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SM.POP.TOTL.ZS), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+# --- economia ---
+- id: pib
+  sourceCode: NY.GDP.MKTP.CD
+  order: desc
+  name:
+    es: "Producto interior bruto"
+    en: "Gross domestic product"
+  description:
+    es: "Valor de todos los bienes y servicios finales producidos en el país en un año, en dólares corrientes."
+    en: "Value of all final goods and services produced in the country in a year, in current US dollars."
+  unit:
+    es: "US$ corrientes"
+    en: "current US$"
+  decimals: 0
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: log
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (NY.GDP.MKTP.CD), data from national accounts compiled by the World Bank and OECD, CC BY 4.0"
+    commercial: true
+  range: [100000, 100000000000000]
+
+- id: pib-per-capita-ppa
+  sourceCode: NY.GDP.PCAP.PP.CD
+  order: desc
+  name:
+    es: "PIB per cápita (PPA)"
+    en: "GDP per capita (PPP)"
+  description:
+    es: "PIB por habitante en paridad de poder adquisitivo, que corrige las diferencias de precios entre países."
+    en: "GDP per person at purchasing power parity, which adjusts for price differences between countries."
+  unit:
+    es: "$ internacionales corrientes"
+    en: "current international $"
+  decimals: 0
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: log
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/NY.GDP.PCAP.PP.CD
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (NY.GDP.PCAP.PP.CD), data from International Comparison Program, CC BY 4.0"
+    commercial: true
+  range: [100, 300000]
+
+- id: crecimiento-pib
+  sourceCode: NY.GDP.MKTP.KD.ZG
+  order: desc
+  name:
+    es: "Crecimiento del PIB"
+    en: "GDP growth"
+  description:
+    es: "Variación anual del PIB a precios constantes; por debajo de cero, la economía se contrae."
+    en: "Annual change in GDP at constant prices; below zero, the economy is shrinking."
+  unit:
+    es: "% anual"
+    en: "annual %"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: diverging
+    transform: linear
+    palette: puor
+    midpoint: 0
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (NY.GDP.MKTP.KD.ZG), data from national accounts compiled by the World Bank and OECD, CC BY 4.0"
+    commercial: true
+  range: [-100, 200]
+
+- id: inflacion
+  sourceCode: FP.CPI.TOTL.ZG
+  order: desc
+  name:
+    es: "Inflación"
+    en: "Inflation"
+  description:
+    es: "Variación anual de los precios de consumo."
+    en: "Annual change in consumer prices."
+  unit:
+    es: "% anual"
+    en: "annual %"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (FP.CPI.TOTL.ZG), data from IMF, CC BY 4.0"
+    commercial: true
+  range: [-50, 100000]
+
+- id: desempleo
+  sourceCode: SL.UEM.TOTL.ZS
+  order: asc
+  name:
+    es: "Desempleo"
+    en: "Unemployment"
+  description:
+    es: "Personas sin trabajo que lo buscan y están disponibles, en porcentaje de la población activa (estimación modelizada de la OIT)."
+    en: "People without work who are seeking and available for it, as a share of the labour force (ILO modelled estimate)."
+  unit:
+    es: "% de la población activa"
+    en: "% of labour force"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SL.UEM.TOTL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SL.UEM.TOTL.ZS), data from ILO, CC BY 4.0"
+    commercial: true
+  range: [0, 60]
+
+- id: exportaciones
+  sourceCode: NE.EXP.GNFS.ZS
+  order: desc
+  name:
+    es: "Exportaciones"
+    en: "Exports"
+  description:
+    es: "Valor de los bienes y servicios vendidos al resto del mundo, en porcentaje del PIB."
+    en: "Value of goods and services sold to the rest of the world, as a share of GDP."
+  unit:
+    es: "% del PIB"
+    en: "% of GDP"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/NE.EXP.GNFS.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (NE.EXP.GNFS.ZS), data from national accounts compiled by the World Bank and OECD, CC BY 4.0"
+    commercial: true
+  range: [0, 500]
+
+- id: remesas
+  sourceCode: BX.TRF.PWKR.DT.GD.ZS
+  order: desc
+  name:
+    es: "Remesas recibidas"
+    en: "Personal remittances received"
+  description:
+    es: "Dinero que envían al país quienes trabajan fuera y otras transferencias personales, en porcentaje del PIB."
+    en: "Money sent home by people working abroad and other personal transfers, as a share of GDP."
+  unit:
+    es: "% del PIB"
+    en: "% of GDP"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/BX.TRF.PWKR.DT.GD.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (BX.TRF.PWKR.DT.GD.ZS), data from World Bank and IMF, CC BY 4.0"
+    commercial: true
+  range: [0, 300]
+
+- id: agricultura
+  sourceCode: NV.AGR.TOTL.ZS
+  order: desc
+  name:
+    es: "Peso de la agricultura"
+    en: "Agriculture share of GDP"
+  description:
+    es: "Valor añadido de la agricultura, la silvicultura y la pesca, en porcentaje del PIB."
+    en: "Value added by agriculture, forestry and fishing, as a share of GDP."
+  unit:
+    es: "% del PIB"
+    en: "% of GDP"
+  decimals: 1
+  category: economia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/NV.AGR.TOTL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (NV.AGR.TOTL.ZS), data from national accounts compiled by the World Bank and OECD, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+# --- salud ---
+- id: mortalidad-infantil
+  sourceCode: SP.DYN.IMRT.IN
+  order: asc
+  name:
+    es: "Mortalidad infantil"
+    en: "Infant mortality"
+  description:
+    es: "Bebés que mueren antes de cumplir un año por cada 1.000 nacidos vivos."
+    en: "Babies who die before their first birthday per 1,000 live births."
+  unit:
+    es: "por 1.000 nacidos vivos"
+    en: "per 1,000 live births"
+  decimals: 1
+  category: salud
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.DYN.IMRT.IN
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.DYN.IMRT.IN), data from UN IGME, CC BY 4.0"
+    commercial: true
+  range: [0, 500]
+
+- id: mortalidad-menores-5
+  sourceCode: SH.DYN.MORT
+  order: asc
+  name:
+    es: "Mortalidad de menores de 5 años"
+    en: "Under-5 mortality"
+  description:
+    es: "Niños que mueren antes de cumplir cinco años por cada 1.000 nacidos vivos."
+    en: "Children who die before their fifth birthday per 1,000 live births."
+  unit:
+    es: "por 1.000 nacidos vivos"
+    en: "per 1,000 live births"
+  decimals: 1
+  category: salud
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SH.DYN.MORT
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SH.DYN.MORT), data from UN IGME, CC BY 4.0"
+    commercial: true
+  range: [0, 1000]
+
+- id: fecundidad-adolescente
+  sourceCode: SP.ADO.TFRT
+  order: asc
+  name:
+    es: "Fecundidad adolescente"
+    en: "Adolescent fertility"
+  description:
+    es: "Nacimientos al año por cada 1.000 mujeres de 15 a 19 años."
+    en: "Births per year per 1,000 women aged 15 to 19."
+  unit:
+    es: "nacimientos por 1.000 mujeres"
+    en: "births per 1,000 women"
+  decimals: 1
+  category: salud
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SP.ADO.TFRT
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SP.ADO.TFRT), data from UN Population Division, CC BY 4.0"
+    commercial: true
+  range: [0, 300]
+
+- id: subalimentacion
+  sourceCode: SN.ITK.DEFC.ZS
+  order: asc
+  name:
+    es: "Subalimentación"
+    en: "Undernourishment"
+  description:
+    es: "Porcentaje de la población cuyo consumo habitual de alimentos no cubre la energía mínima necesaria; la FAO publica 2,5 cuando el valor es menor."
+    en: "Share of the population whose habitual food intake falls short of minimum energy needs; FAO reports 2.5 when the value is lower."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: salud
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SN.ITK.DEFC.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SN.ITK.DEFC.ZS), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: vih
+  sourceCode: SH.DYN.AIDS.ZS
+  order: asc
+  name:
+    es: "Prevalencia del VIH"
+    en: "HIV prevalence"
+  description:
+    es: "Porcentaje de personas de 15 a 49 años que viven con el VIH."
+    en: "Share of people aged 15 to 49 living with HIV."
+  unit:
+    es: "% de 15 a 49 años"
+    en: "% of ages 15-49"
+  decimals: 1
+  category: salud
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SH.DYN.AIDS.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SH.DYN.AIDS.ZS), data from UNAIDS, CC BY 4.0"
+    commercial: true
+  range: [0, 50]
+
+# --- educacion ---
+- id: matriculacion-primaria
+  sourceCode: SE.PRM.ENRR
+  order: desc
+  name:
+    es: "Matriculación en primaria"
+    en: "Primary school enrolment"
+  description:
+    es: "Alumnos de primaria de cualquier edad en porcentaje de la población en edad oficial de primaria; puede superar el 100 %."
+    en: "Primary pupils of any age as a share of the population of official primary school age; it can exceed 100%."
+  unit:
+    es: "% bruto"
+    en: "% gross"
+  decimals: 1
+  category: educacion
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SE.PRM.ENRR
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SE.PRM.ENRR), data from UNESCO Institute for Statistics, CC BY 4.0"
+    commercial: true
+  range: [0, 250]
+
+- id: matriculacion-secundaria
+  sourceCode: SE.SEC.ENRR
+  order: desc
+  name:
+    es: "Matriculación en secundaria"
+    en: "Secondary school enrolment"
+  description:
+    es: "Alumnos de secundaria de cualquier edad en porcentaje de la población en edad oficial de secundaria; puede superar el 100 %."
+    en: "Secondary pupils of any age as a share of the population of official secondary school age; it can exceed 100%."
+  unit:
+    es: "% bruto"
+    en: "% gross"
+  decimals: 1
+  category: educacion
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SE.SEC.ENRR
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SE.SEC.ENRR), data from UNESCO Institute for Statistics, CC BY 4.0"
+    commercial: true
+  range: [0, 200]
+
+- id: matriculacion-terciaria
+  sourceCode: SE.TER.ENRR
+  order: desc
+  name:
+    es: "Matriculación en educación superior"
+    en: "Tertiary enrolment"
+  description:
+    es: "Estudiantes de educación superior de cualquier edad en porcentaje de la población de los cinco años siguientes a la secundaria; puede superar el 100 %."
+    en: "Tertiary students of any age as a share of the population in the five years after secondary school age; it can exceed 100%."
+  unit:
+    es: "% bruto"
+    en: "% gross"
+  decimals: 1
+  category: educacion
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SE.TER.ENRR
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SE.TER.ENRR), data from UNESCO Institute for Statistics, CC BY 4.0"
+    commercial: true
+  range: [0, 200]
+
+- id: finalizacion-primaria
+  sourceCode: SE.PRM.CMPT.ZS
+  order: desc
+  name:
+    es: "Finalización de primaria"
+    en: "Primary completion rate"
+  description:
+    es: "Alumnos que empiezan el último curso de primaria en porcentaje de la población de esa edad; puede superar el 100 %."
+    en: "New entrants to the last grade of primary as a share of the population of that age; it can exceed 100%."
+  unit:
+    es: "% del grupo de edad"
+    en: "% of relevant age group"
+  decimals: 1
+  category: educacion
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SE.PRM.CMPT.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SE.PRM.CMPT.ZS), data from UNESCO Institute for Statistics, CC BY 4.0"
+    commercial: true
+  range: [0, 200]
+
+- id: gasto-educativo
+  sourceCode: SE.XPD.TOTL.GD.ZS
+  order: desc
+  name:
+    es: "Gasto público en educación"
+    en: "Government spending on education"
+  description:
+    es: "Gasto de las administraciones públicas en educación, en porcentaje del PIB."
+    en: "General government spending on education, as a share of GDP."
+  unit:
+    es: "% del PIB"
+    en: "% of GDP"
+  decimals: 1
+  category: educacion
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SE.XPD.TOTL.GD.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SE.XPD.TOTL.GD.ZS), data from UNESCO Institute for Statistics, CC BY 4.0"
+    commercial: true
+  range: [0, 70]
+
+# --- sociedad ---
+- id: internet
+  sourceCode: IT.NET.USER.ZS
+  order: desc
+  name:
+    es: "Usuarios de internet"
+    en: "Internet users"
+  description:
+    es: "Personas que han usado internet en los últimos tres meses, en porcentaje de la población."
+    en: "People who have used the internet in the last three months, as a share of the population."
+  unit:
+    es: "% de la población"
+    en: "% of population"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/IT.NET.USER.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (IT.NET.USER.ZS), data from International Telecommunication Union (ITU), CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: telefonia-movil
+  sourceCode: IT.CEL.SETS.P2
+  order: desc
+  name:
+    es: "Líneas de telefonía móvil"
+    en: "Mobile phone subscriptions"
+  description:
+    es: "Contratos de telefonía móvil por cada 100 habitantes; puede superar 100."
+    en: "Mobile phone subscriptions per 100 people; it can exceed 100."
+  unit:
+    es: "por 100 habitantes"
+    en: "per 100 people"
+  decimals: 0
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/IT.CEL.SETS.P2
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (IT.CEL.SETS.P2), data from International Telecommunication Union (ITU), CC BY 4.0"
+    commercial: true
+  range: [0, 600]
+
+- id: mujeres-parlamento
+  sourceCode: SG.GEN.PARL.ZS
+  order: desc
+  name:
+    es: "Mujeres en el parlamento"
+    en: "Women in parliament"
+  description:
+    es: "Porcentaje de escaños de la cámara baja o única del parlamento ocupados por mujeres."
+    en: "Share of seats in the lower or single chamber of parliament held by women."
+  unit:
+    es: "% de los escaños"
+    en: "% of seats"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SG.GEN.PARL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SG.GEN.PARL.ZS), data from Inter-Parliamentary Union (IPU), CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: cuenta-bancaria
+  sourceCode: FX.OWN.TOTL.ZS
+  order: desc
+  name:
+    es: "Titularidad de cuentas"
+    en: "Account ownership"
+  description:
+    es: "Personas de 15 años o más con cuenta en una entidad financiera o en un servicio de dinero móvil."
+    en: "People aged 15 and over with an account at a financial institution or a mobile money service."
+  unit:
+    es: "% de mayores de 15 años"
+    en: "% of ages 15+"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/FX.OWN.TOTL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (FX.OWN.TOTL.ZS), data from Global Findex, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: homicidios
+  sourceCode: VC.IHR.PSRC.P5
+  order: asc
+  name:
+    es: "Homicidios intencionados"
+    en: "Intentional homicides"
+  description:
+    es: "Homicidios intencionados al año por cada 100.000 habitantes."
+    en: "Intentional homicides per year per 100,000 people."
+  unit:
+    es: "por 100.000 habitantes"
+    en: "per 100,000 people"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/VC.IHR.PSRC.P5
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (VC.IHR.PSRC.P5), data from UNODC, CC BY 4.0"
+    commercial: true
+  range: [0, 200]
+
+- id: desempleo-juvenil
+  sourceCode: SL.UEM.1524.ZS
+  order: asc
+  name:
+    es: "Desempleo juvenil"
+    en: "Youth unemployment"
+  description:
+    es: "Desempleo entre las personas activas de 15 a 24 años (estimación modelizada de la OIT)."
+    en: "Unemployment among people aged 15 to 24 in the labour force (ILO modelled estimate)."
+  unit:
+    es: "% de la población activa de 15 a 24 años"
+    en: "% of labour force ages 15-24"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SL.UEM.1524.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SL.UEM.1524.ZS), data from ILO, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: actividad-femenina
+  sourceCode: SL.TLF.CACT.FE.ZS
+  order: desc
+  name:
+    es: "Participación laboral femenina"
+    en: "Female labour force participation"
+  description:
+    es: "Mujeres de 15 años o más que trabajan o buscan trabajo, en porcentaje de todas las mujeres de esa edad (estimación modelizada de la OIT)."
+    en: "Women aged 15 and over who work or seek work, as a share of all women of that age (ILO modelled estimate)."
+  unit:
+    es: "% de las mujeres de 15 años o más"
+    en: "% of women ages 15+"
+  decimals: 1
+  category: sociedad
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/SL.TLF.CACT.FE.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (SL.TLF.CACT.FE.ZS), data from ILO, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+# --- geografia ---
+- id: superficie
+  sourceCode: AG.SRF.TOTL.K2
+  order: desc
+  name:
+    es: "Superficie"
+    en: "Surface area"
+  description:
+    es: "Superficie total del país, incluidas las aguas interiores."
+    en: "Total area of the country, including inland waters."
+  unit:
+    es: "km²"
+    en: "km²"
+  decimals: 0
+  category: geografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: log
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/AG.SRF.TOTL.K2
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (AG.SRF.TOTL.K2), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [1, 20000000]
+
+- id: tierra-cultivable
+  sourceCode: AG.LND.ARBL.ZS
+  order: desc
+  name:
+    es: "Tierra cultivable"
+    en: "Arable land"
+  description:
+    es: "Tierra dedicada a cultivos temporales, praderas temporales, huertos y barbechos cortos."
+    en: "Land under temporary crops, temporary meadows, market gardens and short fallow."
+  unit:
+    es: "% de la superficie terrestre"
+    en: "% of land area"
+  decimals: 1
+  category: geografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/AG.LND.ARBL.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (AG.LND.ARBL.ZS), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: bosque
+  sourceCode: AG.LND.FRST.ZS
+  order: desc
+  name:
+    es: "Superficie forestal"
+    en: "Forest area"
+  description:
+    es: "Tierra cubierta por árboles de más de 5 m que ocupan al menos el 10 % del suelo, sin contar plantaciones agrícolas ni parques urbanos."
+    en: "Land under trees taller than 5 m covering at least 10% of the ground, excluding agricultural plantations and urban parks."
+  unit:
+    es: "% de la superficie terrestre"
+    en: "% of land area"
+  decimals: 1
+  category: geografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/AG.LND.FRST.ZS
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (AG.LND.FRST.ZS), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [0, 100]
+
+- id: precipitacion
+  sourceCode: AG.LND.PRCP.MM
+  order: desc
+  name:
+    es: "Precipitación media"
+    en: "Average precipitation"
+  description:
+    es: "Lluvia y nieve medias a largo plazo que caen sobre el país en un año."
+    en: "Long-term average rain and snow falling on the country in a year."
+  unit:
+    es: "mm al año"
+    en: "mm per year"
+  decimals: 0
+  category: geografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: linear
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/AG.LND.PRCP.MM
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (AG.LND.PRCP.MM), data from FAO, CC BY 4.0"
+    commercial: true
+  range: [0, 5000]
+
+- id: agua-dulce
+  sourceCode: ER.H2O.INTR.PC
+  order: desc
+  name:
+    es: "Agua dulce por habitante"
+    en: "Freshwater resources per capita"
+  description:
+    es: "Recursos renovables internos de agua dulce (ríos y acuíferos alimentados por la lluvia del propio país), por habitante."
+    en: "Renewable internal freshwater resources (rivers and aquifers fed by rainfall in the country itself), per person."
+  unit:
+    es: "m³ por habitante"
+    en: "m³ per person"
+  decimals: 0
+  category: geografia
+  layer: choropleth
+  scale:
+    kind: sequential
+    transform: quantile
+    palette: viridis
+  source:
+    module: worldbank
+    name: World Bank, World Development Indicators
+    url: https://data.worldbank.org/indicator/ER.H2O.INTR.PC
+  license:
+    id: CC-BY-4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    attribution: "World Bank, World Development Indicators (ER.H2O.INTR.PC), data from FAO AQUASTAT, CC BY 4.0"
+    commercial: true
+  range: [0, 1000000]
