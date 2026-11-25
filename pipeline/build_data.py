@@ -2,9 +2,11 @@
 
     uv run --directory pipeline python -m build_data
 
-Un indicador que no pasa las validaciones no se publica: se conservan su entrada y su fichero
-anteriores (si los hay) y el proceso termina con código 1. `source.accessed` y `generated` solo
-cambian cuando cambia lo publicado, así que una ejecución sin cambios en la fuente no deja diff.
+Un indicador que falla (descarga, validación o tamaño) no se publica: se conservan su entrada y su
+fichero anteriores (si los hay), el resto sigue y el proceso termina con código 2 (D60). Los ficheros
+de ids que ya no están en el catálogo se borran. `source.accessed` y `generated` solo cambian cuando
+cambia lo publicado, así que una ejecución sin cambios en la fuente no deja diff. Para el resumen en
+Markdown de lo que cambia, `python -m resumen` (resumen.py).
 """
 
 import datetime
@@ -166,14 +168,14 @@ def _read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
-def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | None = None) -> bool:
-    """Publica los indicadores que pasan. Devuelve False si alguno falló. `fetch(entry, valid)` da los registros."""
+def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | None = None) -> dict[str, str]:
+    """Publica los indicadores que pasan y devuelve {id: motivo} de los que fallaron. `fetch(entry, valid)` da los registros."""
     today = today or datetime.date.today().isoformat()
     fetch = fetch or (lambda e, valid: importlib.import_module(f"sources.{e.source.module}").records(e.sourceCode, valid))
     valid = valid_codes(data_dir)
     prev_catalog = _read_json(data_dir / "catalog.json") or {"generated": None, "indicators": []}
     prev_entries = {i["id"]: i for i in prev_catalog["indicators"]}
-    out, ok = [], True
+    out, failures = [], {}
     (data_dir / "indicators").mkdir(parents=True, exist_ok=True)
     for entry in entries:
         path = data_dir / "indicators" / f"{entry.id}.json"
@@ -188,8 +190,8 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
             if len(blob) > MAX_BYTES:
                 raise ValueError(f"{len(blob)} bytes, más de {MAX_BYTES}")
         except Exception as exc:  # noqa: BLE001 — cualquier fallo deja publicado lo anterior
-            ok = False
-            print(f"[{entry.id}] NO SE PUBLICA: {exc}", file=sys.stderr)
+            failures[entry.id] = f"{type(exc).__name__}: {exc}"
+            print(f"[{entry.id}] NO SE PUBLICA: {failures[entry.id]}", file=sys.stderr)
             if entry.id in prev_entries:
                 out.append(prev_entries[entry.id])
             continue
@@ -203,8 +205,13 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
     generated = prev_catalog["generated"] if out == prev_catalog["indicators"] else today
     text = json.dumps({"generated": generated, "indicators": out}, ensure_ascii=False, indent=2) + "\n"
     (data_dir / "catalog.json").write_text(text, encoding="utf-8")
-    return ok
+    published = {i["file"] for i in out}
+    for orphan in (data_dir / "indicators").glob("*.json"):
+        if f"indicators/{orphan.name}" not in published:
+            orphan.unlink()
+            print(f"[{orphan.stem}] borrado: ya no está en el catálogo", file=sys.stderr)
+    return failures
 
 
 if __name__ == "__main__":
-    sys.exit(0 if run(load_catalog()) else 1)
+    sys.exit(2 if run(load_catalog()) else 0)
