@@ -40,7 +40,7 @@ def big_changes(old: dict, new: dict, decimals: int) -> list[tuple[float, str, i
         for y, a in zip(old["years"], vals):
             b = new["values"].get(a3, [None] * len(col))[col[y]] if y in col else None
             # Con a == 0 la variación relativa no está definida: no se lista.
-            if a is None or b is None or a == 0 or abs(b - a) <= 10**-decimals:
+            if a is None or b is None or a == 0 or round(abs(b - a) * 10**decimals) <= 1:
                 continue
             if (rel := abs(b - a) / abs(a)) > THRESHOLD:
                 out.append((rel, a3, y, a, b))
@@ -50,7 +50,8 @@ def big_changes(old: dict, new: dict, decimals: int) -> list[tuple[float, str, i
 def summarize(before: tuple[dict, dict], after: tuple[dict, dict], failures: dict[str, str]) -> str:
     (old_cat, old), (new_cat, new) = before, after
     lines = ["# Resumen de la actualización de datos", ""]
-    changed = [k for k in new if k in old and new[k] != old[k]]
+    # También cuenta un cambio solo de metadatos (nombre, licencia…): catalog.json cambia y el PR no debe decir «Sin cambios».
+    changed = [k for k in new if k in old and (new[k] != old[k] or new_cat[k] != old_cat[k])]
     added, removed = sorted(new.keys() - old.keys()), sorted(old.keys() - new.keys())
     if not (changed or added or removed or failures):
         return "\n".join(lines + ["Sin cambios: ningún indicador tiene datos nuevos y `data/` no se ha modificado.", ""])
@@ -90,7 +91,7 @@ def summarize(before: tuple[dict, dict], after: tuple[dict, dict], failures: dic
 
 def main(out: Path, entries: list[bd.Entry] | None = None, data_dir: Path = bd.DATA, **kwargs) -> int:
     before = snapshot(data_dir)
-    failures = bd.run(entries or bd.load_catalog(), data_dir, **kwargs)
+    failures = bd.run(bd.load_catalog() if entries is None else entries, data_dir, **kwargs)
     out.write_text(summarize(before, snapshot(data_dir), failures), encoding="utf-8")
     return 2 if failures else 0
 
