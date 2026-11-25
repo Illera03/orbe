@@ -98,7 +98,7 @@ jobs:
           name: capturas
           path: web/capturas/
           retention-days: 14
-      - if: failure()
+      - if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: informe-playwright
