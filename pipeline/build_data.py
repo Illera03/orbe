@@ -121,7 +121,8 @@ def validate(entry: Entry, records: list[Record], valid: set[str]) -> None:
     lo, hi = entry.range
     if out := [r for r in records if r[2] is not None and not lo <= r[2] <= hi]:
         raise ValueError(f"{len(out)} valores fuera del rango plausible {entry.range}, p. ej. {out[0]}")
-    if entry.scale.transform == "log" and (bad := [r for r in records if r[2] is not None and r[2] <= 0]):
+    # Con el redondeo de `decimals`, porque es lo que se publica: 0,04 con un decimal sale como 0.
+    if entry.scale.transform == "log" and (bad := [r for r in records if r[2] is not None and round(r[2], entry.decimals) <= 0]):
         raise ValueError(f"{len(bad)} valores ≤ 0 con transform log, p. ej. {bad[0]}")
     if not any(v is not None for _, _, v in records):
         raise ValueError("sin datos")

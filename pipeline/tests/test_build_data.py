@@ -131,6 +131,8 @@ def test_log_rechaza_valores_no_positivos():
     bd.validate(log, records(), VALID)
     with pytest.raises(ValueError, match="≤ 0"):
         bd.validate(log, records() + [(CODES[0], 2000, 0.0)], VALID)
+    with pytest.raises(ValueError, match="≤ 0"):
+        bd.validate(log, records() + [(CODES[0], 2000, 0.04)], VALID)  # con decimals 1 se publicaría 0
 
 
 def test_per_page_sin_paginar():
