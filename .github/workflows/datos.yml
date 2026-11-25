@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 env:
   # Caducidad de DATA_PR_TOKEN. Al crear o renovar el token se pone aquí su fecha (y en D61).
-  DATA_PR_TOKEN_CADUCA: "AAAA-MM-DD"
+  DATA_PR_TOKEN_CADUCA: "2027-11-25"
 jobs:
   caducidad:
     runs-on: ubuntu-latest
