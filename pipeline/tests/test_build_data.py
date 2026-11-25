@@ -67,7 +67,7 @@ def test_validaciones_fallan(recs, msg):
 def test_recorta_anios_finales_con_poca_cobertura(data_dir):
     # 2025 con 40 países no llega a 100: no se publica y latestYear es 2024.
     recs = records() + [(a3, 2025, 70.0) for a3 in CODES[:40]]
-    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
     data = json.loads((data_dir / ind["file"]).read_text())
     assert ind["latestYear"] == ind["years"][1] == data["years"][-1] == 2024
@@ -131,7 +131,7 @@ def test_log_publica_no_positivos_como_null(data_dir):
     # 0, negativo y 0,04 (con decimals 1 se publicaría 0) pasan a null antes de validar: el rango [0.05, 100] no salta.
     extra = [(CODES[0], 2023, 0.0), (CODES[1], 2023, -3.0), (CODES[2], 2023, 0.04), (CODES[3], 2023, 0.06)]
     recs = [r for r in records() if r[:2] not in {e[:2] for e in extra}] + extra
-    assert bd.run([log], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([log], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     values = json.loads((data_dir / "indicators" / f"{log.id}.json").read_text())["values"]
     assert [values[c][0] for c in CODES[:4]] == [None, None, None, 0.1]
     assert values[CODES[0]][1] == 70.0
@@ -147,7 +147,7 @@ def test_domain_valido_y_omitido(data_dir):
     log = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": [0.5, 85], "transform": "log"}})
     assert log.scale.domain == (0.5, 85)
     no_domain = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": None}})
-    assert bd.run([no_domain], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
+    assert bd.run([no_domain], data_dir, fetch=lambda e, v: records(), today="2026-01-01") == {}
     (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
     assert "domain" not in ind["scale"]
 
@@ -155,7 +155,7 @@ def test_domain_valido_y_omitido(data_dir):
 def test_contrato(data_dir):
     fixture = worldbank.parse(json.loads(FIXTURE.read_text()), VALID)
     recs = fixture + [r for r in records() if r[0] not in {a3 for a3, _, _ in fixture}]
-    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     cat = json.loads((data_dir / "catalog.json").read_text())
     assert set(cat) == {"generated", "indicators"}
     (ind,) = cat["indicators"]
@@ -191,19 +191,19 @@ def test_accessed_estable(data_dir):
 def test_fallo_conserva_lo_publicado(data_dir):
     bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
     before = {p: p.read_bytes() for p in data_dir.rglob("*.json")}
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-02-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-02-01").keys() == {"esperanza-vida"}
     assert {p: p.read_bytes() for p in data_dir.rglob("*.json")} == before
 
 
 def test_fallo_sin_publicacion_previa(data_dir):
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-01-01").keys() == {"esperanza-vida"}
     assert json.loads((data_dir / "catalog.json").read_text())["indicators"] == []
     assert not (data_dir / "indicators" / "esperanza-vida.json").exists()
 
 
 def test_fichero_demasiado_grande(data_dir, monkeypatch):
     monkeypatch.setattr(bd, "MAX_BYTES", 100)
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01").keys() == {"esperanza-vida"}
     assert not (data_dir / "indicators" / "esperanza-vida.json").exists()
 
 
