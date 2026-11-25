@@ -25,11 +25,11 @@ describe('formato de la leyenda', () => {
   })
 
   it('cifras grandes en notación compacta del idioma', () => {
-    expect(legendFormat('es', 0).format(4132360179285)).toBe('4,1\u00a0B')
-    expect(legendFormat('en', 0).format(4132360179285)).toBe('4.1T')
+    expect(legendFormat('es', 0).format(4132360179285)).toBe('4,13\u00a0B')
+    expect(legendFormat('en', 0).format(4132360179285)).toBe('4.13T')
     expect(legendFormat('es', 0).format(-2500000)).toBe('-2,5\u00a0M')
     expect(legendFormat('en', 0).format(999999)).toBe('999,999')
-    expect(legendLabels({ domain: [5e5, 4132360179285], below: false, above: true }, 'en', 0)).toEqual(['500,000', '≥ 4.1T'])
+    expect(legendLabels({ domain: [5e5, 4132360179285], below: false, above: true }, 'en', 0)).toEqual(['500,000', '≥ 4.13T'])
   })
 
   it('añade decimales solo a la leyenda si dos cortes seguidos se leen iguales', () => {

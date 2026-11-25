@@ -41,7 +41,11 @@ describe('numberFormat', () => {
     expect(numberFormat('en', 1).format(86)).toBe('86.0')
     expect(numberFormat('en', 0).format(12345.6)).toBe('12,346')
     expect(numberFormat('es', 0).format(12345.6)).toBe('12.346')
-    expect(numberFormat('es', 0).format(1411750000)).toBe('1411,8\u00a0M')
-    expect(numberFormat('en', 2).format(1411750000)).toBe('1.4B')
+    expect(numberFormat('es', 0).format(1411750000)).toBe('1410\u00a0M')
+    expect(numberFormat('en', 2).format(1411750000)).toBe('1.41B')
+    // Tres cifras significativas: Reino Unido e India no se leen iguales («4 B» con un decimal).
+    expect(numberFormat('es', 0).format(3.96e12)).toBe('3,96\u00a0B')
+    expect(numberFormat('es', 0).format(4.03e12)).toBe('4,03\u00a0B')
+    expect(numberFormat('es', 0).format(348e6)).toBe('348\u00a0M')
   })
 })

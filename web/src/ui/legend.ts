@@ -5,15 +5,18 @@ import type { Language } from '../state/store'
 /** Desde este valor absoluto las cifras van en notación compacta («4,1 B» en es, «4.1T» en en): enteras no se leen. */
 export const COMPACT_FROM = 1e6
 
-/** `plain` por debajo de `COMPACT_FROM`; por encima, compacta del idioma con hasta `fractionDigits` decimales. */
-export function compactFormat(plain: Intl.NumberFormat, language: Language, fractionDigits = 1) {
-  const compact = new Intl.NumberFormat(language, { notation: 'compact', maximumFractionDigits: fractionDigits })
+/**
+ * `plain` por debajo de `COMPACT_FROM`; por encima, compacta del idioma con hasta `significantDigits` cifras
+ * significativas (3: «3,96 B» y «4,03 B» no se leen iguales, como pasaría con un decimal).
+ */
+export function compactFormat(plain: Intl.NumberFormat, language: Language, significantDigits = 3) {
+  const compact = new Intl.NumberFormat(language, { notation: 'compact', maximumSignificantDigits: significantDigits })
   return { format: (v: number) => (Math.abs(v) >= COMPACT_FROM ? compact : plain).format(v) }
 }
 
 /** Formato de las cifras de la leyenda: idioma de la app y hasta `decimals` (+ `extra`) decimales del catálogo. */
 export const legendFormat = (language: Language, decimals: number, extra = 0) =>
-  compactFormat(new Intl.NumberFormat(language, { maximumFractionDigits: decimals + extra }), language, 1 + extra)
+  compactFormat(new Intl.NumberFormat(language, { maximumFractionDigits: decimals + extra }), language, 3 + extra)
 
 /** Decimales que la leyenda puede añadir a los del catálogo para que dos cortes seguidos no se lean iguales. */
 export const MAX_EXTRA_DECIMALS = 3
