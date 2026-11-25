@@ -208,15 +208,21 @@ def test_fichero_demasiado_grande(data_dir, monkeypatch):
 
 
 def test_datos_publicados_cumplen():
-    """La salida versionada en data/ respeta límites y contrato."""
+    """La salida versionada en data/ respeta límites y contrato; ≥ 100 países y licencia, en test_catalogo_publicado."""
     cat = json.loads((REAL_DATA / "catalog.json").read_text())
+    ids = [ind["id"] for ind in cat["indicators"]]
+    assert len(ids) == len(set(ids)), "ids repetidos en catalog.json"
+    # Sin huérfanos: cada fichero de data/indicators está en el catálogo, y al revés.
+    assert {f"indicators/{p.name}" for p in (REAL_DATA / "indicators").glob("*.json")} == {i["file"] for i in cat["indicators"]}
+    for p in REAL_DATA.rglob("*.json"):
+        assert p.stat().st_size <= bd.MAX_BYTES, p
     for ind in cat["indicators"]:
-        path = REAL_DATA / ind["file"]
-        assert path.stat().st_size <= bd.MAX_BYTES
-        data = json.loads(path.read_text())
+        data = json.loads((REAL_DATA / ind["file"]).read_text())
         assert data["id"] == ind["id"] and set(data["values"]) <= VALID
-        latest = sum(v[-1] is not None for v in data["values"].values())
-        assert latest >= bd.MIN_COUNTRIES
+        years = data["years"]
+        assert years == list(range(years[0], years[-1] + 1)), ind["id"]
+        assert ind["years"] == [years[0], years[-1]] and ind["latestYear"] == years[-1], ind["id"]
+        assert all(len(v) == len(years) for v in data["values"].values()), ind["id"]
 
 
 @pytest.mark.parametrize("ind", json.loads((REAL_DATA / "catalog.json").read_text())["indicators"], ids=lambda i: i["id"])
