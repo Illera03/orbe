@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { colorScaleFor } from '../src/map/colorScale'
 import type { Catalog, IndicatorData } from '../src/state/data'
+import { legendLabels } from '../src/ui/legend'
 
 const read = <T>(path: string): T => JSON.parse(readFileSync(new URL(`../../data/${path}`, import.meta.url), 'utf8'))
 const { indicators } = read<Catalog>('catalog.json')
@@ -21,6 +22,14 @@ describe('catálogo publicado', () => {
         if (v == null) continue
         expect(scale.color(v), `${a3} = ${v}`).toMatch(COLOR)
       }
+    }
+  })
+
+  it.each(indicators.map((m) => [m.id, m] as const))('%s: la leyenda no repite etiquetas seguidas (es y en)', (_id, meta) => {
+    const scale = colorScaleFor(meta, read<IndicatorData>(meta.file))
+    for (const language of ['es', 'en'] as const) {
+      const labels = legendLabels(scale, language, meta.decimals)
+      for (let i = 1; i < labels.length; i++) expect(labels[i], `${language}: ${labels.join(' | ')}`).not.toBe(labels[i - 1])
     }
   })
 })

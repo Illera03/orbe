@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { ColorScale } from '../map/colorScale'
 import { loadIndicator, type IndicatorMeta } from '../state/data'
 import { useAppStore } from '../state/store'
-import { legendFormat, legendGradient, legendLabels } from './legend'
+import { legendGradient, legendLabels } from './legend'
 
 /** Leyenda y año del indicador activo, abajo en el centro; nada sin indicador. */
 export function Dock() {
@@ -39,7 +39,7 @@ function DockView({ meta }: { meta: IndicatorMeta }) {
     }
   }, [meta])
 
-  const labels = scale ? legendLabels(scale, legendFormat(language, meta.decimals)) : []
+  const labels = scale ? legendLabels(scale, language, meta.decimals) : []
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'PageUp' && e.key !== 'PageDown') return

@@ -36,6 +36,6 @@ export function tableRows(countries: readonly Country[], values: ReadonlyMap<str
     })
 }
 
-/** Cifras con los decimales del catálogo y el formato del idioma. */
+/** Cifras con los decimales del catálogo y el formato del idioma, siempre completas (sin compacta): la tabla es la alternativa textual precisa y «B» es billón en es y mil millones en en. */
 export const valueFormat = (language: Language, decimals: number) =>
   new Intl.NumberFormat(language, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
