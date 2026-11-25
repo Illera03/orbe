@@ -90,6 +90,7 @@ class Entry(Model):
     source: Source
     license: License
     range: tuple[float, float]
+    since: int | None = None  # primer año que se publica (p. ej. para dejar fuera años de otra fuente)
 
 
 def load_catalog(path: Path = ROOT / "catalog.yaml") -> list[Entry]:
@@ -144,7 +145,7 @@ def dump_indicator(data: dict) -> bytes:
 
 
 def catalog_entry(entry: Entry, data: dict, accessed: str) -> dict:
-    d = entry.model_dump(mode="json", exclude={"range"}, exclude_none=True)  # json: tuplas como listas, comparables con lo publicado
+    d = entry.model_dump(mode="json", exclude={"range", "since"}, exclude_none=True)  # json: tuplas como listas, comparables con lo publicado
     d["source"] = {"name": entry.source.name, "url": entry.source.url, "accessed": accessed}
     return {
         **d,
@@ -170,7 +171,7 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
     for entry in entries:
         path = data_dir / "indicators" / f"{entry.id}.json"
         try:
-            records = fetch(entry, valid)
+            records = [r for r in fetch(entry, valid) if entry.since is None or r[1] >= entry.since]
             validate(entry, records, valid)
             data = build(entry, records)
             blob = dump_indicator(data)
