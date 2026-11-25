@@ -172,6 +172,8 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
         path = data_dir / "indicators" / f"{entry.id}.json"
         try:
             records = [r for r in fetch(entry, valid) if entry.since is None or r[1] >= entry.since]
+            if entry.scale.transform == "log":  # el log no pinta 0 ni negativos: sin dato (Antártida en co2-total)
+                records = [(a3, y, v if v is None or v > 0 else None) for a3, y, v in records]
             validate(entry, records, valid)
             data = build(entry, records)
             blob = dump_indicator(data)

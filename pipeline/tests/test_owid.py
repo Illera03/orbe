@@ -1,5 +1,6 @@
 """Fuente Our World in Data sin red: fixture recortado de un CSV de grapher."""
 
+import json
 from pathlib import Path
 
 import pytest
@@ -44,3 +45,12 @@ def test_licencias_owid_citan_a_owid_y_fuente_original():
     for e in ENTRIES.values():
         if e.source.module == "owid":
             assert "Our World in Data" in e.license.attribution and e.license.attribution.split(",")[0] != "Our World in Data"
+
+
+def test_log_publica_ceros_como_sin_dato(tmp_path):
+    (tmp_path / "geo").mkdir()
+    (tmp_path / "geo" / "countries.json").write_bytes((bd.DATA / "geo" / "countries.json").read_bytes())
+    recs = [(a3, 2020, 5.0) for a3 in sorted(VALID - {"ATA", "ESP"})[:100]] + [("ATA", 2020, 0.0), ("ESP", 2020, -1.0)]
+    assert bd.run([ENTRIES["co2-total"]], tmp_path, fetch=lambda e, v: recs, today="2026-01-01")
+    values = json.loads((tmp_path / "indicators" / "co2-total.json").read_text())["values"]
+    assert "ATA" not in values and "ESP" not in values and len(values) == 100
