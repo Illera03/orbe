@@ -50,20 +50,17 @@ export function legendLabels(scale: Pick<ColorScale, 'domain' | 'below' | 'above
 
 /**
  * Fondo de la barra: los valores de `legendDomain` repartidos por igual (el `midpoint` divergente queda en el centro, igual
- * que las etiquetas). Lineal y log, rampa continua interpolada en su escala; cuantiles, un tramo por par de cortes con
- * el color de su valor central.
+ * que las etiquetas). Lineal y log, rampa continua interpolada en su escala; cuantiles, degradado con el color exacto
+ * del mapa de cada corte bajo su etiqueta (en VIH, el de los muchos países con 0,1).
  */
 export function legendGradient(scale: ColorScale, steps = 8): string {
   const d = legendDomain(scale.domain)
   const n = d.length - 1
   const color = (v: number) => scale.color(v) ?? 'transparent'
+  if (scale.transform === 'quantile') return `linear-gradient(to right, ${d.map((v, i) => `${color(v)} ${(i / n) * 100}%`).join(', ')})`
   const stops: string[] = []
   for (let s = 0; s < n; s++) {
     const [from, to] = [(s / n) * 100, ((s + 1) / n) * 100]
-    if (scale.transform === 'quantile') {
-      stops.push(`${color((d[s] + d[s + 1]) / 2)} ${from}% ${to}%`)
-      continue
-    }
     for (let k = s ? 1 : 0; k <= steps; k++) {
       const t = k / steps
       const v = scale.transform === 'log' ? d[s] * (d[s + 1] / d[s]) ** t : d[s] + (d[s + 1] - d[s]) * t

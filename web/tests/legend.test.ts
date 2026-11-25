@@ -41,7 +41,11 @@ describe('formato de la leyenda', () => {
     expect(legendLabels({ domain: [0.1, 0.1, 0.4, 1], below: false, above: true }, 'es', 1)).toEqual(['0,1', '0,4', '≥ 1'])
     const s = scaleOf({ kind: 'sequential', transform: 'quantile', palette: 'viridis' }, series([], [1, 1, 1, 1, 1, 1, 2, 3]))
     expect(s.domain[0]).toBe(s.domain[1])
-    expect(stops(legendGradient(s))).toHaveLength(legendLabels(s, 'es', 0).length - 1)
+    const g = stops(legendGradient(s))
+    expect(g).toHaveLength(legendLabels(s, 'es', 0).length)
+    // El color de la clase fusionada (el valor más frecuente) sigue en la barra, al principio; al final, el del máximo.
+    expect(g[0]).toBe(`${s.color(s.domain[0])} 0%`)
+    expect(g[g.length - 1]).toBe(`${s.color(s.domain[s.domain.length - 1])} 100%`)
   })
 })
 
@@ -67,12 +71,10 @@ describe('barra de la leyenda', () => {
     expect(g[2]).toBe(`${s.color(0)} 50%`)
   })
 
-  it('cuantiles: un tramo de color sólido por par de cortes', () => {
+  it('cuantiles: degradado con el color exacto del mapa de cada corte bajo su etiqueta', () => {
     const s = scaleOf({ kind: 'sequential', transform: 'quantile', palette: 'viridis' })
     expect(s.domain).toHaveLength(5)
     const g = stops(legendGradient(s))
-    expect(g).toHaveLength(4)
-    expect(g[0]).toBe(`${s.color((s.domain[0] + s.domain[1]) / 2)} 0% 25%`)
-    expect(g[3]).toMatch(/ 75% 100%$/)
+    expect(g).toEqual(s.domain.map((v, i) => `${s.color(v)} ${i * 25}%`))
   })
 })
