@@ -230,6 +230,8 @@ def test_catalogo_publicado(ind):
     # Lo que se sirve en data/: licencia enlazada, fichero presente y ≥ 100 países en latestYear.
     lic = ind["license"]
     assert lic["id"] and lic["url"].startswith("https://") and lic["attribution"]
+    if "NC" in lic["id"].upper().replace("_", "-").replace(" ", "-").split("-"):
+        assert lic["commercial"] is False, f"{ind['id']}: licencia {lic['id']} no comercial sin commercial: false"
     data = json.loads((REAL_DATA / ind["file"]).read_text())
     i = data["years"].index(ind["latestYear"])
     assert sum(v[i] is not None for v in data["values"].values()) >= 100
