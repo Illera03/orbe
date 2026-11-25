@@ -1,0 +1,140 @@
+name: datos
+# Actualización mensual de data/ (D61): ejecuta el pipeline con el resumen de DAT-6 (D60) y abre o
+# actualiza el PR `data/mensual-AAAA-MM`; si falla alguna fuente, abre o comenta una issue.
+on:
+  schedule:
+    - cron: "0 5 3 * *" # día 3 a las 05:00 UTC: datos
+    - cron: "0 6 * * 1" # lunes a las 06:00 UTC: solo el aviso de caducidad del token
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: datos
+  cancel-in-progress: false
+env:
+  # Caducidad de DATA_PR_TOKEN. Al crear o renovar el token se pone aquí su fecha (y en D61).
+  DATA_PR_TOKEN_CADUCA: "2027-11-25"
+jobs:
+  caducidad:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Aviso si DATA_PR_TOKEN caduca en 30 días o menos
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! [[ "$DATA_PR_TOKEN_CADUCA" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "::warning::DATA_PR_TOKEN_CADUCA sin rellenar en .github/workflows/datos.yml"
+            exit 0
+          fi
+          dias=$(( ($(date -ud "$DATA_PR_TOKEN_CADUCA" +%s) - $(date -ud "$(date -u +%F)" +%s)) / 86400 ))
+          echo "DATA_PR_TOKEN caduca el $DATA_PR_TOKEN_CADUCA (faltan $dias días)"
+          [ "$dias" -le 30 ] || exit 0
+          titulo="Datos mensuales: renovar DATA_PR_TOKEN"
+          abierta=$(gh issue list --state open --limit 200 --json number,title \
+            | jq -r --arg t "$titulo" '.[] | select(.title == $t) | .number' | head -n1)
+          if [ -n "$abierta" ]; then echo "Ya hay una issue abierta: #$abierta"; exit 0; fi
+          gh issue create --title "$titulo" --body-file - <<EOF
+          El token de grano fino \`DATA_PR_TOKEN\` caduca el $DATA_PR_TOKEN_CADUCA (faltan $dias días).
+
+          1. Crear uno nuevo: solo el repositorio orbe, permisos Contents y Pull requests en escritura, caducidad de un año.
+          2. Guardarlo en Settings → Secrets and variables → Actions → \`DATA_PR_TOKEN\`.
+          3. Poner la nueva fecha en \`DATA_PR_TOKEN_CADUCA\` (\`.github/workflows/datos.yml\`) y en D61, y cerrar esta issue.
+          EOF
+
+  datos:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 5 3 * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # El PR y el push van con DATA_PR_TOKEN (así corren ci y attribution); el GITHUB_TOKEN solo abre issues.
+    permissions:
+      issues: write
+    steps:
+      - name: Comprobar el secreto DATA_PR_TOKEN
+        env:
+          DATA_PR_TOKEN: ${{ secrets.DATA_PR_TOKEN }}
+        run: |
+          if [ -z "$DATA_PR_TOKEN" ]; then echo "::error::Falta el secreto DATA_PR_TOKEN (D61)"; exit 1; fi
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DATA_PR_TOKEN }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+      - name: Rama del mes
+        id: rama
+        run: |
+          rama="data/mensual-$(date -u +%Y-%m)"
+          echo "rama=$rama" >> "$GITHUB_OUTPUT"
+          echo "RESUMEN=$RUNNER_TEMP/resumen.md" >> "$GITHUB_ENV"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Si la rama del mes ya existe se sigue sobre ella (sin force); el pipeline reescribe data/ después.
+          if git ls-remote --exit-code --heads origin "$rama" > /dev/null; then
+            git switch -c "$rama" "origin/$rama"
+            git merge --no-edit -X theirs -m "chore(datos): integra main en $rama" origin/main
+          else
+            git switch -c "$rama" origin/main
+          fi
+      - name: Pipeline y resumen
+        id: resumen
+        run: |
+          uv sync --directory pipeline --locked
+          set +e
+          uv run --directory pipeline python -m resumen "$RESUMEN"
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f "$RESUMEN" ]; then
+            # Sin rutas del runner en el cuerpo del PR: attribution las rechaza (D44).
+            sed -i -e "s#$GITHUB_WORKSPACE/##g" -e 's#/home/[A-Za-z0-9._-]*/#~/#g' "$RESUMEN"
+            cat "$RESUMEN" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: PR mensual
+        if: steps.resumen.outputs.code == '0' || steps.resumen.outputs.code == '2'
+        env:
+          GH_TOKEN: ${{ secrets.DATA_PR_TOKEN }}
+          RAMA: ${{ steps.rama.outputs.rama }}
+        run: |
+          git add -A data
+          if git diff --cached --quiet; then echo "Sin cambios en data/: no se abre PR"; exit 0; fi
+          git commit -m "data(mensual): actualización de datos de ${RAMA#data/mensual-}"
+          git push origin "$RAMA"
+          pr=$(gh pr list --head "$RAMA" --base main --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --body-file "$RESUMEN"
+          else
+            gh pr create --base main --head "$RAMA" --body-file "$RESUMEN" \
+              --title "data(mensual): actualización de datos de ${RAMA#data/mensual-}"
+          fi
+      - name: Issue de fallo de fuente
+        if: steps.resumen.outputs.code != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          CODE: ${{ steps.resumen.outputs.code }}
+        run: |
+          {
+            echo "Ejecución: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID (código $CODE)"
+            echo
+            if [ "$CODE" = 2 ]; then
+              echo "Indicadores que no se han actualizado (conservan lo publicado; el resto va en el PR mensual):"
+              echo
+              sed -n '/^## Fallidos/,/^## /p' "$RESUMEN" | grep '^- ' || true
+            else
+              echo "El pipeline se ha caído entero y no hay resumen ni PR; el motivo está en el registro de la ejecución."
+            fi
+          } > "$RUNNER_TEMP/issue.md"
+          titulo="Datos mensuales: fallo de fuente"
+          abierta=$(gh issue list --state open --limit 200 --json number,title \
+            | jq -r --arg t "$titulo" '.[] | select(.title == $t) | .number' | head -n1)
+          if [ -n "$abierta" ]; then
+            gh issue comment "$abierta" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create --title "$titulo" --body-file "$RUNNER_TEMP/issue.md"
+          fi
+          exit 1

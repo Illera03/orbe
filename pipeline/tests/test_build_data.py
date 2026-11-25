@@ -67,7 +67,7 @@ def test_validaciones_fallan(recs, msg):
 def test_recorta_anios_finales_con_poca_cobertura(data_dir):
     # 2025 con 40 países no llega a 100: no se publica y latestYear es 2024.
     recs = records() + [(a3, 2025, 70.0) for a3 in CODES[:40]]
-    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
     data = json.loads((data_dir / ind["file"]).read_text())
     assert ind["latestYear"] == ind["years"][1] == data["years"][-1] == 2024
@@ -131,7 +131,7 @@ def test_log_publica_no_positivos_como_null(data_dir):
     # 0, negativo y 0,04 (con decimals 1 se publicaría 0) pasan a null antes de validar: el rango [0.05, 100] no salta.
     extra = [(CODES[0], 2023, 0.0), (CODES[1], 2023, -3.0), (CODES[2], 2023, 0.04), (CODES[3], 2023, 0.06)]
     recs = [r for r in records() if r[:2] not in {e[:2] for e in extra}] + extra
-    assert bd.run([log], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([log], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     values = json.loads((data_dir / "indicators" / f"{log.id}.json").read_text())["values"]
     assert [values[c][0] for c in CODES[:4]] == [None, None, None, 0.1]
     assert values[CODES[0]][1] == 70.0
@@ -147,7 +147,7 @@ def test_domain_valido_y_omitido(data_dir):
     log = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": [0.5, 85], "transform": "log"}})
     assert log.scale.domain == (0.5, 85)
     no_domain = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "domain": None}})
-    assert bd.run([no_domain], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
+    assert bd.run([no_domain], data_dir, fetch=lambda e, v: records(), today="2026-01-01") == {}
     (ind,) = json.loads((data_dir / "catalog.json").read_text())["indicators"]
     assert "domain" not in ind["scale"]
 
@@ -155,7 +155,7 @@ def test_domain_valido_y_omitido(data_dir):
 def test_contrato(data_dir):
     fixture = worldbank.parse(json.loads(FIXTURE.read_text()), VALID)
     recs = fixture + [r for r in records() if r[0] not in {a3 for a3, _, _ in fixture}]
-    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: recs, today="2026-01-01") == {}
     cat = json.loads((data_dir / "catalog.json").read_text())
     assert set(cat) == {"generated", "indicators"}
     (ind,) = cat["indicators"]
@@ -191,32 +191,38 @@ def test_accessed_estable(data_dir):
 def test_fallo_conserva_lo_publicado(data_dir):
     bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
     before = {p: p.read_bytes() for p in data_dir.rglob("*.json")}
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-02-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-02-01").keys() == {"esperanza-vida"}
     assert {p: p.read_bytes() for p in data_dir.rglob("*.json")} == before
 
 
 def test_fallo_sin_publicacion_previa(data_dir):
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(n=50), today="2026-01-01").keys() == {"esperanza-vida"}
     assert json.loads((data_dir / "catalog.json").read_text())["indicators"] == []
     assert not (data_dir / "indicators" / "esperanza-vida.json").exists()
 
 
 def test_fichero_demasiado_grande(data_dir, monkeypatch):
     monkeypatch.setattr(bd, "MAX_BYTES", 100)
-    assert not bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01")
+    assert bd.run([ENTRY], data_dir, fetch=lambda e, v: records(), today="2026-01-01").keys() == {"esperanza-vida"}
     assert not (data_dir / "indicators" / "esperanza-vida.json").exists()
 
 
 def test_datos_publicados_cumplen():
-    """La salida versionada en data/ respeta límites y contrato."""
+    """La salida versionada en data/ respeta límites y contrato; ≥ 100 países y licencia, en test_catalogo_publicado."""
     cat = json.loads((REAL_DATA / "catalog.json").read_text())
+    ids = [ind["id"] for ind in cat["indicators"]]
+    assert len(ids) == len(set(ids)), "ids repetidos en catalog.json"
+    # Sin huérfanos: cada fichero de data/indicators está en el catálogo, y al revés.
+    assert {f"indicators/{p.name}" for p in (REAL_DATA / "indicators").glob("*.json")} == {i["file"] for i in cat["indicators"]}
+    for p in REAL_DATA.rglob("*.json"):
+        assert p.stat().st_size <= bd.MAX_BYTES, p
     for ind in cat["indicators"]:
-        path = REAL_DATA / ind["file"]
-        assert path.stat().st_size <= bd.MAX_BYTES
-        data = json.loads(path.read_text())
+        data = json.loads((REAL_DATA / ind["file"]).read_text())
         assert data["id"] == ind["id"] and set(data["values"]) <= VALID
-        latest = sum(v[-1] is not None for v in data["values"].values())
-        assert latest >= bd.MIN_COUNTRIES
+        years = data["years"]
+        assert years == list(range(years[0], years[-1] + 1)), ind["id"]
+        assert ind["years"] == [years[0], years[-1]] and ind["latestYear"] == years[-1], ind["id"]
+        assert all(len(v) == len(years) for v in data["values"].values()), ind["id"]
 
 
 @pytest.mark.parametrize("ind", json.loads((REAL_DATA / "catalog.json").read_text())["indicators"], ids=lambda i: i["id"])
@@ -224,6 +230,8 @@ def test_catalogo_publicado(ind):
     # Lo que se sirve en data/: licencia enlazada, fichero presente y ≥ 100 países en latestYear.
     lic = ind["license"]
     assert lic["id"] and lic["url"].startswith("https://") and lic["attribution"]
+    if "NC" in lic["id"].upper().replace("_", "-").replace(" ", "-").split("-"):
+        assert lic["commercial"] is False, f"{ind['id']}: licencia {lic['id']} no comercial sin commercial: false"
     data = json.loads((REAL_DATA / ind["file"]).read_text())
     i = data["years"].index(ind["latestYear"])
     assert sum(v[i] is not None for v in data["values"].values()) >= 100

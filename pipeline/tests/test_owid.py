@@ -34,7 +34,7 @@ def test_since_descarta_anios_anteriores(tmp_path):
     entry = ENTRIES["electricidad-nuclear"]
     codes = sorted(VALID)[:100]
     recs = [(a3, y, 10.0) for a3 in codes for y in (1999, 2000)]
-    assert bd.run([entry], tmp_path, fetch=lambda e, v: recs, today="2026-01-01")
+    assert bd.run([entry], tmp_path, fetch=lambda e, v: recs, today="2026-01-01") == {}
     data = (tmp_path / "indicators" / "electricidad-nuclear.json").read_text()
     assert '"years":[2000]' in data
     assert "since" not in (tmp_path / "catalog.json").read_text()
