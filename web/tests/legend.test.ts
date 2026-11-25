@@ -20,9 +20,28 @@ describe('formato de la leyenda', () => {
   })
 
   it('marca «≤ min» y «≥ max» solo si hay valores fuera del dominio', () => {
-    const f = legendFormat('es', 1)
-    expect(legendLabels({ domain: [45, 85], below: false, above: false }, f)).toEqual(['45', '85'])
-    expect(legendLabels({ domain: [45, 65, 85], below: true, above: true }, f)).toEqual(['≤ 45', '65', '≥ 85'])
+    expect(legendLabels({ domain: [45, 85], below: false, above: false }, 'es', 1)).toEqual(['45', '85'])
+    expect(legendLabels({ domain: [45, 65, 85], below: true, above: true }, 'es', 1)).toEqual(['≤ 45', '65', '≥ 85'])
+  })
+
+  it('cifras grandes en notación compacta del idioma', () => {
+    expect(legendFormat('es', 0).format(4132360179285)).toBe('4,1\u00a0B')
+    expect(legendFormat('en', 0).format(4132360179285)).toBe('4.1T')
+    expect(legendFormat('es', 0).format(-2500000)).toBe('-2,5\u00a0M')
+    expect(legendFormat('en', 0).format(999999)).toBe('999,999')
+    expect(legendLabels({ domain: [5e5, 4132360179285], below: false, above: true }, 'en', 0)).toEqual(['500,000', '≥ 4.1T'])
+  })
+
+  it('añade decimales solo a la leyenda si dos cortes seguidos se leen iguales', () => {
+    expect(legendLabels({ domain: [0.1, 0.14, 0.5], below: false, above: false }, 'es', 1)).toEqual(['0,1', '0,14', '0,5'])
+    expect(legendLabels({ domain: [1.21e9, 1.24e9], below: false, above: false }, 'en', 0)).toEqual(['1.21B', '1.24B'])
+  })
+
+  it('fusiona los cortes de verdad iguales (clase vacía) en etiquetas y barra', () => {
+    expect(legendLabels({ domain: [0.1, 0.1, 0.4, 1], below: false, above: true }, 'es', 1)).toEqual(['0,1', '0,4', '≥ 1'])
+    const s = scaleOf({ kind: 'sequential', transform: 'quantile', palette: 'viridis' }, series([], [1, 1, 1, 1, 1, 1, 2, 3]))
+    expect(s.domain[0]).toBe(s.domain[1])
+    expect(stops(legendGradient(s))).toHaveLength(legendLabels(s, 'es', 0).length - 1)
   })
 })
 

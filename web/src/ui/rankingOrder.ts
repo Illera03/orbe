@@ -1,6 +1,7 @@
 import type { IndicatorMeta } from '../state/data'
 import type { Language } from '../state/store'
 import type { CountryEntry } from './countryIndex'
+import { compactFormat } from './legend'
 
 export interface RankedCountry extends CountryEntry {
   value: number
@@ -28,6 +29,6 @@ export function rankCountries(
   return sorted
 }
 
-/** Formato de los valores del indicador con sus `decimals`, en el idioma activo. */
+/** Formato de los valores del indicador con sus `decimals`, en el idioma activo; compacto desde `COMPACT_FROM`. */
 export const numberFormat = (language: Language, decimals: number) =>
-  new Intl.NumberFormat(language, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+  compactFormat(new Intl.NumberFormat(language, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }), language)

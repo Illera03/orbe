@@ -41,5 +41,7 @@ describe('numberFormat', () => {
     expect(numberFormat('en', 1).format(86)).toBe('86.0')
     expect(numberFormat('en', 0).format(12345.6)).toBe('12,346')
     expect(numberFormat('es', 0).format(12345.6)).toBe('12.346')
+    expect(numberFormat('es', 0).format(1411750000)).toBe('1411,8\u00a0M')
+    expect(numberFormat('en', 2).format(1411750000)).toBe('1.4B')
   })
 })
