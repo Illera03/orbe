@@ -96,12 +96,46 @@ def test_licencia_obligatoria_y_nc():
         {"domain": ["a", 85]},
         {"domain": [0, 85], "transform": "log"},
         {"domain": [-1, 85], "transform": "log"},
+        {"domain": [float("-inf"), 85]},
+        {"domain": [45, float("inf")]},
+        {"domain": [float("nan"), 85]},
+        {"midpoint": float("nan")},
+        {"palette": "Viridis"},
+        {"palette": "magma"},
+        {"palette": "puor"},
+        {"kind": "diverging"},
     ],
 )
 def test_domain_invalido(scale):
     raw = ENTRY.model_dump()
     with pytest.raises(ValidationError):
         bd.Entry.model_validate({**raw, "scale": {**raw["scale"], **scale}})
+
+
+def test_paleta_por_kind():
+    raw = ENTRY.model_dump()
+    div = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "kind": "diverging", "palette": "puor", "midpoint": 0}})
+    assert div.scale.palette == bd.PALETTES["diverging"]
+
+
+def test_catalogo_completo_valido():
+    entries = bd.load_catalog()
+    assert len(entries) >= 30 and all(e.scale.palette == bd.PALETTES[e.scale.kind] for e in entries)
+    assert all(e.scale.midpoint is not None for e in entries if e.scale.kind == "diverging")
+    assert all(e.range[0] > 0 for e in entries if e.scale.transform == "log")
+
+
+def test_log_rechaza_valores_no_positivos():
+    raw = ENTRY.model_dump()
+    log = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "transform": "log", "domain": None}, "range": [-10, 100]})
+    bd.validate(log, records(), VALID)
+    with pytest.raises(ValueError, match="≤ 0"):
+        bd.validate(log, records() + [(CODES[0], 2000, 0.0)], VALID)
+
+
+def test_per_page_sin_paginar():
+    per_page = int(worldbank.URL.rsplit("per_page=", 1)[1])
+    assert 266 * 100 <= per_page <= 32767  # 100 años de las 266 entidades de la API; 32767 es el mayor probado (50000 da 400)
 
 
 def test_domain_valido_y_omitido(data_dir):
