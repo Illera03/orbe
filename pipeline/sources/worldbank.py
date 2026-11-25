@@ -3,7 +3,8 @@
 import json
 import urllib.request
 
-URL = "https://api.worldbank.org/v2/country/all/indicator/{code}?format=json&per_page=20000"
+# La API acepta 32767 y rechaza 50000 con un 400; hoy una serie completa son ≈ 17 600 filas (266 entidades × 66 años).
+URL = "https://api.worldbank.org/v2/country/all/indicator/{code}?format=json&per_page=32767"
 
 
 def fetch(code: str) -> list:

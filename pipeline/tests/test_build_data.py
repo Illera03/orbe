@@ -96,12 +96,50 @@ def test_licencia_obligatoria_y_nc():
         {"domain": ["a", 85]},
         {"domain": [0, 85], "transform": "log"},
         {"domain": [-1, 85], "transform": "log"},
+        {"domain": [float("-inf"), 85]},
+        {"domain": [45, float("inf")]},
+        {"domain": [float("nan"), 85]},
+        {"midpoint": float("nan")},
+        {"palette": "Viridis"},
+        {"palette": "magma"},
+        {"palette": "puor"},
+        {"kind": "diverging"},
     ],
 )
 def test_domain_invalido(scale):
     raw = ENTRY.model_dump()
     with pytest.raises(ValidationError):
         bd.Entry.model_validate({**raw, "scale": {**raw["scale"], **scale}})
+
+
+def test_paleta_por_kind():
+    raw = ENTRY.model_dump()
+    div = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "kind": "diverging", "palette": "puor", "midpoint": 0}})
+    assert div.scale.palette == bd.PALETTES["diverging"]
+
+
+def test_catalogo_completo_valido():
+    entries = bd.load_catalog()
+    assert len(entries) >= 30 and all(e.scale.palette == bd.PALETTES[e.scale.kind] for e in entries)
+    assert all(e.scale.midpoint is not None for e in entries if e.scale.kind == "diverging")
+    assert all(e.range[0] > 0 for e in entries if e.scale.transform == "log")
+
+
+def test_log_publica_no_positivos_como_null(data_dir):
+    raw = ENTRY.model_dump()
+    log = bd.Entry.model_validate({**raw, "scale": {**raw["scale"], "transform": "log", "domain": None}, "range": [0.05, 100]})
+    # 0, negativo y 0,04 (con decimals 1 se publicaría 0) pasan a null antes de validar: el rango [0.05, 100] no salta.
+    extra = [(CODES[0], 2023, 0.0), (CODES[1], 2023, -3.0), (CODES[2], 2023, 0.04), (CODES[3], 2023, 0.06)]
+    recs = [r for r in records() if r[:2] not in {e[:2] for e in extra}] + extra
+    assert bd.run([log], data_dir, fetch=lambda e, v: recs, today="2026-01-01")
+    values = json.loads((data_dir / "indicators" / f"{log.id}.json").read_text())["values"]
+    assert [values[c][0] for c in CODES[:4]] == [None, None, None, 0.1]
+    assert values[CODES[0]][1] == 70.0
+
+
+def test_per_page_sin_paginar():
+    per_page = int(worldbank.URL.rsplit("per_page=", 1)[1])
+    assert 266 * 100 <= per_page <= 32767  # 100 años de las 266 entidades de la API; 32767 es el mayor probado (50000 da 400)
 
 
 def test_domain_valido_y_omitido(data_dir):

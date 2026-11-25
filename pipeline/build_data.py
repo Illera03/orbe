@@ -10,6 +10,7 @@ cambian cuando cambia lo publicado, así que una ejecución sin cambios en la fu
 import datetime
 import importlib
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -25,6 +26,7 @@ MAX_BYTES = 2 * 1024 * 1024
 MIN_COUNTRIES = 100
 
 Record = tuple[str, int, float | None]
+PALETTES = {"sequential": "viridis", "diverging": "puor"}
 
 
 class Model(BaseModel):
@@ -39,15 +41,20 @@ class Text(Model):
 class Scale(Model):
     kind: Literal["sequential", "diverging"]
     transform: Literal["linear", "log", "quantile"]
-    palette: str = Field(min_length=1)
-    midpoint: float | None = None
+    # Una paleta por `kind`, la de DATA_SCALES en web/src/theme/tokens.ts (Viridis y PuOr).
+    palette: Literal["viridis", "puor"]
+    midpoint: float | None = Field(default=None, allow_inf_nan=False)
     # int | float para que [45, 85] salga tal cual en el JSON y no como [45.0, 85.0].
     domain: tuple[int | float, int | float] | None = None
 
     @model_validator(mode="after")
     def domain_valido(self):
+        if self.palette != PALETTES[self.kind]:
+            raise ValueError(f"palette {self.palette}: con kind {self.kind} debe ser {PALETTES[self.kind]}")
         if self.domain is not None:
             lo, hi = self.domain
+            if not (math.isfinite(lo) and math.isfinite(hi)):
+                raise ValueError(f"domain {self.domain}: inf o NaN")
             if not lo < hi:
                 raise ValueError(f"domain {self.domain}: min debe ser menor que max")
             if self.transform == "log" and lo <= 0:
@@ -172,8 +179,9 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
         path = data_dir / "indicators" / f"{entry.id}.json"
         try:
             records = [r for r in fetch(entry, valid) if entry.since is None or r[1] >= entry.since]
-            if entry.scale.transform == "log":  # el log no pinta 0 ni negativos: sin dato (Antártida en co2-total)
-                records = [(a3, y, v if v is None or v > 0 else None) for a3, y, v in records]
+            if entry.scale.transform == "log":  # el log no pinta 0 ni negativos: sin dato (D58)
+                # Con el redondeo de `decimals`, porque es lo que se publica: 0,04 con un decimal sale como 0.
+                records = [(a3, y, v if v is None or round(v, entry.decimals) > 0 else None) for a3, y, v in records]
             validate(entry, records, valid)
             data = build(entry, records)
             blob = dump_indicator(data)
