@@ -97,6 +97,7 @@ class Entry(Model):
     source: Source
     license: License
     range: tuple[float, float]
+    since: int | None = None  # primer año que se publica (p. ej. para dejar fuera años de otra fuente)
 
 
 def load_catalog(path: Path = ROOT / "catalog.yaml") -> list[Entry]:
@@ -121,9 +122,6 @@ def validate(entry: Entry, records: list[Record], valid: set[str]) -> None:
     lo, hi = entry.range
     if out := [r for r in records if r[2] is not None and not lo <= r[2] <= hi]:
         raise ValueError(f"{len(out)} valores fuera del rango plausible {entry.range}, p. ej. {out[0]}")
-    # Con el redondeo de `decimals`, porque es lo que se publica: 0,04 con un decimal sale como 0.
-    if entry.scale.transform == "log" and (bad := [r for r in records if r[2] is not None and round(r[2], entry.decimals) <= 0]):
-        raise ValueError(f"{len(bad)} valores ≤ 0 con transform log, p. ej. {bad[0]}")
     if not any(v is not None for _, _, v in records):
         raise ValueError("sin datos")
     if latest_year(records) is None:
@@ -154,7 +152,7 @@ def dump_indicator(data: dict) -> bytes:
 
 
 def catalog_entry(entry: Entry, data: dict, accessed: str) -> dict:
-    d = entry.model_dump(mode="json", exclude={"range"}, exclude_none=True)  # json: tuplas como listas, comparables con lo publicado
+    d = entry.model_dump(mode="json", exclude={"range", "since"}, exclude_none=True)  # json: tuplas como listas, comparables con lo publicado
     d["source"] = {"name": entry.source.name, "url": entry.source.url, "accessed": accessed}
     return {
         **d,
@@ -180,7 +178,10 @@ def run(entries: list[Entry], data_dir: Path = DATA, fetch=None, today: str | No
     for entry in entries:
         path = data_dir / "indicators" / f"{entry.id}.json"
         try:
-            records = fetch(entry, valid)
+            records = [r for r in fetch(entry, valid) if entry.since is None or r[1] >= entry.since]
+            if entry.scale.transform == "log":  # el log no pinta 0 ni negativos: sin dato (D58)
+                # Con el redondeo de `decimals`, porque es lo que se publica: 0,04 con un decimal sale como 0.
+                records = [(a3, y, v if v is None or round(v, entry.decimals) > 0 else None) for a3, y, v in records]
             validate(entry, records, valid)
             data = build(entry, records)
             blob = dump_indicator(data)
