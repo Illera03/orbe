@@ -86,7 +86,7 @@ jobs:
         timeout-minutes: 8
       # Traza de los fallos (con los tiempos de cada paso) en el artefacto informe-playwright.
       - if: ${{ !cancelled() }}
-        run: npm run e2e -- --trace=on
+        run: npm run e2e -- --trace=retain-on-failure
       # Las capturas y su subida no dependen de que e2e pase; informe y resultados aparte para no pisar los de e2e.
       - if: ${{ !cancelled() }}
         run: npm run capturas -- --output=test-results-capturas
@@ -98,7 +98,7 @@ jobs:
           name: capturas
           path: web/capturas/
           retention-days: 14
-      - if: ${{ !cancelled() }}
+      - if: failure()
         uses: actions/upload-artifact@v7
         with:
           name: informe-playwright

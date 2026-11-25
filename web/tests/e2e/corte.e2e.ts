@@ -73,6 +73,9 @@ test.describe('corte vertical en escritorio', () => {
   test.use({ viewport: { width: 1280, height: 800 }, locale: 'es-ES', colorScheme: 'dark' })
 
   test('indicador, año, clasificación, tooltip y tabla encajan con los datos', async ({ page }) => {
+    // Con WebGL por software, el vuelo de cámara, el repintado al cambiar de tema y dos pasadas de axe ya rozan los 30 s
+    // (23–31 s en CI desde #91, sin ningún paso fallido): triple de margen.
+    test.slow()
     const { ficha } = await elegir(page, false)
     await expect(ficha.getByRole('link', { name: vida.source.name })).toHaveAttribute('href', vida.source.url)
     const ranking = page.getByRole('region', { name: es.ranking.title })
